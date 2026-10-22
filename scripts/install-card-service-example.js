@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const repository=require('../server/src/repository');
+const apply=require('../server/src/knowledge-card-example').apply;
+const knowledge=require('../server/src/employee-knowledge');
+const tariffs=require('../server/src/assistant-tariff-query');
+const assistant=require('../server/src/personal-assistant');
+const project=store=>JSON.stringify(Object.fromEntries(Object.entries(store).filter(([key])=>!['employeeKnowledge','operationLogs'].includes(key))));
+const previous=repository.readStore(),owner=previous.users.find(row=>row.roleCode==='owner'&&row.status==='active');assert.ok(owner);
+const before=project(previous),tariffBefore=JSON.stringify(tariffs.catalog(previous,owner));
+const result=repository.transaction(store=>{const outcome=apply(store,owner);assert.equal(project(store),before);assert.equal(JSON.stringify(tariffs.catalog(store,owner)),tariffBefore);return outcome;});
+const after=repository.readStore();assert.equal(project(after),before);assert.equal(JSON.stringify(tariffs.catalog(after,owner)),tariffBefore);
+const reply=assistant.ask(after,owner,{question:'详细学习办卡接待案例'});assert.equal(reply.metrics.articleId,result.id);assert.match(reply.answer,/训练案例/);
+assert.ok(knowledge.catalog(after,owner).manageItems.some(row=>row.id===result.id));
+console.log(JSON.stringify({...result,href:'/knowledge#'+encodeURIComponent(result.id),businessRecordsUnchanged:true,tariffCatalogUnchanged:true,editable:true}));

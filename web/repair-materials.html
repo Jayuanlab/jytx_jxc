@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>维修 · 手机膜库存 · 聚友通信</title>
+<link rel="stylesheet" href="/repair-materials.css?v=20261013-film-inventory">
+<link data-payment-splits-style="1" rel="stylesheet" href="/payment-splits.css?v=20261012-multi-account">
+<script defer src="/jsQR.js"></script><script defer src="/sale-capture.js"></script>
+<script defer src="/payment-splits.js?v=20261012-multi-account"></script>
+<script defer src="/repair-materials.js?v=20261013-film-inventory"></script>
+</head><body>
+<header class="film-header"><a href="/app">‹ 返回工作台</a><h1>维修 · 手机膜库存</h1><p id="film-who">正在读取账号…</p></header>
+<main>
+<nav class="film-actions" aria-label="手机膜操作"><button type="button" data-mode="search" aria-pressed="true">查型号</button><button type="button" data-mode="purchase" aria-pressed="false">扫码入库</button><button type="button" data-mode="issue" aria-pressed="false">贴膜 / 出库</button></nav>
+<p id="film-status" role="status" aria-live="polite">正在读取手机膜资料…</p>
+<section class="film-panel" id="film-find"><h2 id="film-mode-title">查找适用手机膜</h2><p class="film-hint" id="film-mode-hint">输入手机型号。膜编号请用下方识别标签；原表简写请核对实机。</p>
+<div class="film-fields"><label>资料系列<select id="film-family"><option value="">全部系列</option></select></label><label>所属仓库<select id="film-warehouse"><option value="">全部仓库</option></select></label></div>
+<form id="film-search-form" class="film-search"><label>手机型号<input id="film-query" maxlength="100" autocomplete="off" placeholder="如：VIVO Y60、iPhone12"></label><button type="submit">查找</button></form>
+<form id="film-code-form" class="film-search"><label>商品标签二维码 / 原膜编号<input id="film-code" maxlength="120" autocomplete="off" placeholder="扫码标签，或输入原膜编号"></label><button type="submit">识别标签</button></form>
+<div class="film-camera-actions"><button id="film-camera" type="button">开启相机扫码</button><button id="film-camera-stop" class="secondary" type="button" hidden>关闭相机</button></div><video id="film-video" playsinline muted hidden></video>
+<p class="film-hint">扫码只选商品。原表编号可能重复，手输 E / G / U / GB 编号时，请先选资料系列。</p></section>
+<section class="film-panel" aria-label="手机膜查询结果"><h2>手机膜列表 <span id="film-count"></span></h2><div id="film-results"></div><button id="film-more" type="button" class="secondary" hidden>继续显示</button></section>
+<section class="film-panel" id="film-selected-panel" hidden><h2>已选手机膜</h2><div id="film-selected"></div>
+<div class="film-camera-actions"><a id="film-label-link" class="film-button secondary" target="_blank" rel="noopener">二维码 / 补打标签</a><button id="film-to-purchase" type="button">入库这款</button><button id="film-to-issue" type="button">使用这款贴膜</button></div>
+<form id="film-purchase-form" hidden><h3>登记实际入库</h3><p class="film-hint">填本次实际收到的数量、进价和供货单位。这里不登记实际付款。</p><fieldset id="film-purchase-fields"><div class="film-fields"><label>入库数量（张）<input id="film-purchase-qty" type="number" min="1" step="1" value="1" required inputmode="numeric"></label><label>实际进价（元 / 张）<input id="film-cost" type="number" min="0" step="0.01" required inputmode="decimal" placeholder="必须核实填写"></label><label class="wide">往来单位<select id="film-supplier" required><option value="">请选择实际供货单位</option></select></label></div></fieldset><button type="submit" id="film-purchase-review">核对入库单</button></form>
+<form id="film-issue-form" hidden><h3>登记贴膜服务与耗材出库</h3><p id="film-service-note" class="film-hint">本次收费必须核实，不采用待核的预设价格。保存服务销售单后，按实际耗材扣库存。</p><fieldset id="film-issue-fields"><div class="film-fields"><label>本次耗用数量（张）<input id="film-issue-qty" type="number" min="1" step="1" value="1" required inputmode="numeric"></label><label>本次实际收费（元）<input id="film-fee" type="number" min="0" step="0.01" required inputmode="decimal" placeholder="必须核实填写"></label><label>顾客姓名（可不填）<input id="film-customer-name" maxlength="40" autocomplete="off"></label><label>顾客手机（可不填）<input id="film-customer-phone" maxlength="11" inputmode="tel" autocomplete="off"></label><label class="wide">备注 / 0元原因<textarea id="film-note" maxlength="500" rows="2" placeholder="0元时填写至少4字的实际原因"></textarea></label></div><div id="film-payments"></div></fieldset><button type="submit" id="film-issue-review">核对贴膜出库单</button></form>
+<section id="film-review" class="film-review" hidden aria-label="提交前核对"><h3>请核对本单</h3><div id="film-review-content"></div><div class="film-camera-actions"><button type="button" id="film-confirm">确认提交</button><button type="button" id="film-review-back" class="secondary">返回修改</button></div></section><p id="film-submit-status" role="status" aria-live="polite"></p>
+</section></main></body></html>

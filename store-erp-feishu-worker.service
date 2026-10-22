@@ -1,0 +1,22 @@
+[Unit]
+Description=Juyou Store Feishu Bitable Worker
+After=network-online.target store-erp.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=storeerp
+Group=storeerp
+WorkingDirectory=/opt/store-erp/app
+EnvironmentFile=/etc/store-erp.env
+ExecStart=/usr/local/bin/node scripts/feishu-base-worker.js
+Restart=always
+RestartSec=10
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/store-erp/app/server/data
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

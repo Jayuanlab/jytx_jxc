@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>库存盘点 · 聚友通信城</title>
+<link rel="stylesheet" href="/mobile-nav.css?v=20261010-clean-layout"><script defer src="/mobile-nav.js?v=20261010-clean-layout"></script>
+<link rel="stylesheet" href="/stocktake.css?v=20261011-photo-stocktake"><link rel="stylesheet" href="/page-help.css?v=20261010-clean-layout">
+<script defer src="/page-help.js?v=20261010-clean-layout"></script><script defer src="/jsQR.js"></script><script defer src="/sale-capture.js"></script><script defer src="/stocktake-photo.js?v=20261011-photo-stocktake"></script><script defer src="/stocktake.js?v=20261011-photo-stocktake"></script>
+</head><body class="stocktake-body"><main class="stocktake-page">
+<header class="stocktake-heading"><a href="/m" aria-label="返回工作台">‹ <span>工作台</span></a><h1>库存盘点</h1><button type="button" class="page-help-button" data-help-target="stocktake-help">? 帮助</button></header>
+<template id="stocktake-help" data-page-help-template="库存盘点"><p>先点实物，后核对库存。新表没有账面数量，也没有账面串号提示。</p><p>选仓库、加入商品，手机填写或扫描完整15位串号，配件填写实际数量。没有实物时明确填写0或勾选“已点清”确认空清单。</p><p>点“核对库存”后保存这张实点表，再显示账面、实点和差异。未加入的商品属于未盘点，不会按零处理。数量相符且已扫全串号、盘点期间无出入库的商品，提交后会把缺少的串号补录到现有库存；有差异的商品留待核实。需要更正库存数量时按实际业务办理。</p><p>表格会在本浏览器当前标签页保留未提交内容，按员工和门店区分。核对采用提交时的库存；盘点期间发生出入库的商品会提示重新核实。</p><p>手机照相盘点按不同区域汇总可见数量。同一区域重新拍摄替换原记录；不能把多个角度当作多个库存区域。手机盒确认非空，封包和遮挡部分补拍或人工清点。照相数量核对后仍提示串号未核对。</p><p>历史表和差异处理放在“盘点记录”中。库存查询可在工作台单独打开。</p></template>
+<p id="stocktake-status" class="stocktake-status" role="status" aria-live="polite">正在加载…</p>
+<section id="stocktake-editor" hidden><form id="stocktake-form" novalidate>
+<section class="stocktake-toolbar"><label>仓库<select id="stocktake-warehouse"></select></label><label>商品<input type="search" id="stocktake-product-search" placeholder="名称 / 商品编号" autocomplete="off"><select id="stocktake-product" aria-label="选择实点商品"></select></label><div class="stocktake-add-actions"><button type="button" id="stocktake-add" class="primary">加入商品</button><button type="button" id="stocktake-generate">生成商品空表</button></div></section>
+<section id="stocktake-photo-panel" class="stocktake-photo-panel"><h2>手机照相盘点</h2><p>包裹打开、手机或独立手机盒摆清楚，按区域拍摄。只盘可见数量，型号不清的先核实。</p><label>包裹 / 货架区域<input id="stocktake-photo-area" maxlength="60" placeholder="例如：包裹1、柜台左边、仓库第一层"></label><div class="stocktake-photo-actions"><button type="button" id="stocktake-shelf-photo" class="primary">照相</button><button type="button" id="stocktake-walk-camera">摄像头走拍</button><button type="button" id="stocktake-album-photo">选照片</button></div><input id="stocktake-shelf-input" type="file" accept="image/*" capture="environment" hidden><input id="stocktake-album-input" type="file" accept="image/*" hidden><p id="stocktake-photo-ready" class="stocktake-photo-warning">正在确认图片识别接口…</p><div id="stocktake-photo-preview" hidden><img id="stocktake-photo-image" alt="待核对的手机盘点照片"><div class="stocktake-photo-actions"><button type="button" id="stocktake-photo-recognize" class="primary" disabled>识别手机数量</button><button type="button" id="stocktake-photo-manual">看照片手工登记</button></div></div><p id="stocktake-photo-status" role="status"></p><details><summary>已确认的拍摄区域</summary><div id="stocktake-photo-regions"></div></details></section>
+<div class="stocktake-table-heading"><h2>实点表</h2><span id="stocktake-total"></span></div>
+<div id="stocktake-rows"></div><p id="stocktake-error" class="stocktake-error" role="alert" hidden></p>
+<div class="stocktake-submit"><button type="submit" id="stocktake-compare" class="primary">核对库存</button><button type="button" id="stocktake-clear">新建空表</button></div>
+</form></section><section id="stocktake-result" hidden></section>
+<details id="stocktake-history" class="stocktake-history"><summary>盘点记录</summary><div id="stocktake-history-content"></div></details>
+</main></body></html>

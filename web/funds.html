@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN"><head><script defer src="/page-help.js?v=20261010-clean-layout"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>聚友通信城 · 资金关系账</title>
+<link rel="stylesheet" href="/funds.css?v=20261010-clean-layout"><link rel="stylesheet" href="/mobile-nav.css?v=20261010-clean-layout">
+<script src="/mobile-nav.js?v=20261010-clean-layout" defer></script><script src="/funds.js?v=20261010-clean-layout" defer></script><link rel="stylesheet" href="/page-help.css?v=20261010-clean-layout"></head>
+<body><header><a href="/m">‹ 返回工作台</a><strong>资金流水 · 关系账</strong><a href="/app?tab=finance">完整流水 ↗</a></header>
+<main>
+<section class="hero"><h1>资金关系账 <button type="button" class="page-help-button" data-help-target="funds-help">? 帮助</button></h1><template id="funds-help" data-page-help-template="资金关系账帮助"><h3>展示范围</h3><p>按单据串起顾客、营业员、老板、采购经手人、供应商、移动公司和国补平台。只展示门店业务有关的资金，不读取私人账单。</p><h3>应收应付与资金保管</h3><p>老板与采购经手人是门店款的经手或保管人；双方内部转款不自动列为门店收入、费用或供应商已付款。移动预计酬金与已确认应收分开显示。</p><h3>资金关系</h3><div class="relationships"><div>顾客 <b>→</b> 销售收款账户</div><div>老板／采购经手人 <b>→</b> 供应商</div><div>老板 <b>⇄</b> 采购经手人</div><div>双方 <b>→</b> 移动空充平台 <b>→</b> 顾客充值</div><div>移动公司／国补平台 <b>→</b> 到账账户</div><div>营业员 <b>→</b> 现金交接 <b>→</b> 接收人</div></div><p>旧单只有“微信／银行卡”等收款方式，没有账户持有人时，会标成“账户归属待核”。内部转款与现金交接不重复计算营业收入。</p><h3>登记门店相关转款</h3><p>只登记用于门店经营的转款。登记转出后，由实际收款人在本人员工账号确认；这笔转款不是销售收入，也不是支付给供应商。</p></template><div id="stats" class="stats">正在读取…</div></section>
+<section class="panel"><h2>当前应收应付与资金保管</h2><div id="positions" class="positions">正在计算…</div></section>
+<section class="panel"><h2>登记门店相关转款 <button type="button" class="page-help-button" data-help-target="funds-help">? 帮助</button></h2>
+<form id="transfer-form"><p class="hint">转出经办人：<strong id="transfer-operator">登录账号自动记录</strong></p><div class="grid"><label>收款人<select name="toId" id="toId" required><option value="">请选择</option></select></label>
+<label>金额（元）<input name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" required></label>
+<label>转款方式<select name="method" required><option value="微信">微信</option><option value="银行卡">银行卡</option><option value="支付宝">支付宝</option></select></label>
+<label>转出流水号<input name="reference" maxlength="80" required></label>
+<label>用途<select name="purpose"><option>门店经营周转</option><option>订货货款</option><option>空充平台充值</option><option>其他门店经营事项</option></select></label>
+<label>关联订货单（可选）<select name="relatedOrderId" id="relatedOrderId"><option value="">不关联订货</option></select></label></div>
+<button type="submit">登记转出，等待收款人确认</button></form><p id="status" role="status"></p>
+<div id="transfers"></div></section>
+<section class="panel"><div class="head"><h2>全部门店资金关系</h2><button id="refresh" type="button">刷新</button></div>
+<div class="filters"><input id="query" type="search" placeholder="搜单号、供货商、账户或流水号"><select id="type"><option value="">全部类型</option><option>资金流水</option><option>内部划转</option><option>现金交接</option><option>平台余额</option></select></div>
+<div id="flow-list">正在读取…</div></section>
+</main></body></html>
+
+
+

@@ -1,0 +1,269 @@
+/* Shared visual system; selectors deliberately preserve financial states and form behaviour. */
+:root{--store-bg:#f5f3ee;--store-surface:#fff;--store-ink:#202838;--store-border:#deddd6;--store-blue:#2460d9}
+html:root,html body{background:var(--store-bg);color:var(--store-ink)}
+body>header,body>header.topbar{background:#fffdf9;border-bottom-color:var(--store-border);box-shadow:0 2px 8px #20283806}
+body main :is(.card,.panel,.receipt){border-radius:20px;border-color:var(--store-border);box-shadow:0 3px 12px #20283806}
+body main :is(.card,.panel){background:#fff}
+body main :is(.stat,.close-record,.inventory-serial){border-radius:16px}
+body main :is(button,input,select,textarea),body dialog :is(button,input,select,textarea){border-radius:12px}
+body main :is(input,select,textarea),body dialog :is(input,select,textarea){box-shadow:none}
+body main :is(input,select,textarea):focus-visible,body dialog :is(input,select,textarea):focus-visible{outline:3px solid #b4cfff;outline-offset:2px}
+body main button.primary{background:var(--store-blue);border-color:var(--store-blue)}
+body main .danger{color:#b53030;background:#fff4f2}
+body dialog{border-radius:22px}
+body dialog::backdrop{background:#15263c75;backdrop-filter:blur(3px)}
+body .mobile-action-dock{background:#fffdf9;border-color:var(--store-border);box-shadow:0 2px 8px #20283808}
+body .mobile-action-dock a,body .mobile-action-dock button{border-radius:12px;border-color:#deded8;background:#fff;color:#586478}
+body .mobile-action-dock .text-size-toggle{background:#245bd3!important;color:#fff!important;border-color:#245bd3!important}
+body .assistant-float{background:#2460d9!important;box-shadow:0 4px 14px #2460d935!important;width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important;font-size:calc(22px * var(--store-text-scale,1))!important}
+body .assistant-float-head{background:#f7f9fd}
+body .assistant-float-panel{border-radius:20px}
+body main .page-help-button{background:#fff!important;color:#52657e!important;border-color:#d2d9e4!important}
+body #nav{background:#fffdf9;border-color:var(--store-border)}
+body #nav button{border-radius:12px}
+body #nav button.active{color:#fff;background:#2460d9}
+body .page-help-dialog .page-help-header{background:#f7f9fc}
+/* Home overrides are scoped and do not reduce the user's large form text elsewhere. */
+html body.store-workbench main.wrap .hero{box-shadow:none;background:none;border-radius:0;color:var(--store-ink);padding:0}
+html body.store-workbench main.wrap .wrap{background:none}
+html body.store-workbench main.wrap .hero-top .home-brand .eyebrow{font-size:calc(22px * var(--store-text-scale,1))!important;line-height:1.2}
+html body.store-workbench main.wrap .hero-top #identity{font-size:calc(18px * var(--store-text-scale,1))!important;line-height:1.4}
+html body.store-workbench main.wrap .home-title h1{font-size:calc(36px * var(--store-text-scale,1))!important;line-height:1.2}
+html body.store-workbench main.wrap .home-title button{font-size:calc(24px * var(--store-text-scale,1))!important;min-height:48px!important;padding:8px 12px!important}
+html body.store-workbench main.wrap .home-search input{font-size:calc(26px * var(--store-text-scale,1))!important;min-height:52px!important;line-height:1.35}
+html body.store-workbench main.wrap .home-search button{min-height:48px!important;width:48px;min-width:48px;padding:0!important}
+html body.store-workbench main.wrap .hero-actions .hero-action-label{font-size:calc(28px * var(--store-text-scale,1))!important;line-height:1.25!important}
+html body.store-workbench main.wrap .assistant-entry strong{font-size:calc(30px * var(--store-text-scale,1))!important;line-height:1.25}
+html body.store-workbench main.wrap .dashboard .stat>span{font-size:calc(24px * var(--store-text-scale,1))!important;line-height:1.35}
+html body.store-workbench main.wrap .dashboard .stat>strong{font-size:calc(30px * var(--store-text-scale,1))!important;line-height:1.2}
+html body.store-workbench main.wrap .home-modules .home-module>summary .module-label{font-size:calc(27px * var(--store-text-scale,1))!important;line-height:1.35}
+html body.store-workbench :is(.section-head h2,.pending-details>summary){font-size:calc(26px * var(--store-text-scale,1))!important;line-height:1.4}
+html body.store-workbench main.wrap .section-head button{font-size:calc(24px * var(--store-text-scale,1))!important;min-height:48px!important}
+html body.store-workbench main.wrap .home-module .module-content .card strong,html body.store-workbench main.wrap .module-dialog .module-content .card strong{font-size:calc(28px * var(--store-text-scale,1))!important;line-height:1.4}
+html body.store-workbench main.wrap .module-dialog .module-dialog-head h2{font-size:calc(30px * var(--store-text-scale,1))!important}
+html body.store-workbench main.wrap .module-dialog .module-dialog-head button{font-size:calc(24px * var(--store-text-scale,1))!important;min-height:48px!important}
+html body.store-workbench main.wrap .pending-item :is(span,strong){font-size:calc(26px * var(--store-text-scale,1))!important}
+html body.store-workbench main.wrap footer :is(p,a){font-size:calc(24px * var(--store-text-scale,1))!important}
+html body.store-workbench main.wrap .home-sr{font-size:calc(26px * var(--store-text-scale,1))!important}
+html body.store-workbench main.wrap .module-content .card{box-shadow:none}
+html body.store-workbench main.wrap .hero-actions>a:first-child{background:#f5f8ff;color:#1e50b5}
+html body.store-workbench main.wrap .hero-actions>a+a{background:#fff;color:#253947}
+html body.store-workbench main.wrap .hero-actions>a+a .hero-action-icon{background:#e6f4ed;color:#208054}
+html body.store-workbench #store-electronic-board{background:#202a39;border-color:#202a39;border-radius:16px;margin-bottom:0;color:#ffcf70;box-shadow:none}
+html body.store-workbench #store-electronic-board button{border:0!important;background:#303e52!important;color:#ffdc92!important;border-radius:10px}
+html body.store-workbench #store-electronic-board .board-copy{font-size:calc(26px * var(--store-text-scale,1))!important;text-shadow:none;letter-spacing:0}
+@media(max-width:700px){
+ html body>header:not(.hero):not(.comms-head){top:var(--mobile-action-height,64px)}
+ body>header.topbar{height:auto;min-height:66px;padding:10px 14px}.brand small{display:none}
+ body #nav{padding:8px;gap:6px}
+ html body #nav button{font-size:calc(26px * var(--store-text-scale,1))!important;min-height:48px!important;padding:9px 14px;line-height:1.3}
+ html body .assistant-float{right:12px;bottom:calc(16px + env(safe-area-inset-bottom))}
+ html body .assistant-float-panel{border-radius:0}
+ html body.store-workbench main.wrap .hero-top{align-items:center}
+ html body.store-workbench main.wrap .hero-top .home-brand .eyebrow{font-size:calc(24px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .hero-top #identity{font-size:calc(24px * var(--store-text-scale,1))!important;margin-left:0}
+ html body.store-workbench main.wrap .home-title h1{font-size:calc(34px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .hero-actions .hero-action-label{font-size:calc(26px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .home-modules .home-module>summary{font-size:calc(26px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .home-modules .home-module>summary .module-label{font-size:calc(26px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .dashboard{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ html body.store-workbench main.wrap .home-search .home-search-icon{font-size:calc(26px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .home-search input{min-height:52px!important}
+ html body.store-workbench main.wrap .hero-actions>a{min-height:92px}
+ html body.store-workbench main.wrap .card :is(span,strong){font-size:calc(28px * var(--store-text-scale,1))!important}
+ html body .mode-panel{top:calc(var(--mobile-action-height,64px) + 58px)}
+ html.assistant-embedded body .mode-panel{top:0}
+ html body.store-workbench main.wrap footer{gap:12px}
+ html body.store-workbench main.wrap .home-module .module-label{flex:none}
+}
+@media(max-width:359px){
+ html body.store-workbench main.wrap .hero-actions>a{flex-direction:column;gap:8px;min-height:120px}
+ html body.store-workbench main.wrap .hero-actions .hero-action-label{font-size:calc(24px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .home-modules .home-module>summary{padding:16px 12px;min-height:140px}
+ html body.store-workbench main.wrap .home-modules .home-module>summary .module-label{font-size:calc(24px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .dashboard .stat{padding:10px 8px}
+ html body.store-workbench main.wrap .dashboard .stat>span{font-size:calc(24px * var(--store-text-scale,1))!important}
+}
+/* Never alter the meaning of validation feedback or confirmed finance states. */
+html body [aria-invalid="true"]{border-color:#b53030!important}
+@media(prefers-reduced-motion:no-preference){.home-module,.hero-actions>a{transition:box-shadow .15s ease,border-color .15s ease}.home-module:hover,.hero-actions>a:hover{border-color:#b4c8ea;box-shadow:0 6px 18px #20283810}}
+
+/* Compact serialized stock list: actual purchase source and per-device cost. */
+html body #main:has(.inventory-filter-panel) .heading{align-items:center;flex-wrap:nowrap}
+html body #main:has(.inventory-filter-panel) .heading h1{font-size:calc(34px * var(--store-text-scale,1))!important;line-height:1.3}
+html body #main:has(.inventory-filter-panel) .heading .page-title-with-help{gap:10px}
+html body #main:has(.inventory-filter-panel) .heading button{font-size:calc(24px * var(--store-text-scale,1))!important;min-height:48px!important;white-space:nowrap}
+html body #main .inventory-warehouse-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
+html body #main .inventory-warehouse{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:12px;border:1px solid #deddd6;background:#fff;border-radius:16px;gap:5px}
+html body #main .inventory-warehouse.active{border:2px solid #2460d9;background:#f3f7ff}
+html body #main .inventory-warehouse span{font-size:calc(24px * var(--store-text-scale,1))!important;line-height:1.35}
+html body #main .inventory-warehouse strong{font-size:calc(26px * var(--store-text-scale,1))!important;line-height:1.35;margin:0}
+html body #main .inventory-filter-panel{background:#fff;border:1px solid #deddd6;border-radius:20px;padding:16px}
+html body #main .inventory-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+html body #main .inventory-filter-panel :is(label,summary){font-size:calc(26px * var(--store-text-scale,1))!important;line-height:1.4}
+html body #main .inventory-filter-panel :is(input,select,button){font-size:calc(26px * var(--store-text-scale,1))!important;min-height:56px!important;line-height:1.4}
+html body #main .inventory-filter-panel .inventory-search-label{margin-top:0;margin-bottom:12px}
+html body #main .inventory-extra-filters{margin-top:14px;border-top:1px solid #e6e4dd;padding-top:12px}
+html body #main .inventory-extra-filters .inventory-filter-grid{margin-top:12px}
+html body #main #inventory-result-summary{font-size:calc(26px * var(--store-text-scale,1))!important;margin:20px 0 12px}
+html body #main .inventory-unit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+html body #main .inventory-phone-unit{border:1px solid #deddd6;border-radius:20px;padding:18px;background:#fff}
+html body #main .inventory-phone-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+html body #main .inventory-phone-head .inventory-phone-serial{font:750 calc(28px * var(--store-text-scale,1))/1.35 system-ui,"Microsoft YaHei",sans-serif!important;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:0;max-width:100%;overflow-x:auto}
+html body #main .inventory-phone-warehouse{font-size:calc(26px * var(--store-text-scale,1))!important;font-weight:800;flex:none;color:#2460d9}
+html body #main .inventory-phone-model{font-size:calc(28px * var(--store-text-scale,1))!important;font-weight:650;color:#4b5869;margin:10px 0 8px;line-height:1.4}
+html body #main .inventory-phone-origin,html body #main .inventory-phone-values{display:flex;flex-wrap:wrap;gap:4px 14px;margin:8px 0;font-size:calc(24px * var(--store-text-scale,1))!important;line-height:1.5;color:#657080}
+html body #main :is(.inventory-phone-origin,.inventory-phone-values) :is(span,b){font-size:calc(24px * var(--store-text-scale,1))!important;line-height:1.5}
+html body #main .inventory-phone-cost{color:#a35c16}
+html body #main .inventory-phone-values b{font-weight:650}
+html body #main .inventory-phone-state{color:#2460d9}
+html body #main .inventory-phone-unit .inventory-more{margin-top:10px;padding-top:10px;border-color:#e5e3dc}
+html body #main .inventory-phone-unit .inventory-more summary{font-size:calc(24px * var(--store-text-scale,1))!important;font-weight:600;color:#42649d}
+html body #main .inventory-phone-unit .inventory-more :is(p,a,button){font-size:calc(26px * var(--store-text-scale,1))!important}
+html body #main .inventory-phone-unit .inventory-unit-actions button{min-height:50px!important}
+@media(max-width:700px){
+ html body #main .inventory-unit-grid{grid-template-columns:minmax(0,1fr)}
+ html body #main .inventory-warehouse-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ html body #main .inventory-phone-head .inventory-phone-serial{font-size:calc(26px * var(--store-text-scale,1))!important}
+ html body #main .inventory-phone-unit{padding:16px}
+ html body #main:has(.inventory-filter-panel) .heading h1{font-size:calc(32px * var(--store-text-scale,1))!important}
+}
+@media(max-width:359px){
+ html body #main .inventory-phone-head .inventory-phone-serial{font-size:calc(24px * var(--store-text-scale,1))!important}
+ html body #main .inventory-phone-model{font-size:calc(26px * var(--store-text-scale,1))!important}
+ html body #main .inventory-filter-grid{grid-template-columns:minmax(0,1fr)}
+}
+
+/* Sales starts with device selection. Optional customer fields stay available in one drawer. */
+html body #main .sale-picker-tabs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;padding:6px;border-radius:16px;background:#f0eee8;margin:8px 0 16px}
+html body #main .sale-picker-tabs button{border:0;background:transparent;color:#5b6575;border-radius:12px;font-size:calc(26px * var(--store-text-scale,1))!important;min-height:56px!important;padding:10px 8px;line-height:1.35}
+html body #main .sale-picker-tabs [aria-selected="true"]{background:#fff;color:#2159ce;box-shadow:0 2px 6px #30343f15}
+html body #main .sale-picker-entry{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+html body #main .sale-picker-entry label{font-size:calc(26px * var(--store-text-scale,1))!important;margin:0}
+html body #main .sale-picker-entry #sale-search{max-width:none;width:100%;font-size:calc(32px * var(--store-text-scale,1))!important;min-height:66px!important;border:2px solid #537dc2}
+html body #main .sale-picker-entry .sale-lookup-actions{margin:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+html body #main .sale-picker-entry .sale-lookup-actions button{font-size:calc(28px * var(--store-text-scale,1))!important;min-height:60px!important;background:#f3f7ff}
+html body #main .sale-picker-entry [hidden],html body #main .sale-dropdowns[hidden]{display:none!important}
+html body #main .sale-picker-entry :is(#sale-scan-status,#sale-item-feedback):empty{display:none}
+html body #main .sale-step h2{font-size:calc(32px * var(--store-text-scale,1))!important}
+html body #main .sale-step-number{display:none}
+html body #main .sale-sheet-items{background:#fff;border:0;padding:0;margin:12px 0}
+html body #main .sale-opening-staff{background:none;padding:0;margin-bottom:8px;border:0;color:#657080;font-size:calc(24px * var(--store-text-scale,1))!important}
+html body #main .sale-opening-staff strong{font-size:calc(24px * var(--store-text-scale,1))!important}
+html body #main .sale-sheet-section-title{margin-top:12px}
+html body #main .sale-sheet-section-title button{background:#fff;color:#2159ce;font-size:calc(26px * var(--store-text-scale,1))!important;min-height:52px!important}
+html body #main .sale-customer-block>summary{font-size:calc(26px * var(--store-text-scale,1))!important;line-height:1.4;color:#49618a;font-weight:600;cursor:pointer}
+html body #main .sale-customer-block{background:#fff;border:1px solid #deddd6;padding:14px;border-radius:16px;margin:16px 0}
+html body #main .sale-step-next button{font-size:calc(28px * var(--store-text-scale,1))!important;min-height:60px!important;background:#245bd3;color:#fff}
+html body #main .sale-page-heading h1{font-size:calc(34px * var(--store-text-scale,1))!important}
+html body #main .sale-page-heading button{font-size:calc(24px * var(--store-text-scale,1))!important;min-height:48px!important}
+html body #main .sale-sheet-items .empty{font-size:calc(26px * var(--store-text-scale,1))!important;padding:14px 0}
+@media(max-width:359px){
+ html body #main .sale-picker-tabs button{font-size:calc(24px * var(--store-text-scale,1))!important}
+ html body #main .sale-picker-entry #sale-search{font-size:calc(28px * var(--store-text-scale,1))!important}
+ html body #main .sale-step-next button{font-size:calc(26px * var(--store-text-scale,1))!important}
+}
+
+/* The latest workbench request: larger type and artwork in wide, square-cornered tiles. */
+html body.store-workbench main.wrap .home-modules .home-module>summary .module-label{font-size:calc(34px * var(--store-text-scale,1))!important;line-height:1.18;flex:0 1 auto;min-width:0}
+html body.store-workbench main.wrap .hero-actions .hero-action-label{font-size:calc(34px * var(--store-text-scale,1))!important;line-height:1.18!important}
+html body.store-workbench main.wrap .assistant-entry strong{font-size:calc(36px * var(--store-text-scale,1))!important}
+html body.store-workbench main.wrap .home-module .module-content .card strong,
+html body.store-workbench main.wrap .module-dialog .module-content .card strong{font-size:calc(32px * var(--store-text-scale,1))!important;line-height:1.3}
+html body.store-workbench main.wrap .home-module .module-content .card,
+html body.store-workbench main.wrap .module-dialog .module-content .card{border-radius:12px}
+html body.store-workbench main.wrap .module-dialog .module-dialog-head h2{font-size:calc(34px * var(--store-text-scale,1))!important}
+html body.store-workbench main.wrap .home-title h1{font-size:calc(40px * var(--store-text-scale,1))!important}
+html body.store-workbench main.wrap .home-title button,
+html body.store-workbench main.wrap .section-head button{font-size:calc(26px * var(--store-text-scale,1))!important}
+html body.store-workbench main.wrap .section-head h2{font-size:calc(30px * var(--store-text-scale,1))!important}
+html body.store-workbench main.wrap .dashboard .stat>span{font-size:calc(26px * var(--store-text-scale,1))!important}
+html body.store-workbench main.wrap .dashboard .stat>strong{font-size:calc(34px * var(--store-text-scale,1))!important}
+html body.store-workbench main.wrap .home-search input{font-size:calc(28px * var(--store-text-scale,1))!important}
+html body.store-workbench #store-electronic-board .board-copy{font-size:calc(28px * var(--store-text-scale,1))!important}
+@media(max-width:700px){
+ html body.store-workbench main.wrap .home-modules .home-module>summary{padding:10px;min-height:92px}
+ html body.store-workbench main.wrap .home-modules .home-module>summary .module-label,
+ html body.store-workbench main.wrap .hero-actions .hero-action-label{font-size:calc(clamp(28px,8.2vw,36px) * var(--store-text-scale,1))!important;line-height:1.18!important}
+ html body.store-workbench main.wrap .hero-actions>a{min-height:92px;flex-direction:row;gap:10px}
+ html body.store-workbench main.wrap .home-title h1{font-size:calc(38px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .hero-top .home-brand .eyebrow{font-size:calc(26px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .card :is(span,strong){font-size:calc(32px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .dashboard .stat>span{font-size:calc(26px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .assistant-entry strong{font-size:calc(34px * var(--store-text-scale,1))!important}
+}
+
+html body.store-workbench main.wrap .home-title button,
+html body.store-workbench main.wrap .section-head button{font-size:calc(30px * var(--store-text-scale,1))!important;line-height:1.2!important;min-height:52px!important;padding:8px 12px!important;aspect-ratio:auto}
+html body.store-workbench main.wrap .dashboard .stat>span{font-size:calc(28px * var(--store-text-scale,1))!important;line-height:1.2}
+html body.store-workbench main.wrap .dashboard .stat>strong{font-size:calc(36px * var(--store-text-scale,1))!important;line-height:1.2}
+html body.store-workbench :is(.module-dialog,.home-module) .module-content .card strong{font-size:calc(36px * var(--store-text-scale,1))!important;line-height:1.25!important}
+html body.store-workbench .module-content .symbol{width:64px;height:64px;flex-basis:64px}
+html body.store-workbench .module-content .symbol svg{width:60px;height:60px}
+
+/* Keep the revised workbench spacious and readable while combining its three headings. */
+html body.store-workbench main.wrap .home-header .hero-top .home-brand .eyebrow{font-size:calc(28px * var(--store-text-scale,1))!important;line-height:1.2!important;overflow-wrap:normal}
+html body.store-workbench main.wrap .home-header .hero-top #identity{font-size:calc(24px * var(--store-text-scale,1))!important;line-height:1.2!important;overflow-wrap:normal}
+html body.store-workbench main.wrap .home-header .home-help{font-size:calc(32px * var(--store-text-scale,1))!important;line-height:1!important;min-height:44px!important}
+html body.store-workbench main.wrap .assistant-entry strong{font-size:calc(36px * var(--store-text-scale,1))!important;line-height:1.2!important}
+html body.store-workbench main.wrap .dashboard .stat>span{font-size:calc(30px * var(--store-text-scale,1))!important;line-height:1.2!important}
+html body.store-workbench main.wrap .dashboard .stat>strong{font-size:calc(40px * var(--store-text-scale,1))!important;line-height:1.2!important}
+html body.store-workbench main.wrap .home-search input{font-size:calc(30px * var(--store-text-scale,1))!important}
+html body.store-workbench main.wrap .home-modules .home-module>summary .module-label,
+html body.store-workbench main.wrap .hero-actions .hero-action-label{font-size:calc(36px * var(--store-text-scale,1))!important}
+@media(max-width:700px){
+ html body.store-workbench main.wrap .home-header .hero-top .home-brand .eyebrow{font-size:calc(26px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .assistant-entry strong{font-size:calc(clamp(28px,4.8vw,34px) * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .home-modules .home-module>summary .module-label,
+ html body.store-workbench main.wrap .hero-actions .hero-action-label{font-size:calc(clamp(30px,8.6vw,40px) * var(--store-text-scale,1))!important;line-height:1.18!important}
+}
+@media(max-width:430px){
+ html body.store-workbench main.wrap .dashboard .stat>span{font-size:calc(28px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .dashboard .stat>strong{font-size:calc(36px * var(--store-text-scale,1))!important}
+}
+@media(max-width:359px){
+ html body.store-workbench main.wrap .home-header .hero-top .home-brand .eyebrow{font-size:calc(24px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .home-header .hero-top #identity{font-size:calc(20px * var(--store-text-scale,1))!important}
+}
+
+@media(max-width:380px){
+ html body.store-workbench main.wrap .home-header .hero-top .home-brand .eyebrow{font-size:calc(24px * var(--store-text-scale,1))!important}
+ html body.store-workbench main.wrap .home-header .hero-top #identity{font-size:calc(22px * var(--store-text-scale,1))!important}
+}
+@media(max-width:359px){
+ html body.store-workbench main.wrap .hero-actions>a,
+ html body.store-workbench main.wrap .home-modules .home-module>summary{padding:8px;gap:6px;min-height:100px}
+ html body.store-workbench main.wrap .home-header .hero-top #identity{font-size:calc(20px * var(--store-text-scale,1))!important;padding:5px 4px}
+ html body.store-workbench main.wrap .home-header .home-brand{gap:4px}
+}
+
+html body.store-workbench main.wrap .dashboard .stat.wide-count{flex-direction:column;align-items:flex-start;gap:6px}
+html body.store-workbench main.wrap .dashboard .stat.wide-count>span{max-width:none}
+@media(max-width:359px){
+ html body.store-workbench main.wrap .dashboard .stat{padding:8px 4px;gap:4px}
+ html body.store-workbench main.wrap .dashboard .stat.wide-count>span{max-width:2em}
+}
+
+/* Both phone sizes follow the same theme. Fixed desktop dimensions retain scale 1. */
+@media(max-width:700px){
+ html.mobile-text-large{--store-text-scale:1;--pending-label-size:32px;--pending-count-size:36px;--pending-summary-size:30px}
+ html.mobile-text-double{--store-text-scale:1.14;--pending-label-size:40px;--pending-count-size:44px;--pending-summary-size:36px}
+ html body.store-workbench main.wrap .pending-item span{font-size:var(--pending-label-size,40px)!important;line-height:1.4!important;flex:1;min-width:0}
+ html body.store-workbench main.wrap .pending-item strong{font-size:var(--pending-count-size,44px)!important;line-height:1.2!important;flex:none}
+ html body.store-workbench main.wrap .pending-item{padding:16px 12px;gap:16px;min-height:92px;align-items:center}
+ html body.store-workbench main.wrap :is(.pending-details>summary,.pending-rest>summary){font-size:var(--pending-summary-size,36px)!important;line-height:1.4!important}
+ html body #main .inventory-phone-head{flex-wrap:wrap}
+ html body #main .inventory-phone-head .inventory-phone-serial{flex:1 1 auto}
+}
+
+@media(max-width:359px){
+ html body.store-workbench main.wrap .hero-actions>a,
+ html body.store-workbench main.wrap .home-modules .home-module>summary{padding:6px}
+}
+
+@media(max-width:700px){
+ html body.store-workbench main.wrap .hero-actions>a,
+ html body.store-workbench main.wrap .home-modules .home-module>summary{
+  min-height:calc(clamp(30px,8.6vw,40px) * var(--store-text-scale,1) * 2.36 + 28px)
+ }
+}

@@ -1,0 +1,483 @@
+:root{font-family:system-ui,"Microsoft YaHei",sans-serif;color:#1c2c46;background:#f2f5fb}*{box-sizing:border-box}body{margin:0;font-size:19px;line-height:1.5}header{position:sticky;top:0;background:white;z-index:5;display:flex;justify-content:space-between;gap:8px;padding:12px 4vw;border-bottom:1px solid #d8e3f0}header a{color:#1751bb;text-decoration:none;font-weight:bold}header span{font-size:15px;color:#65738a}main{max-width:920px;margin:auto;padding:16px}.hero{background:linear-gradient(130deg,#1549b9,#3684ed);color:white;border-radius:18px;padding:22px}.hero h1{font-size:29px;margin:0 0 8px}.hero p{margin:0}.card{background:white;border:1px solid #dce4ef;border-radius:18px;padding:18px;margin:16px 0;box-shadow:0 2px 10px #18346412}.card h2{margin:0 0 12px}button{font:inherit;font-weight:650;border:1px solid #a8c2e8;background:#edf3ff;color:#12489d;border-radius:11px;padding:9px 14px;min-height:47px;margin:3px;cursor:pointer}.primary{background:#1b55cf;color:white}.row{display:flex;gap:6px;align-items:stretch}textarea{font:inherit;width:100%;padding:12px;border:2px solid #aac2e3;border-radius:11px;resize:vertical}label{display:block;font-weight:700;margin:12px 0 5px}#quick,#sources{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}#quick button{flex:1 1 30%}#result{background:#eff5ff;border-left:5px solid #2c66df;padding:16px;margin-top:12px;border-radius:10px}#answer{font-size:21px;white-space:pre-wrap}#sources a{padding:6px 9px;background:white;color:#1551b2;border:1px solid #bad0ee;border-radius:9px;text-decoration:none}#basis,.report small{color:#5e718d}.report{border-top:1px solid #dae3ef;padding:12px 0}#status,#report-status{color:#8d3818}@media(max-width:600px){body{font-size:18px}header strong{font-size:17px}header span{font-size:13px}#quick button{flex-basis:42%}}
+.assistant-embedded header{display:none}.assistant-embedded main{padding:10px}.assistant-embedded .hero{padding:15px}.assistant-embedded .hero h1{font-size:22px}.assistant-embedded .card{margin:10px 0;padding:14px}
+.voice-setting{display:inline-flex;align-items:center;gap:8px;margin-left:10px;font-weight:600;color:#275082}.voice-setting input{width:22px;height:22px;accent-color:#1b55cf}.speech-actions{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}button:disabled{opacity:.55;cursor:not-allowed}#voice{min-width:90px}
+.phrase-row{display:flex;align-items:center;gap:8px;border-top:1px solid #dae3ef;padding:9px 0}.phrase-row span{flex:1;font-weight:650}#phrase-form input:not([type=hidden]),#phrase-form select{font:inherit;width:100%;min-height:48px;padding:8px;border:2px solid #aac2e3;border-radius:10px}#phrase-status{color:#225c31}#action{margin-top:12px}#teach-this{margin-top:12px}@media(max-width:600px){.phrase-row{flex-wrap:wrap}.phrase-row span{flex-basis:100%}}
+
+#flow-choices{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}#flow-choices button{flex:1 1 38%;text-align:left;white-space:normal;overflow-wrap:anywhere}
+
+.voice-start{display:block;width:100%;min-height:72px;font-size:24px;margin:4px 0 6px}.voice-hint{margin:0 0 14px;color:#536b88;font-size:16px}
+
+.conversation-actions,#followups{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.conversation-actions [hidden]{display:none}#capability-directory summary{font-size:22px;font-weight:750;cursor:pointer}.capability-item{border-top:1px solid #dce4ef;padding:12px 0;margin-top:10px}.capability-item p{margin:4px 0 8px;color:#546883}.capability-item a{display:inline-block;margin:3px;padding:9px 12px;color:#1551b2;text-decoration:none}#followups button{background:#fff}
+
+.data-note{color:#606b7e;font-size:16px}.table-wrap{overflow-x:auto;margin:14px 0;background:white}.table-wrap table{width:100%;border-collapse:collapse;font-size:18px}.table-wrap th,.table-wrap td{padding:10px;border-bottom:1px solid #d8e3f0;text-align:left;white-space:nowrap}.table-wrap th{background:#dfeaff}#alert-list a{display:block;margin:6px 0;padding:10px;background:#fff2df;color:#77410b;border-left:4px solid #e59722;text-decoration:none}.data-note[hidden],.table-wrap[hidden]{display:none}
+
+[hidden]{display:none!important}.customer-mode [data-store-only]{display:none!important}.customer-mode:not(.customer-editor) [data-answer-editor]{display:none!important}.mode-panel{position:sticky;top:50px;z-index:4;background:#fff}.mode-buttons{display:flex;gap:8px}.mode-buttons button{flex:1;font-size:20px;min-height:56px}.mode-buttons button[aria-pressed=true]{background:#1b55cf;color:white;border:3px solid #123d98}.mode-panel p{margin:8px 0 0;font-size:16px}.customer-mode .mode-panel{border:3px solid #18885c}.customer-mode .hero{background:linear-gradient(130deg,#126044,#2d9874)}#dialogue-panel{scroll-margin-top:190px}#dialogue-panel select,#dialogue-panel input:not([type=checkbox]){width:100%;font:inherit;min-height:56px;padding:10px;border:2px solid #aac2e3;border-radius:10px;background:#fff;color:#1c2c46}#dialogue-panel textarea{font-size:20px}#dialogue-panel .voice-setting{display:flex;margin-left:0}#dialogue-status{color:#225c31;white-space:pre-wrap}#dialogue-history p{border-top:1px solid #dce4ef;white-space:pre-wrap}.assistant-embedded .mode-panel{top:0}@media(max-width:600px){.mode-panel{top:46px;padding:12px}.mode-buttons button{font-size:18px}.mode-panel h2{font-size:20px;margin-bottom:6px}}
+
+.answer-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.answer-heading h3{margin:8px 0}.answer-heading button{background:white;border:2px solid #1b55cf;font-size:20px;min-height:54px}#answer-edit-form{background:#fff;border:2px solid #1b55cf;border-radius:12px;padding:14px;margin:12px 0;scroll-margin-top:180px}#answer-edit-form h4{margin:0 0 6px;font-size:22px}#answer-edit-title{margin:0 0 10px;font-weight:650;overflow-wrap:anywhere}#answer-edit-form textarea{font-size:21px;line-height:1.6;color:#1c2c46;background:#fff}#answer-edit-form details{margin:14px 0}#answer-edit-form summary{cursor:pointer;color:#1551b2;font-weight:650}#answer-edit-status{white-space:pre-wrap;overflow-wrap:anywhere}#answer-edit-status[data-state=success]{background:#e5f5e9;color:#215e33;border:2px solid #4f9364;padding:10px;border-radius:10px}#answer-edit-status[data-state=error]{background:#fff0ed;color:#9e2517;border:2px solid #c96759;padding:10px;border-radius:10px}.answer-edit-actions{display:flex;gap:6px;flex-wrap:wrap}.answer-edit-actions button{flex:1;min-height:56px}#sources a{max-width:100%;overflow-wrap:anywhere}#answer{overflow-wrap:anywhere}@media(max-width:600px){.answer-heading button{width:100%;margin:4px 0}#answer-edit-form{padding:12px}.answer-edit-actions button{min-width:100px}}
+
+#answer-edit-form input{width:100%;font:inherit;font-size:21px;min-height:56px;padding:10px;border:2px solid #aac2e3;border-radius:11px;color:#1c2c46;background:#fff}
+
+#dialogue-questions{background:#f1f6ff;border-color:#739ad0}#answer,#dialogue-answer{background:#f1faf3;border-color:#6c9c7b}
+
+#tariff-export{margin:12px 0;padding:12px;border:2px solid #8fb2e5;border-radius:12px;background:#fff}#tariff-export-count{margin:0;font-weight:700;color:#164996}#tariff-export .conversation-actions button{flex:1 1 42%;min-height:56px;margin:0}#tariff-export-status{white-space:pre-wrap;color:#225c31}#tariff-export-text{font-size:19px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;background:#f6faff}#tariff-types button[aria-pressed=true]{background:#1b55cf;color:white}#tariff-type-panel{margin-top:14px}
+
+/* 手机回答与输入跟随首页字号，浮窗使用相同设置。 */
+main,.card,.row,form,#result,#quick,.mode-buttons{min-width:0;max-width:100%}button{white-space:normal;overflow-wrap:anywhere}.row textarea{min-width:0;flex:1}header{flex-wrap:wrap}
+@media(max-width:700px){header{top:var(--mobile-action-height,64px)}.assistant-embedded body{padding-top:0!important}.mode-panel,.assistant-embedded .mode-panel{position:static;top:auto}main,.assistant-embedded main{padding:10px}.card,.assistant-embedded .card{padding:14px}.hero,.assistant-embedded .hero{padding:16px}.mode-buttons{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}.mode-buttons button{margin:0}#quick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}#quick button{margin:0;min-width:0;padding:12px 6px;font-size:var(--phone-detail,28px)!important}#answer{font-size:var(--phone-body,40px)!important;line-height:1.6;color:#142c50}#question,#answer-edit-form textarea,#dialogue-panel textarea,#tariff-export-text{font-size:var(--phone-control,38px)!important}#result{padding:14px}#basis,.voice-hint,.mode-panel p,.data-note,#sources a{font-size:var(--phone-detail,28px)!important}#sources a{display:block;overflow-wrap:anywhere}.row{flex-wrap:wrap}.row textarea{flex-basis:100%}#voice{width:100%;margin:0}.voice-setting{margin-left:0;font-size:var(--phone-detail,28px)}.voice-setting input{width:32px;height:32px;flex-shrink:0}.assistant-embedded .mobile-action-dock{display:none!important}.speech-actions button,.conversation-actions button{flex:1 1 100%;margin:0;min-width:0}.answer-edit-actions button{flex:1 1 100%}.table-wrap{max-width:100%}}
+
+#capability-search{width:100%;min-width:0;font:inherit;min-height:56px;padding:12px;border:2px solid #739ad0;border-radius:11px;background:#f1f6ff;color:#142c50}
+@media(max-width:700px){#capability-search{font-size:var(--phone-control,38px)!important}.capability-item strong{font-size:var(--phone-body,40px)}.capability-item p,.capability-item button,.capability-item a{font-size:var(--phone-detail,28px)!important;max-width:100%;overflow-wrap:anywhere}}
+
+/* Keep the conversation first; tools open only when requested. */
+.assistant-tools>summary,.assistant-reply-options>summary{font-weight:750;color:#1852a5;cursor:pointer;list-style:none;padding:8px 0;display:flex;gap:12px;align-items:center}.assistant-tools>summary::before,.assistant-reply-options>summary::before{content:"＋";flex:none}.assistant-tools[open]>summary::before,.assistant-reply-options[open]>summary::before{content:"−"}.assistant-tools:not([open])>:not(summary),.assistant-reply-options:not([open])>:not(summary){display:none!important}.assistant-tools>.card{box-shadow:none}.assistant-tools .hero{margin-top:16px}.assistant-reply-options{margin-top:12px;border-top:1px solid #d7e3f2}.assistant-tools:focus-within>summary,.assistant-reply-options:focus-within>summary{outline-offset:4px}@media(max-width:700px){.assistant-tools>summary,.assistant-reply-options>summary{font-size:var(--phone-detail,28px)!important;min-height:54px}.assistant-tools #quick{grid-template-columns:minmax(0,1fr)}.assistant-tools>.card{padding:12px 0;border:0;border-top:1px solid #d7e3f2;border-radius:0}.assistant-tools .hero h1{font-size:var(--phone-detail,28px)!important}}
+
+@media(max-width:700px){.mode-panel{margin:8px 0;padding:10px!important}.mode-buttons{grid-template-columns:repeat(2,minmax(0,1fr))}.mode-buttons button{min-width:0;min-height:54px;padding:8px}.mode-buttons:has(#mode-store[hidden]){grid-template-columns:minmax(0,1fr)}}
+
+/* Keep each answer directly below its question, with editing in the same place. */
+.question-row textarea{display:block}
+#result{margin-top:8px}
+#result #answer{margin:8px 0 14px}
+#status:empty{display:none}
+#status{margin:8px 0}
+.ask-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.ask-actions>button{flex:1 1 38%;margin:0;min-width:0}
+.ask-actions>.voice-setting{flex-basis:100%;margin:4px 0}
+#answer-edit-form{margin:4px 0 12px;padding:12px;scroll-margin-bottom:calc(var(--comms-mini-height,132px) + 30px)}
+#answer-edit-form h4{font-size:1em}
+#answer-edit-more{border-top:1px solid #d7e3f2;padding-top:8px}
+#answer-edit-form .answer-edit-actions{margin-top:10px}
+@media(max-width:700px){.ask-actions #voice{width:auto;flex:1 1 38%}.answer-heading h3{font-size:var(--phone-detail,28px);margin:4px 0}.answer-heading button{width:auto;margin:0;min-height:48px;font-size:var(--phone-detail,28px)!important;padding:6px 10px}.answer-heading{gap:6px}.answer-edit-actions button{flex:1 1 100%;font-size:var(--phone-detail,28px)!important}#result #answer{line-height:1.5}#answer-edit-form{padding:10px}.ask-actions .voice-setting{font-size:var(--phone-detail,28px)!important}}
+
+@media(max-width:700px){#result .answer-heading h3{font-size:var(--phone-detail,24px)!important}}
+
+.required-mark{color:#b91c1c;font-size:.8em}
+#quick>a{display:block;padding:12px;color:#174f9c;font-weight:700}
+
+/* Compact sending stays with the question so the answer starts immediately below it. */
+.question-row{display:flex!important;flex-wrap:nowrap!important;gap:8px}
+.question-row textarea{flex:1 1 0!important;width:0;min-width:0}
+#ask.compact-send{flex:0 0 60px;display:flex;flex-direction:column;align-items:center;gap:8px;margin:0}
+#ask .send-key{width:52px;min-height:48px;font-size:30px!important;padding:0;margin:0;border-radius:12px;overflow-wrap:normal}
+#ask .voice-setting{display:flex;flex-direction:column;gap:3px;margin:0;font-size:var(--phone-detail,18px)!important;line-height:1.2}
+#ask .voice-setting input{width:22px;height:22px;margin:0}
+
+.editing-question #question{border-color:#739ad0;background:#f1f6ff}
+#result #answer-edit-form{border:0;background:transparent;padding:0;margin:0}
+#answer-edit-form h4{font-size:var(--phone-detail,20px)!important;margin:0 0 8px}
+#answer-edit-form label{font-size:var(--phone-detail,22px)!important;margin-top:8px}
+#answer-edit-form input[type=checkbox]{width:24px;min-height:24px;height:24px;flex:none;padding:0}
+#answer-edit-form .answer-edit-actions{margin-top:8px}
+#answer-edit-form .answer-edit-actions button{flex:1 1 40%;min-height:48px;font-size:var(--phone-detail,22px)!important}
+#answer-edit-form textarea{min-height:150px}
+#answer-edit-more summary{font-size:var(--phone-detail,20px)!important}
+
+#answer-edit-form .page-help-button{font-size:var(--phone-detail,18px)!important;min-height:40px;min-width:68px}
+#question-label:has(+ .editing-question){font-size:var(--phone-detail,22px)!important;margin-bottom:8px}
+
+#result #answer{display:block;width:100%;min-height:140px;margin:8px 0;padding:12px;line-height:1.5;background:transparent;border:2px solid transparent;color:#142c50;resize:vertical}
+#result #answer:not([readonly]){background:#f1faf3;border-color:#6c9c7b}
+#result #answer:focus{outline:3px solid #86acdf;outline-offset:2px}
+#result #answer-edit-label{font-size:var(--phone-detail,22px)!important;margin-top:0}
+#result #answer-edit-form h4{display:flex;align-items:center;gap:8px;font-size:var(--phone-detail,18px)!important;margin:8px 0}
+
+
+
+#result .answer-heading{margin:0}
+#result #answer-edit-status{font-size:var(--phone-detail,20px)!important;margin:8px 0}
+#answer-edit-form .answer-edit-actions .page-help-button{flex:0 0 auto;font-size:var(--phone-detail,18px)!important;min-width:68px}
+#answer-edit-cancel[hidden],#answer-edit-more[hidden]{display:none!important}
+
+/* Text commands and the same sale draft remain together. */
+#voice-start{width:auto;min-height:48px;margin:4px 0 10px;padding:8px 12px;font-size:var(--phone-detail,20px)!important}
+#sale-workspace{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin:12px 0}
+#sale-workspace .sale-field{margin:0;text-align:left;border:2px solid #78a086;background:#f2faf4;color:#194c31;padding:10px;min-width:0;font-size:var(--phone-detail,22px)!important;overflow-wrap:anywhere}
+#sale-workspace .sale-missing{border-color:#c99345;background:#fff7e9;color:#774916}
+#sale-review-dialog{box-sizing:border-box;width:calc(100% - 24px);max-width:720px;max-height:85svh;overflow:auto;border:2px solid #7b9bc4;border-radius:16px;padding:18px;color:#142c50;background:white}
+#sale-review-dialog::backdrop{background:#132c50b3}
+#sale-review-body p,#sale-submit-status,#sale-cash-check{font-size:var(--phone-detail,22px)!important;line-height:1.6;overflow-wrap:anywhere}
+#sale-cash-check{display:flex;gap:10px;align-items:flex-start;background:#fff7e9;border:2px solid #c99345;padding:12px;border-radius:12px}
+#sale-cash-confirmed{width:28px;height:28px;flex:none;margin-top:6px}
+.sale-review-actions{display:flex;flex-wrap:wrap;gap:8px;position:sticky;bottom:-18px;background:white;padding:10px 0}
+.sale-review-actions button{flex:1;min-width:0;margin:0;font-size:var(--phone-detail,22px)!important}
+#status.sale-success{background:#e7f7ec;color:#14532d;padding:16px;border:2px solid #479566;border-radius:12px;font-weight:800}
+
+.assistant-capture{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.assistant-capture button{font-size:var(--phone-detail,22px)!important;margin:0;flex:1 1 40%;min-width:0}
+#sale-camera-preview{width:100%;max-height:280px;object-fit:contain;border-radius:12px}
+#sale-scan-status{margin:0;font-size:var(--phone-detail,22px)!important}
+#sale-scan-status:empty{display:none}
+#sale-payment-select{display:block;width:100%;font:inherit;font-size:var(--phone-detail,22px)!important;padding:12px;min-height:56px;border:2px solid #739ad0;border-radius:10px;box-sizing:border-box}
+#sale-price-check{display:flex;gap:10px;padding:12px;margin:14px 0;border:2px solid #c99345;background:#fff7e9;border-radius:10px;font-size:var(--phone-detail,22px)!important}
+#sale-price-confirmed{width:28px;height:28px;flex:none}
+
+/* Continue the conversation directly beneath the assistant's question. */
+#assistant-reply{margin:8px 0 14px;padding:10px;border:2px solid #7b9dce;border-radius:12px;background:#fff}
+#assistant-reply label{display:block;margin:0 0 6px;font-weight:700;font-size:var(--phone-detail,22px)!important}
+#assistant-reply .reply-row,#sale-workspace .sale-field-edit-row{display:flex;align-items:flex-end;gap:8px}
+#assistant-reply-text{flex:1;width:0;min-width:0;min-height:88px;margin:0;padding:10px;font-size:var(--phone-detail,22px)!important;line-height:1.45}
+#assistant-reply-send{flex:none;width:48px;min-width:48px;min-height:48px;margin:0;padding:6px;font-size:var(--phone-detail,24px)!important}
+#assistant-reply-status:empty{display:none}
+#assistant-reply-status{margin:6px 0 0;font-size:var(--phone-detail,20px)!important;color:#a52c27}
+#sale-workspace .sale-field-editor{margin:0;padding:10px;border:2px solid #78a086;border-radius:10px;background:#f2faf4}
+#sale-workspace .sale-field-editor.sale-missing{border-color:#c99345;background:#fff7e9}
+#sale-workspace .sale-field-editor label,#sale-workspace>label{margin:0 0 6px;font-size:var(--phone-detail,22px)!important;font-weight:700}
+#sale-workspace .sale-field-edit-row input{flex:1;width:0;min-width:0;margin:0;padding:9px;font-size:var(--phone-detail,22px)!important}
+#sale-workspace .sale-field-edit-row button{flex:none;margin:0;padding:8px;font-size:var(--phone-detail,20px)!important}
+#sale-edit-account{width:100%;min-width:0;margin:0;padding:10px;font-size:var(--phone-detail,22px)!important}
+
+/* Keep the dialogue editor visible beside the current answer. */
+#edit-answer{min-height:56px;font-size:var(--phone-detail,24px)!important;font-weight:650;padding:8px 12px}
+
+/* Large-print, WeChat-style conversations with a stable bottom composer. */
+.wechat-chat{--chat-font:30px;--chat-paper:#ededed;--chat-ink:#202c38;--chat-green:#b5ec85;color:var(--chat-ink);background:var(--chat-paper)}
+.wechat-chat.bigger{--chat-font:36px}
+.wechat-chat button,.wechat-chat a{touch-action:manipulation}
+.wechat-chat button:focus-visible,.wechat-chat a:focus-visible,.wechat-chat textarea:focus-visible{outline:3px solid #245cd8;outline-offset:3px}
+.wechat-chat .chat-dock{flex:none;background:#f7f7f7;border-top:1px solid #d9dde0;padding:10px 14px max(10px,env(safe-area-inset-bottom));z-index:5}
+.wechat-chat .chat-input-row{display:flex;align-items:flex-end;gap:10px;margin:0}
+.wechat-chat .chat-input-row textarea{flex:1 1 0;width:0;min-width:0;min-height:64px;max-height:184px;resize:none;border:1px solid #d5dadd;background:#fff;border-radius:9px;margin:0;padding:10px 12px;font-size:var(--chat-font)!important;line-height:1.45;color:var(--chat-ink)}
+.wechat-chat .chat-key{flex:none;min-width:56px;min-height:56px;width:56px;margin:0;padding:4px;border:1px solid #c9d1d6;border-radius:12px;background:#fff;color:#263c4b;font-size:30px!important;line-height:1.3}
+.wechat-chat .chat-send{background:#168642;color:#fff;border:0;font-size:22px!important;width:70px;min-height:58px;padding:8px;font-weight:700}
+.wechat-chat .chat-more{margin-top:12px;padding:8px 0;max-height:40vh;overflow:auto;overscroll-behavior:contain}
+.wechat-chat .chat-menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.wechat-chat .chat-menu-grid button,.wechat-chat .chat-menu-grid a{min-width:0;min-height:58px;font-size:23px;line-height:1.4;text-align:center;margin:0;padding:12px 8px;background:#fff;border:1px solid #d6dce0;border-radius:10px;color:#273c4c;text-decoration:none}
+.wechat-chat .chat-toolbar{display:flex;gap:14px;align-items:center;justify-content:space-between;margin:10px 0 0}
+.wechat-chat .chat-toolbar button{margin:0;min-height:52px;padding:7px 12px;font-size:22px!important;background:#fff;color:#273c4c;border:1px solid #cdd5da}
+.wechat-chat .chat-toolbar button[aria-pressed=true]{background:#def1e3;border-color:#208b49}
+.wechat-chat .chat-status{margin:8px 0 0;font-size:21px;line-height:1.5;overflow-wrap:anywhere}
+.wechat-chat .chat-status:empty{display:none}
+.wechat-chat .chat-thread{min-height:0;flex:1;overflow:auto;overscroll-behavior:contain;padding:24px 16px;scroll-padding-block:20px}
+.wechat-chat .chat-message{display:flex;align-items:flex-start;gap:12px;margin:0 0 26px;min-width:0}
+.wechat-chat .chat-message.self{flex-direction:row-reverse}
+.wechat-chat .chat-avatar{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:10px;background:#fff;color:#218147;font-size:25px;line-height:1.3;border:1px solid #dae0df}
+.wechat-chat .chat-message.self .chat-avatar{background:#d7e3eb;color:#36536a}
+.wechat-chat .chat-content{min-width:0;max-width:calc(100% - 58px)}
+.wechat-chat .chat-bubble{position:relative;max-width:100%;margin:0;background:#fff;padding:14px 18px;border:0;border-radius:8px;color:var(--chat-ink);box-shadow:0 1px 2px #152a3a0d;white-space:normal;overflow-wrap:anywhere}
+.wechat-chat .chat-bubble:before{content:"";position:absolute;left:-8px;top:20px;border-top:7px solid transparent;border-bottom:7px solid transparent;border-right:8px solid #fff}
+.wechat-chat .self .chat-bubble{background:var(--chat-green)}
+.wechat-chat .self .chat-bubble:before{left:auto;right:-8px;border-right:0;border-left:8px solid var(--chat-green)}
+.wechat-chat .chat-bubble p{margin:0;font-size:var(--chat-font);line-height:1.6;white-space:pre-wrap}
+.wechat-chat .chat-message-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.wechat-chat .chat-message-actions button{font-size:20px;min-height:48px;margin:0;padding:7px 12px;border:1px solid #cbd3d7;background:#f8fafa;border-radius:8px;color:#38566a}
+.wechat-chat .chat-sources{font-size:21px;margin-top:10px;line-height:1.5}
+.wechat-chat .chat-time{text-align:center;font-size:19px;color:#63707a;margin:0 0 22px}
+.wechat-chat.chatting{height:var(--chat-height,100dvh);overflow:hidden;position:relative;top:var(--chat-top,0px);display:flex;flex-direction:column;margin:0}
+.companion-page.wechat-chat .companion-header{flex:none;background:#f7f7f7;position:static;padding:10px 14px;grid-template-columns:auto minmax(0,1fr) auto}
+.companion-page.wechat-chat main{max-width:1080px;width:100%;padding:0;min-height:0}
+.companion-page.wechat-chat.chatting main{display:flex;flex:1;flex-direction:column;overflow:hidden;margin:0 auto}
+.companion-page.wechat-chat #tab-chat{display:flex;flex-direction:column;flex:1;min-height:0}
+.companion-page.wechat-chat .companion-messages{display:block;min-height:0;padding-bottom:6px}
+.companion-page.wechat-chat .companion-welcome{display:none}
+.companion-page.wechat-chat .companion-composer{position:static;background:transparent;padding:0;gap:10px}
+.companion-page.wechat-chat .companion-composer button{font-size:22px}
+.companion-page.wechat-chat:not(.chatting) main{padding:18px}
+.companion-page.wechat-chat #pending-memory{flex:none;padding:12px 16px;background:#fff8e9;border-top:1px solid #dfcdad;font-size:22px;max-height:28vh;overflow:auto}
+.companion-page.wechat-chat #pending-memory button{font-size:22px;margin-right:12px}
+.companion-page.wechat-chat .companion-tabs{margin:0 0 18px}
+.companion-page.wechat-chat .chat-tools{margin:0;display:grid;font-size:23px}
+.companion-page.wechat-chat #stop-reading{color:#8b4934}
+.companion-page.wechat-chat #chat-back{font-size:20px;min-height:52px;padding:8px}
+.companion-page.wechat-chat #page-status:empty{display:none}
+.companion-page.wechat-chat.chatting #page-status{flex:none;margin:0;padding:0 16px;font-size:21px}
+/* Work/customer shell retains the current editable answer and business controls. */
+.assistant-chat-page.wechat-chat{height:var(--chat-height,100dvh);overflow:hidden;position:relative;top:var(--chat-top,0px);display:flex;flex-direction:column;padding:0!important}
+.assistant-chat-page.wechat-chat header{position:static;flex:none;background:#f7f7f7;padding:10px 14px;align-items:center;flex-wrap:wrap}
+.assistant-chat-page.wechat-chat header strong{font-size:23px}
+.assistant-chat-page.wechat-chat header a{font-size:21px}
+.assistant-chat-page.wechat-chat header #who{font-size:18px}
+.assistant-chat-page.wechat-chat main{flex:1;min-height:0;width:100%;max-width:1080px;display:flex;flex-direction:column;overflow:hidden;margin:0 auto;padding:0!important}
+.assistant-chat-page.wechat-chat .mode-panel{flex:none;position:static;padding:8px 14px!important;border:0;border-bottom:1px solid #d9dde0;border-radius:0;margin:0;box-shadow:none;background:#f7f7f7}
+.assistant-chat-page.wechat-chat .mode-panel h2{display:none}
+.assistant-chat-page.wechat-chat .mode-buttons{display:flex;gap:16px}
+.assistant-chat-page.wechat-chat .mode-buttons button{font-size:22px!important;min-height:48px;margin:0;background:#fff;color:#3c5363;border:1px solid #cbd3d7}
+.assistant-chat-page.wechat-chat .mode-buttons button[aria-pressed=true]{background:#dbeee0;border-color:#6caa7c;color:#176731}
+.assistant-chat-page.wechat-chat .assistant-chat-shell{flex:1;min-height:0;display:flex;flex-direction:column;background:transparent;margin:0;padding:0!important;border:0;box-shadow:none;border-radius:0}
+.assistant-chat-page.wechat-chat #current-question{max-width:86%;margin:0 0 24px auto}
+.assistant-chat-page.wechat-chat #current-question p{font-size:var(--phone-body,var(--chat-font))}
+.assistant-chat-page.wechat-chat #result{max-width:94%;background:#fff;margin:0 0 26px;padding:16px!important;border:0;border-radius:9px;box-shadow:0 1px 2px #152a3a0d}
+.assistant-chat-page.wechat-chat #result #answer{font-size:var(--phone-body,var(--chat-font))!important;margin:8px 0 12px;padding:0;min-height:64px;background:transparent;line-height:1.6;color:var(--chat-ink);border:2px solid transparent;border-radius:6px;resize:none}
+.assistant-chat-page.wechat-chat #result #answer:not([readonly]):focus{background:#f5fbf7;border-color:#78a78a}
+.assistant-chat-page.wechat-chat #result .answer-heading{gap:12px;justify-content:space-between;flex-wrap:wrap}
+.assistant-chat-page.wechat-chat #result .answer-heading h3{font-size:21px!important;color:#657480}
+.assistant-chat-page.wechat-chat #result #edit-answer{min-height:48px;font-size:21px!important;margin:0;padding:7px 10px}
+.assistant-chat-page.wechat-chat .speech-actions{display:flex;gap:12px;flex-wrap:wrap}
+.assistant-chat-page.wechat-chat .speech-actions button{flex:0 1 auto;min-height:48px;font-size:21px!important;margin:0;padding:7px 10px;background:#f8fafa;color:#38566a;border-color:#cbd3d7}
+.assistant-chat-page.wechat-chat #assistant-reply{display:none}
+.assistant-chat-page.wechat-chat #assistant-compose{margin:0}
+.assistant-chat-page.wechat-chat #question-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.assistant-chat-page.wechat-chat .question-row{display:flex!important;flex-wrap:nowrap!important;align-items:flex-end;gap:10px}
+.assistant-chat-page.wechat-chat #ask.compact-send{flex:0 0 70px;margin:0;display:block}
+.assistant-chat-page.wechat-chat #ask .send-key{width:70px;min-height:58px;font-size:22px!important;border-radius:10px;background:#168642}
+.assistant-chat-page.wechat-chat #voice-start{margin:0;min-height:52px;font-size:22px!important;padding:7px 12px;background:#fff;color:#273c4c;border-color:#cdd5da}
+.assistant-chat-page.wechat-chat .assistant-capture{display:flex;gap:14px;margin:0}
+.assistant-chat-page.wechat-chat .assistant-capture button{flex:1;min-height:54px;font-size:22px!important;margin:0;background:#fff;color:#273c4c}
+.assistant-chat-page.wechat-chat #assistant-tools{margin:0 0 14px;padding:0!important;border:0;background:transparent;box-shadow:none}
+.assistant-chat-page.wechat-chat #assistant-tools>summary{display:none}
+.assistant-chat-page.wechat-chat #assistant-tools #quick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:14px 0}
+.assistant-chat-page.wechat-chat #assistant-tools #quick button{font-size:23px!important;min-height:58px;padding:10px;background:#fff;color:#273c4c}
+.assistant-chat-page.wechat-chat .chat-dock .conversation-actions{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0}
+.assistant-chat-page.wechat-chat .chat-dock .conversation-actions a,.assistant-chat-page.wechat-chat .chat-dock .conversation-actions button{font-size:22px!important;margin:0;padding:10px;color:#273c4c;min-height:52px}
+.assistant-chat-page.wechat-chat .chat-history-bubble{max-width:94%;font-size:var(--phone-body,var(--chat-font));line-height:1.6;white-space:pre-wrap;margin:0 0 20px;border-radius:9px;padding:14px 18px;background:#fff;overflow-wrap:anywhere}
+.assistant-chat-page.wechat-chat .chat-history-bubble.self{margin-left:auto;max-width:86%;background:var(--chat-green)}
+.assistant-chat-page.wechat-chat #basis{font-size:20px!important;line-height:1.5}
+.assistant-chat-page.wechat-chat #comms-launcher{display:none!important}
+.assistant-chat-page.wechat-chat .mobile-action-dock{flex:none;position:static!important}
+.assistant-embedded .assistant-chat-page.wechat-chat header{display:none}
+@media(max-width:700px){
+ .wechat-chat .chat-thread{padding:20px 12px}.wechat-chat .chat-content{max-width:calc(100% - 52px)}.wechat-chat .chat-message{gap:10px}
+ .wechat-chat .chat-avatar{width:42px;height:42px;font-size:23px}.wechat-chat .chat-bubble{padding:12px 14px}.wechat-chat .chat-dock{padding-inline:10px}
+ .wechat-chat .chat-input-row,.assistant-chat-page.wechat-chat .question-row{gap:8px}.wechat-chat .chat-key{min-width:52px;width:52px}
+ .wechat-chat .chat-send{width:64px;min-width:64px}.wechat-chat .chat-menu-grid button{font-size:22px}
+ .assistant-chat-page.wechat-chat #ask.compact-send{flex-basis:64px}.assistant-chat-page.wechat-chat #ask .send-key{width:64px}
+ .assistant-chat-page.wechat-chat #result{max-width:100%}.assistant-chat-page.wechat-chat .chat-toolbar button{font-size:20px!important}
+}
+@media(min-width:701px){.wechat-chat .chat-thread{padding:28px 30px}.wechat-chat .chat-content{max-width:82%}}
+@media(prefers-reduced-motion:reduce){.wechat-chat *{scroll-behavior:auto!important}}
+
+.companion-page.wechat-chat{background:var(--chat-paper)}
+.companion-page.wechat-chat:not(.chatting) .companion-header{position:sticky;top:0}
+.assistant-chat-page.wechat-chat{--chat-font:var(--phone-body,30px)}
+.assistant-chat-page.wechat-chat #current-question{background:var(--chat-green)}
+.assistant-chat-page.wechat-chat #current-question::before{left:auto;right:-8px;border-right:0;border-left:8px solid var(--chat-green)}
+.assistant-chat-page.wechat-chat .mobile-action-dock{order:-1}
+.assistant-chat-page.wechat-chat #answer-edit-form .answer-edit-actions button{flex:0 1 auto!important;font-size:22px!important;min-height:48px}
+.assistant-chat-page.wechat-chat #answer-details{font-size:21px;line-height:1.5;margin:12px 0}
+.assistant-chat-page.wechat-chat #answer-details>summary{color:#496578;cursor:pointer;min-height:48px;padding:7px 0}
+.assistant-chat-page.wechat-chat #answer-details:not([open])>:not(summary){display:none!important}
+.assistant-chat-page.wechat-chat #teach-this{font-size:21px!important;min-height:48px;margin:0}
+.assistant-chat-page.wechat-chat #chat-store-messages{font-size:22px!important;min-height:52px;margin:0}
+
+/* Match the older-reader text scale while keeping operation keys compact. */
+html body.assistant-chat-page.wechat-chat #question{font-size:var(--phone-body,30px)!important;min-height:64px!important;line-height:1.45!important}
+html body.assistant-chat-page.wechat-chat #assistant-title{font-size:24px!important;line-height:1.4}
+html body.assistant-chat-page.wechat-chat #who{font-size:18px!important}
+html body.assistant-chat-page.wechat-chat #mode-store,html body.assistant-chat-page.wechat-chat #mode-customer{font-size:24px!important;min-height:52px!important}
+html body.assistant-chat-page.wechat-chat #work-dock .chat-toolbar button,html body.assistant-chat-page.wechat-chat #work-more-toggle,html body.assistant-chat-page.wechat-chat #ask .send-key{font-size:22px!important;min-height:52px!important}
+html body.assistant-chat-page.wechat-chat #work-more-toggle{font-size:30px!important}
+html body.assistant-chat-page.wechat-chat #result :is(.speech-actions button,#edit-answer,#teach-this,#answer-details>summary){font-size:22px!important;min-height:48px!important}
+html body.assistant-chat-page.wechat-chat #current-question p,html body.assistant-chat-page.wechat-chat #chat-history p{font-size:var(--phone-body,30px)!important;line-height:1.6!important}
+@media(max-width:700px){html body.assistant-chat-page.wechat-chat header{min-height:54px}html body.assistant-chat-page.wechat-chat #assistant-home{display:none}}
+
+.assistant-chat-page.wechat-chat #assistant-tools .hero{display:none}
+.assistant-chat-page.wechat-chat .chat-module{border-top:1px solid #d8dfe1;margin:10px 0}
+.assistant-chat-page.wechat-chat .chat-module>summary{font-size:23px!important;min-height:54px;padding:10px 0;color:#38566a;cursor:pointer}
+.assistant-chat-page.wechat-chat .chat-module:has(>section[hidden]){display:none}
+.assistant-chat-page.wechat-chat .chat-module:not([open])>:not(summary){display:none!important}
+.assistant-chat-page.wechat-chat #assistant-tools>summary::before{display:none}
+
+/* Keep the owner's personal assistant visible beside the chat modes. */
+html body.assistant-chat-page.wechat-chat .mode-buttons{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:10px}
+html body.assistant-chat-page.wechat-chat .mode-buttons :is(#mode-store,#mode-customer,#personal-entry){display:flex;align-items:center;justify-content:center;min-width:0;min-height:54px!important;box-sizing:border-box;font-size:22px!important;line-height:1.3;white-space:nowrap;padding:9px 6px;margin:0;border:1px solid #cbd3d7;border-radius:10px;text-decoration:none;color:#3c5363;background:#fff}
+html body.assistant-chat-page.wechat-chat .mode-buttons :is(button[aria-pressed=true],#personal-entry){background:#dbeee0;border-color:#6caa7c;color:#176731}
+html body.assistant-chat-page.wechat-chat .mode-buttons [hidden]{display:none!important}
+html body.assistant-chat-page.wechat-chat #personal-entry:focus-visible{outline:3px solid #22744b;outline-offset:2px}
+@media(max-width:360px){html body.assistant-chat-page.wechat-chat .mode-buttons{gap:8px}html body.assistant-chat-page.wechat-chat .mode-buttons :is(#mode-store,#mode-customer,#personal-entry){font-size:20px!important;padding-inline:4px}}
+
+#report-review-dialog{box-sizing:border-box;width:calc(100% - 24px);max-width:720px;max-height:85svh;overflow:auto;border:1px solid #8caba0;border-radius:14px;padding:20px;color:#18362a;background:#fff;font-size:var(--phone-body,28px)}
+#report-review-dialog::backdrop{background:#142f4980}
+#report-review-dialog h2{font-size:28px!important;margin-top:0}
+#report-review-dialog p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+#report-review-dialog label{display:block;margin:16px 0 10px;font-size:24px!important}
+#report-review-dialog textarea{box-sizing:border-box;width:100%;font-size:var(--phone-body,28px)!important;line-height:1.5;min-height:110px}
+#report-review-dialog .report-review-actions{display:flex;flex-wrap:wrap;gap:16px}
+#report-review-dialog button{font-size:24px!important;min-height:56px;padding:10px 16px;margin:0}
+#report-review-status{font-size:24px!important}
+
+/* Large, single-row assistant choices. */
+html body.assistant-chat-page.wechat-chat .mode-buttons{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px}
+html body.assistant-chat-page.wechat-chat .mode-buttons :is(#mode-store,#mode-customer,#personal-entry){min-height:64px!important;font-size:26px!important;font-weight:700;line-height:1.2;padding:10px 4px;white-space:nowrap;overflow-wrap:normal;word-break:normal;touch-action:manipulation}
+@media(max-width:360px){html body.assistant-chat-page.wechat-chat .mode-buttons :is(#mode-store,#mode-customer,#personal-entry){font-size:24px!important;padding-inline:4px}}
+@media(max-width:330px){html body.assistant-chat-page.wechat-chat .mode-buttons :is(#mode-store,#mode-customer,#personal-entry){font-size:22px!important;padding-inline:2px}}
+
+
+/* One stable large-text editor, independent of the chat's fixed composer/thread. */
+html body.assistant-chat-page.wechat-chat #result #edit-answer{
+ font-size:26px!important;min-width:88px;min-height:56px!important;
+ padding:10px 18px!important;border:2px solid #1b55cf;background:#fff;color:#1546a0;font-weight:750;
+}
+html body.assistant-chat-page.wechat-chat #answer-edit-dialog{
+ position:fixed;inset:0;margin:auto;width:min(920px,calc(100vw - 20px));max-width:none;
+ max-height:calc(var(--chat-height,100svh) - 24px);padding:0;border:2px solid #7293be;
+ border-radius:16px;background:#fff;color:#17324f;box-shadow:0 12px 48px #17324f35;
+}
+html body.assistant-chat-page.wechat-chat #answer-edit-dialog[open]{display:flex;flex-direction:column}
+#answer-edit-dialog::backdrop{background:#132c50a6}
+#answer-edit-dialog .answer-edit-dialog-header{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ flex:none;padding:14px 18px;border-bottom:1px solid #d8e3ee;background:#f5f8fc;
+}
+#answer-edit-dialog h2{font-size:28px!important;line-height:1.35;margin:0}
+#answer-edit-dialog #answer-edit-dialog-close{font-size:32px!important;min-width:52px;min-height:52px;margin:0;padding:0;background:#fff}
+#answer-edit-dialog .answer-edit-dialog-body{min-height:0;overflow:auto;overscroll-behavior:contain;padding:14px 18px}
+#answer-edit-dialog .answer-edit-instruction{font-size:22px;line-height:1.5;margin:0 0 12px;color:#526d86}
+#answer-edit-dialog .answer-edit-dialog-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+#answer-edit-dialog .answer-edit-dialog-field{min-width:0}
+html body.assistant-chat-page.wechat-chat #answer-edit-dialog label{
+ display:block;font-size:24px!important;line-height:1.4;font-weight:750;margin:0 0 8px;
+}
+html body.assistant-chat-page.wechat-chat #answer-edit-dialog :is(#question,#answer,#answer-edit-other){
+ box-sizing:border-box;display:block;width:100%!important;min-width:0;margin:0;
+ height:160px!important;min-height:160px!important;max-height:none;resize:none;
+ padding:12px!important;font-size:max(28px,var(--phone-control,28px))!important;line-height:1.5!important;
+ border:2px solid #89a8cf;border-radius:10px;color:#17324f;background:#fff;overflow:auto;
+}
+html body.assistant-chat-page.wechat-chat #answer-edit-dialog #answer{background:#f5fbf6;border-color:#79a58b}
+#answer-edit-dialog #answer-edit-more{margin:14px 0 0;padding-top:10px;border-top:1px solid #d8e3ee}
+#answer-edit-dialog #answer-edit-more summary{font-size:23px!important;min-height:48px;line-height:1.4;padding:6px 0;color:#1c5198;font-weight:700}
+#answer-edit-dialog #answer-edit-more[open] label{margin-top:12px}
+html body.assistant-chat-page.wechat-chat #answer-edit-dialog #answer-edit-public-setting{display:flex;align-items:center;gap:10px;font-size:23px!important}
+#answer-edit-dialog #answer-edit-public{width:28px!important;height:28px;min-height:28px;flex:none}
+#answer-edit-dialog #answer-edit-footer{flex:none;padding:12px 18px;border-top:1px solid #d8e3ee;background:#f5f8fc}
+#answer-edit-dialog #answer-edit-form{margin:0!important;padding:0!important;border:0;background:transparent}
+#answer-edit-dialog .answer-edit-actions{display:flex;align-items:stretch;gap:10px;margin:0!important}
+html body.assistant-chat-page.wechat-chat #answer-edit-dialog .answer-edit-actions button{
+ font-size:25px!important;min-height:58px!important;min-width:0;margin:0;padding:10px 12px;flex:1 1 auto!important;
+}
+html body.assistant-chat-page.wechat-chat #answer-edit-dialog #answer-edit-save{flex:2 1 auto!important;background:#1b55cf;color:#fff;font-weight:750}
+html body.assistant-chat-page.wechat-chat #answer-edit-dialog .page-help-button{flex:0 0 auto!important;font-size:22px!important}
+#answer-edit-dialog #answer-edit-status{font-size:23px!important;line-height:1.5;margin:12px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+@media(min-width:901px){
+ #answer-edit-dialog .answer-edit-dialog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+ html body.assistant-chat-page.wechat-chat #answer-edit-dialog :is(#question,#answer){height:260px!important;min-height:260px!important}
+}
+@media(max-width:360px){
+ #answer-edit-dialog .answer-edit-dialog-header,#answer-edit-dialog .answer-edit-dialog-body,#answer-edit-dialog #answer-edit-footer{padding:12px}
+ html body.assistant-chat-page.wechat-chat #answer-edit-dialog .answer-edit-actions button{font-size:23px!important;padding:8px}
+ html body.assistant-chat-page.wechat-chat #answer-edit-dialog .page-help-button{font-size:20px!important}
+}
+
+
+/* Readable assistant controls and expanded references, in this assistant page only. */
+html body.assistant-chat-page.wechat-chat #who{
+ font-size:max(24px,var(--phone-detail,24px))!important;color:#29435c!important;line-height:1.4;
+}
+html body.assistant-chat-page.wechat-chat #result .answer-heading h3{
+ font-size:max(26px,var(--phone-detail,26px))!important;color:#29435c!important;font-weight:750;
+}
+html body.assistant-chat-page.wechat-chat #result :is(.speech-actions button,#edit-answer,#teach-this,#answer-details>summary),
+html body.assistant-chat-page.wechat-chat #work-dock :is(.chat-toolbar button,#ask .send-key,#voice-start,#chat-store-messages),
+html body.assistant-chat-page.wechat-chat #assistant-tools #quick button{
+ font-size:max(26px,var(--phone-detail,26px))!important;min-height:56px!important;font-weight:750;
+}
+html body.assistant-chat-page.wechat-chat #result :is(.speech-actions button,#edit-answer,#teach-this,#answer-details>summary),
+html body.assistant-chat-page.wechat-chat #work-dock :is(.chat-toolbar button,#voice-start,#chat-store-messages),
+html body.assistant-chat-page.wechat-chat #assistant-tools #quick button{
+ color:#173f69!important;
+}
+html body.assistant-chat-page.wechat-chat #result :is(#basis,#data-note,#sources a,#tariff-export-count,#tariff-export-status,.data-note),
+html body.assistant-chat-page.wechat-chat #result #answer-details :is(p,small,label,summary,select,button,th,td){
+ font-size:max(24px,var(--phone-detail,24px))!important;line-height:1.5!important;color:#203c58!important;
+}
+html body.assistant-chat-page.wechat-chat #result #answer-details :is(button,select){min-height:54px!important}
+html body.assistant-chat-page.wechat-chat #answer-details .table-wrap{overflow:auto}
+html body.assistant-chat-page.wechat-chat #answer-details :is(th,td){white-space:normal;word-break:normal;overflow-wrap:anywhere}
+html body.assistant-chat-page.wechat-chat #work-dock :is(#work-more-panel summary,#work-more-panel label,#work-more-panel p,#work-more-panel a,.voice-hint,.chat-module>summary),
+html body.assistant-chat-page.wechat-chat :is(#answer-edit-status,#status,#answer-edit-label,#answer-edit-hint){
+ font-size:max(24px,var(--phone-detail,24px))!important;line-height:1.5!important;color:#203c58;
+}
+html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel :is(select,input:not([type=checkbox]),button){
+ font-size:max(26px,var(--phone-detail,26px))!important;min-height:56px!important;color:#173f69;
+}
+html body.assistant-chat-page.wechat-chat #answer-edit-dialog :is(label,summary,.answer-edit-instruction,#answer-edit-status){
+ font-size:max(24px,var(--phone-detail,24px))!important;color:#203c58!important;
+}
+html body.assistant-chat-page.wechat-chat #answer-edit-dialog .answer-edit-actions button{
+ font-size:max(26px,var(--phone-detail,26px))!important;min-height:58px!important;
+}
+html body.assistant-chat-page.wechat-chat #answer-edit-dialog #answer-edit-save{color:#fff!important}
+html body.assistant-chat-page.wechat-chat :is(.page-help-panel,.page-help-dialog,.page-help-content) :is(p,li,label,summary,button){
+ font-size:max(24px,var(--phone-detail,24px))!important;line-height:1.5!important;color:#203c58!important;
+}
+
+html body.assistant-chat-page.wechat-chat #page-help-dialog #page-help-title{
+ font-size:max(26px,var(--phone-detail,26px))!important;color:#173f69!important;
+}
+html body.assistant-chat-page.wechat-chat #work-more-panel .primary{
+ color:#fff!important;
+}
+
+/* Status stays readable after the editor returns to the normal answer area. */
+html body.assistant-chat-page.wechat-chat #result #answer-edit-status,
+html body.assistant-chat-page.wechat-chat #status{
+ font-size:max(24px,var(--phone-detail,24px))!important;line-height:1.5!important;color:#203c58!important;
+}
+
+html body.assistant-chat-page.wechat-chat #result #answer-details>summary{
+ font-size:max(26px,var(--phone-detail,26px))!important;font-weight:750;min-height:56px!important;color:#173f69!important;
+}
+
+/* Attendance controls: external stylesheet required by the existing self-only CSP. */
+
+#attendance-panel label,#fieldwork-dialog label{display:block;font-size:26px!important;font-weight:700;margin:12px 0 6px}
+#attendance-panel h2,#fieldwork-dialog h2{font-size:30px!important}
+#attendance-panel h3{font-size:27px!important;margin:14px 0 8px}
+#attendance-panel .attendance-controls{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+#attendance-panel button,#fieldwork-dialog button{font:inherit;font-size:26px!important;min-height:56px;padding:8px 12px}
+#attendance-panel input,#fieldwork-dialog input,#fieldwork-dialog textarea{box-sizing:border-box;font:inherit;font-size:26px!important;min-height:56px;width:100%;padding:10px;border:2px solid #91aacf;border-radius:10px;color:#172b46;background:white}
+#attendance-panel .attendance-controls input{flex:1;min-width:180px;width:auto}
+#attendance-panel .attendance-record,#attendance-panel .fieldwork-record{padding:12px;margin:10px 0;border:1px solid #c5d2e5;border-radius:12px;background:#fff;overflow-wrap:anywhere}
+#attendance-panel .fieldwork-record{background:#edf5ff}
+#attendance-panel .fieldwork-record-title{display:block;font-size:28px!important;line-height:1.4;color:#173862}
+#attendance-panel p,#fieldwork-dialog p{font-size:24px!important;line-height:1.5;margin:6px 0}
+#attendance-panel .attendance-total{font-weight:700}
+#attendance-panel .attendance-note,#fieldwork-dialog .attendance-note{color:#4b5b70}
+#attendance-status,#fieldwork-status{font-weight:700;white-space:pre-wrap;overflow-wrap:anywhere}
+#attendance-status.attendance-error,#fieldwork-status{color:#a51919}
+#fieldwork-dialog{box-sizing:border-box;width:calc(100% - 24px);max-width:660px;max-height:90vh;max-height:90svh;overflow:auto;border:2px solid #92aaca;border-radius:15px;padding:18px;color:#172b46}
+#fieldwork-dialog::backdrop{background:rgba(20,35,55,.55)}
+#fieldwork-dialog .fieldwork-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+#fieldwork-dialog .fieldwork-actions button{flex:1;min-width:140px}
+#fieldwork-dialog [readonly]{background:#edf2f7}
+#attendance-store-dialog{box-sizing:border-box;width:calc(100% - 24px);max-width:660px;max-height:90svh;overflow:auto;border:2px solid #92aaca;border-radius:15px;padding:18px;color:#172b46}
+#attendance-store-dialog::backdrop{background:rgba(20,35,55,.55)}
+#attendance-store-dialog label{display:block;font-size:26px!important;font-weight:700;margin:12px 0 6px}
+#attendance-store-dialog h2{font-size:30px!important}
+#attendance-store-dialog input{box-sizing:border-box;font:inherit;font-size:26px!important;min-height:56px;width:100%;padding:10px;border:2px solid #91aacf;border-radius:10px;color:#172b46;background:white}
+#attendance-store-dialog button{font:inherit;font-size:26px!important;min-height:56px;padding:8px 12px}
+#attendance-store-dialog p,#attendance-panel .attendance-location-record a{font-size:24px!important;line-height:1.5;overflow-wrap:anywhere}
+#attendance-store-dialog .fieldwork-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+#attendance-store-dialog .fieldwork-actions button{flex:1;min-width:140px}
+#attendance-store-status{font-weight:700;white-space:pre-wrap;color:#a51919}
+
+#attendance-review-dialog{box-sizing:border-box;width:calc(100% - 24px);max-width:660px;max-height:90svh;overflow:auto;border:2px solid #92aaca;border-radius:15px;padding:18px;color:#172b46}#attendance-review-dialog::backdrop{background:rgba(20,35,55,.55)}#attendance-review-dialog h2{font-size:30px!important}#attendance-review-dialog label{display:block;font-size:26px!important;font-weight:700;margin:12px 0 6px}#attendance-review-dialog textarea,#attendance-review-dialog select{box-sizing:border-box;font:inherit;font-size:26px!important;min-height:56px;width:100%;padding:10px;border:2px solid #91aacf;border-radius:10px;color:#172b46;background:white}#attendance-review-dialog button{font:inherit;font-size:26px!important;min-height:56px;padding:8px 12px}#attendance-review-dialog p{font-size:24px!important;line-height:1.5;overflow-wrap:anywhere}#attendance-review-dialog .fieldwork-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}#attendance-review-status{font-weight:700;white-space:pre-wrap;color:#a51919}
+#attendance-spot-dialog{box-sizing:border-box;width:calc(100% - 24px);max-width:660px;max-height:90svh;overflow:auto;border:2px solid #92aaca;border-radius:15px;padding:18px;color:#172b46}#attendance-spot-dialog::backdrop{background:rgba(20,35,55,.55)}#attendance-spot-dialog h2{font-size:30px!important}#attendance-spot-dialog label{display:block;font-size:26px!important;font-weight:700;margin:12px 0 6px}#attendance-spot-dialog input{box-sizing:border-box;font:inherit;font-size:26px!important;min-height:56px;width:100%;padding:10px;border:2px solid #91aacf;border-radius:10px;color:#172b46;background:white}#attendance-spot-dialog input[type=checkbox]{width:auto;min-height:26px}#attendance-spot-dialog button{font:inherit;font-size:26px!important;min-height:56px;padding:8px 12px}#attendance-spot-dialog p{font-size:24px!important;line-height:1.5;overflow-wrap:anywhere}#attendance-spot-dialog .fieldwork-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}#attendance-spot-status{font-weight:700;white-space:pre-wrap;color:#a51919}
+html body.assistant-chat-page.wechat-chat #work-dock .compact-send{flex:0 0 calc(2em + 28px);min-width:calc(2em + 28px)}
+html body.assistant-chat-page.wechat-chat #work-dock .compact-send .send-key{width:100%;min-width:100%;white-space:nowrap;overflow-wrap:normal;word-break:normal}
+html body.assistant-chat-page.wechat-chat #work-dock .chat-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;justify-content:flex-start}
+html body.assistant-chat-page.wechat-chat #work-dock .chat-toolbar button,
+html body.assistant-chat-page.wechat-chat #attendance-panel .attendance-controls button{
+ box-sizing:border-box;flex:1 1 calc(50% - 4px);min-width:min(100%,calc(4em + 28px));max-width:100%;margin:0;white-space:normal;overflow-wrap:normal;word-break:normal;line-height:1.4
+}
+html body.assistant-chat-page.wechat-chat #work-dock .chat-toolbar #voice-start{flex-basis:100%;width:100%;min-width:0}
+html body.assistant-chat-page.wechat-chat #work-dock .chat-toolbar #attendance-spot-summary{flex-basis:100%;max-width:100%;overflow-wrap:break-word}
+html body.assistant-chat-page.wechat-chat #attendance-panel .attendance-controls{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+html body.assistant-chat-page.wechat-chat #attendance-panel .attendance-controls input{box-sizing:border-box;flex:1 1 100%;min-width:0;width:100%;max-width:100%}
+html body.assistant-chat-page.wechat-chat #attendance-panel button,
+html body.assistant-chat-page.wechat-chat :is(#fieldwork-dialog,#attendance-store-dialog,#attendance-review-dialog,#attendance-spot-dialog) button{
+ font:inherit;font-size:max(28px,var(--phone-control,28px))!important;min-height:60px!important;max-width:100%;padding:8px 12px;white-space:normal;overflow-wrap:normal;word-break:normal
+}
+html body.assistant-chat-page.wechat-chat #attendance-panel :is(input,label),
+html body.assistant-chat-page.wechat-chat :is(#fieldwork-dialog,#attendance-store-dialog,#attendance-review-dialog,#attendance-spot-dialog) :is(input,textarea,select,label){font-size:max(26px,var(--phone-control,26px))!important;max-width:100%}
+html body.assistant-chat-page.wechat-chat #attendance-panel :is(p,strong,a),
+html body.assistant-chat-page.wechat-chat :is(#fieldwork-dialog,#attendance-store-dialog,#attendance-review-dialog,#attendance-spot-dialog) p{font-size:max(26px,var(--phone-body,26px))!important;line-height:1.5!important}
+html body.assistant-chat-page.wechat-chat #attendance-panel .fieldwork-record-title{font-size:max(28px,var(--phone-body,28px))!important}
+html body.assistant-chat-page.wechat-chat :is(#fieldwork-dialog,#attendance-store-dialog,#attendance-review-dialog,#attendance-spot-dialog) :is(input,select,textarea){box-sizing:border-box;width:100%;min-width:0}
+html body.assistant-chat-page.wechat-chat #attendance-spot-dialog input[type=checkbox]{width:auto}
+html body.assistant-chat-page.wechat-chat :is(#fieldwork-dialog,#attendance-store-dialog,#attendance-review-dialog,#attendance-spot-dialog) .fieldwork-actions{display:flex;flex-wrap:wrap;gap:8px}
+html body.assistant-chat-page.wechat-chat :is(#fieldwork-dialog,#attendance-store-dialog,#attendance-review-dialog,#attendance-spot-dialog) .fieldwork-actions button{box-sizing:border-box;flex:1 1 calc(50% - 4px);min-width:min(100%,calc(4em + 28px));margin:0}
+html body.assistant-chat-page.wechat-chat #attendance-panel .attendance-supplement-record{padding:10px;margin:10px 0;border:1px solid #c5d2e5;border-radius:10px;background:#f3f7fd}
+html body.assistant-chat-page.wechat-chat #attendance-panel .attendance-supplement-button{display:block;margin:8px 0}
+html body.assistant-chat-page.wechat-chat #work-dock:has(#work-more-panel:not([hidden])){max-height:100%;overflow-y:auto;overflow-x:hidden}
+html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel:not([hidden]){max-height:none;overflow:visible}
+
+/* Attendance actions and outcomes have separate colours. */
+#attendance-panel .attendance-controls button,#fieldwork-start,#fieldwork-submit,#fieldwork-checkpoint-shortcut,#fieldwork-shortcut{background:#1763ce;color:#fff;border:2px solid #1763ce;font-weight:700}
+#attendance-panel button:disabled,#fieldwork-submit:disabled,#fieldwork-shortcut:disabled{opacity:.52;cursor:wait}
+#attendance-status{padding:12px 14px;border:2px solid #b9cdea;border-radius:10px;background:#edf4ff;color:#194e94;line-height:1.65}
+#attendance-status:empty{display:none}
+#attendance-status[data-feedback-tone="pending"],.attendance-location-record[data-feedback-tone="pending"]{background:#fff4df;color:#845100;border-color:#e6b866}
+#attendance-status[data-feedback-tone="normal"],.attendance-location-record[data-feedback-tone="normal"]{background:#eaf8ed;color:#22643a;border-color:#90c29b}
+#attendance-status[data-feedback-tone="error"]{background:#fff0ef;color:#a52922;border-color:#e2a5a0}
+.attendance-location-record{padding:8px 12px;border-left:4px solid #b9cdea;border-radius:7px;margin:8px 0}
+.attendance-location-record .attendance-note{color:inherit}
+.fieldwork-checkpoint{border-top:2px solid #bccce2;padding:12px 0;margin-top:12px}

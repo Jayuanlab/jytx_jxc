@@ -1,0 +1,197 @@
+.mobile-action-dock{display:none}
+
+@media(max-width:700px){
+
+ :root{--mobile-action-height:calc(64px + env(safe-area-inset-top))}
+
+ body{padding-top:var(--mobile-action-height)!important;padding-bottom:0!important}
+
+ .mobile-action-dock{position:fixed;left:0;right:0;top:0;z-index:10;display:flex!important;align-items:center;justify-content:space-between;gap:12px;min-height:var(--mobile-action-height);padding:calc(8px + env(safe-area-inset-top)) 14px 8px;background:#fff;border-bottom:1px solid #c7d4e7;box-shadow:0 4px 16px #172a4620}
+
+ .mobile-action-dock a,.mobile-action-dock button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-width:112px;min-height:48px;padding:8px 15px;border-radius:11px;border:1px solid #a7bce0;background:#edf3ff;color:#1649ad;font:700 19px/1.2 -apple-system,BlinkMacSystemFont,"Microsoft YaHei",sans-serif;text-decoration:none;white-space:nowrap}
+
+ .mobile-action-dock button{background:#fff;color:#394b66;border-color:#cbd5e3;cursor:pointer}
+
+ .mobile-action-dock .nav-icon{font-size:30px;line-height:1;font-weight:500}
+
+ .mobile-action-dock button:disabled{opacity:.55}
+
+ .topbar{top:var(--mobile-action-height)}
+
+ #nav{top:calc(var(--mobile-action-height) + 58px)}
+
+}
+
+/* 仅手机：长单据大字版，电脑端不受影响 */
+
+@media(max-width:700px){
+
+ body{font-size:20px;line-height:1.6}
+
+ header strong,.heading h1{font-size:25px;line-height:1.35}
+
+ header small,.brand small,.heading p{font-size:17px;color:#405674}
+
+ h2,.card h2{font-size:23px}
+
+ h3,.receipt h3,.service h3{font-size:21px}
+
+ label,.field label{font-size:19px;line-height:1.5;color:#243b58}
+
+ input:not([type=checkbox]),select,textarea,dialog input,dialog select,dialog textarea{font-size:20px;min-height:56px;line-height:1.4}
+
+ input::placeholder,textarea::placeholder{color:#667992;opacity:1}
+
+ button,.primary,.secondary,.danger,.receipt button,.row button,dialog button,.actions button{font-size:19px;min-height:52px;line-height:1.35}
+
+ .hint,.muted,.field small,.sale-results button span,.receipt small,.service small,.product-row small,.guidance,.stats span,article p,.lines,.schedule,details summary{font-size:18px;line-height:1.55;color:#405674}
+
+ .chip,.pill{font-size:17px}
+
+ .schedule th,.schedule td,table th,table td{font-size:18px;line-height:1.5}
+
+}
+
+/* 手机默认双倍字；顶部按钮可切换为约 1.5 倍。只改变排版，不缩放整页。 */
+
+@media(max-width:700px){
+
+ html.mobile-text-large{--phone-body:28px;--phone-detail:24px;--phone-control:27px;--phone-heading:33px;--phone-metric:44px}
+
+ html.mobile-text-double{--phone-body:40px;--phone-detail:34px;--phone-control:38px;--phone-heading:46px;--phone-metric:60px}
+
+ html:is(.mobile-text-large,.mobile-text-double) body{font-size:var(--phone-body)!important;line-height:1.5}
+
+ html:is(.mobile-text-large,.mobile-text-double) :is(p,li,td,th,small,label,summary,.hint,.muted,.guidance,.lines,.sale-review span,.sale-step p,.card small,.stat span,.stat small,.pending-item,.receipt small,.receipt p,.field small,.sale-results button span,.sale-sheet-summary span,.sale-sheet-paid,.chip,.pill){font-size:var(--phone-detail)!important;line-height:1.5;overflow-wrap:anywhere}
+
+ html:is(.mobile-text-large,.mobile-text-double) :is(input,select,textarea,button,.primary,.secondary,.danger,.receipt button,.row button,dialog button){font-size:var(--phone-control)!important;line-height:1.35;min-height:68px!important}
+
+ html:is(.mobile-text-large,.mobile-text-double) textarea{min-height:125px!important}
+
+ html:is(.mobile-text-large,.mobile-text-double) :is(h1,h2,h3,.heading h1,.card h2,.sale-step h2,.card strong,.receipt h3){font-size:var(--phone-heading)!important;line-height:1.3;overflow-wrap:anywhere}
+
+ html:is(.mobile-text-large,.mobile-text-double) :is(.stat strong,.sale-sheet-summary strong){font-size:var(--phone-metric)!important;line-height:1.2}
+
+ html:is(.mobile-text-large,.mobile-text-double) .sale-sheet-items td::before{flex:0 0 104px;font-size:var(--phone-detail);line-height:1.4;overflow-wrap:anywhere}
+
+ html:is(.mobile-text-large,.mobile-text-double) :is(.sale-step-number,.symbol){width:50px;height:50px;flex-basis:50px;font-size:28px}
+
+ html:is(.mobile-text-large,.mobile-text-double) :is(.receipt,.card,.panel,.sale-review){overflow-wrap:anywhere}
+
+ html.mobile-text-double :is(.dashboard,.grid){grid-template-columns:minmax(0,1fr)!important}
+
+ html.mobile-text-double .topbar .identity{display:none}
+
+ html.mobile-text-double .topbar .brand strong{font-size:30px!important}
+
+ html:is(.mobile-text-large,.mobile-text-double) .mobile-action-dock{gap:5px;padding-left:7px;padding-right:7px}
+
+ html:is(.mobile-text-large,.mobile-text-double) .mobile-action-dock :is(a,button){font-size:24px!important;min-width:0;min-height:48px!important;flex:1 1 0;padding:7px 4px;line-height:1.1}
+
+ html:is(.mobile-text-large,.mobile-text-double) .mobile-action-dock .nav-icon{font-size:28px!important}
+
+ html:is(.mobile-text-large,.mobile-text-double) .mobile-action-dock .text-size-toggle{background:#1649ad;color:#fff;border-color:#1649ad;font-weight:800}
+
+}
+
+/* 常驻数字助理：页面内浮窗保留当前表单内容。 */
+
+.assistant-float{position:fixed!important;right:20px;bottom:22px;z-index:4;width:56px!important;height:56px!important;min-width:56px!important;min-height:56px!important;padding:0!important;border:2px solid #fff!important;border-radius:50%!important;background:#2458d5!important;color:#fff!important;box-shadow:0 8px 25px #133b8a55!important;font:800 26px/1 "Microsoft YaHei",sans-serif!important;cursor:pointer}
+
+.assistant-float:hover,.assistant-float:focus-visible{background:#1347be!important;outline:3px solid #a8c6ff}
+
+.assistant-float-panel{position:fixed;right:20px;bottom:90px;z-index:9;display:flex;flex-direction:column;width:min(430px,calc(100vw - 24px));height:min(660px,calc(100vh - 115px));background:#fff;border:1px solid #adc5ee;border-radius:17px;box-shadow:0 15px 50px #102a5955;overflow:hidden}
+
+.assistant-float-panel[hidden]{display:none}
+
+.assistant-float-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:56px;padding:8px 12px;background:#eaf1ff;color:#173c85;font:700 18px/1.3 "Microsoft YaHei",sans-serif}
+
+.assistant-float-head div{display:flex;align-items:center;gap:9px}
+
+.assistant-float-head a{font-size:14px;color:#174bb4;text-decoration:none}
+
+.assistant-float-head button{min-width:42px!important;min-height:42px!important;padding:0!important;border:0!important;border-radius:9px!important;background:#fff!important;color:#214577!important;font:700 25px/1 sans-serif!important;cursor:pointer}
+
+.assistant-float-panel iframe{display:block;flex:1;width:100%;border:0;background:#fff}
+
+body:has(dialog[open]) .assistant-float,body:has(.modal:not([hidden])) .assistant-float{visibility:hidden}
+
+@media(max-width:700px){.assistant-float{right:15px;bottom:calc(15px + env(safe-area-inset-bottom))}.assistant-float-panel{inset:var(--mobile-action-height,64px) 0 0 0;width:100vw;height:auto;border-radius:0;border:0}.assistant-float-head{min-height:58px}}
+
+
+
+
+
+/* Assistant entry stays next to the store/page name and never overlaps messages. */
+
+.assistant-brand-actions{display:inline-flex;align-items:center;gap:8px;min-width:0;vertical-align:middle}
+
+.home-header .assistant-brand-actions{display:flex;flex:1 1 auto;min-width:0}
+
+.home-header .assistant-brand-actions .home-brand{flex:0 1 auto;min-width:0}
+
+.assistant-float.assistant-in-header{position:static!important;inset:auto!important;display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 44px!important;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;margin:0!important;padding:0!important;font-size:26px!important;line-height:1!important;box-shadow:0 2px 7px #133b8a25!important;pointer-events:auto}
+
+.assistant-launcher-bar{display:flex;align-items:center;justify-content:flex-end;padding:8px 14px}
+
+.assistant-float-panel{z-index:30}
+
+@media(max-width:400px){.home-header .assistant-brand-actions{gap:6px}.home-header .hero-top{flex-wrap:wrap}.home-header #identity{margin-left:auto}.home-header .home-help{flex:0 0 40px}}
+
+
+
+/* Readable named entry with breathing room after the store name. */
+
+.assistant-brand-actions{gap:18px!important}
+
+.assistant-float.assistant-in-header{flex:0 0 auto!important;width:auto!important;min-width:112px!important;height:48px!important;min-height:48px!important;padding:8px 12px!important;border-radius:12px!important;font-size:22px!important;white-space:nowrap}
+
+
+
+/* The named entry stays readable without squeezing a short store name. */
+
+html body .assistant-brand-actions #digital-assistant-launcher.assistant-in-header{font-size:24px!important;height:52px!important;min-height:52px!important}
+
+
+/* Narrow screens wrap the named action before shortening the store name. */
+.home-header .assistant-brand-actions{flex-wrap:wrap;row-gap:8px}
+.home-header .assistant-brand-actions .home-brand{flex:0 0 auto;max-width:100%}
+
+/* Direct entries: each assistant keeps its own loaded page and draft. */
+.assistant-entry-controls{display:inline-flex;align-items:center;flex-wrap:wrap;gap:8px;max-width:100%;min-width:0}
+.assistant-role-choice{display:inline-flex;align-items:stretch;border:2px solid #b5c9e6;border-radius:12px;overflow:hidden;flex:0 0 auto}
+html body .assistant-entry-controls .assistant-entry-button{position:static!important;display:inline-flex!important;align-items:center;justify-content:center;min-width:62px!important;min-height:50px!important;height:auto!important;width:auto!important;flex:0 0 auto!important;padding:8px 11px!important;margin:0!important;border:0!important;border-radius:0!important;font:800 24px/1.2 "Microsoft YaHei",sans-serif!important;color:#fff!important;white-space:nowrap!important;cursor:pointer;box-shadow:none!important}
+html body .assistant-entry-controls a.assistant-entry-button{text-decoration:none!important}
+html body .assistant-entry-controls .assistant-entry-work{background:#2458d5!important}
+html body .assistant-entry-controls .assistant-entry-personal{background:#19734f!important;border-left:2px solid #fff!important}
+html body .assistant-entry-controls .assistant-entry-customer{background:#a45108!important;border-radius:12px!important}
+html body .assistant-entry-controls .assistant-entry-button[hidden],.assistant-role-choice[hidden],.assistant-entry-controls [hidden]{display:none!important}
+html body .assistant-entry-controls .assistant-entry-button[aria-pressed=true]{box-shadow:inset 0 0 0 3px #fff!important;outline:2px solid #173859;outline-offset:1px}
+html body .assistant-entry-controls .assistant-entry-button:focus-visible{outline:3px solid #173859;outline-offset:3px}
+html body .assistant-entry-controls .assistant-entry-button:disabled{opacity:.65;cursor:wait}
+.assistant-entry-state{font-size:18px;line-height:1.3;color:#3d506c;flex:1 1 100%}
+html body .assistant-entry-controls .assistant-entry-retry{min-height:42px!important;padding:6px 12px!important;font-size:20px!important}
+.assistant-entry-controls>a{font-size:20px;color:#174bb4;font-weight:700}
+.assistant-brand-actions{flex-wrap:wrap;align-items:center;row-gap:8px;max-width:100%}
+.assistant-separated-panel{top:80px;bottom:18px;height:auto;max-height:calc(100dvh - 98px);width:min(520px,calc(100vw - 24px))}
+.assistant-separated-panel[data-assistant=personal] .assistant-float-head{background:#e6f4ed;color:#14563d}
+.assistant-separated-panel[data-assistant=customer] .assistant-float-head{background:#fff0df;color:#854006}
+.assistant-separated-panel .assistant-float-head{min-height:60px;font-size:23px;flex-direction:column;align-items:stretch;gap:6px}
+.assistant-separated-panel .assistant-float-head>strong{display:none}
+.assistant-separated-panel .assistant-float-head>div{justify-content:flex-end}
+.assistant-separated-panel .assistant-entry-controls{justify-content:flex-start}
+.assistant-entry-home-slot{display:inline-flex;min-width:0;max-width:100%}
+.assistant-separated-panel .assistant-float-head a{font-size:19px;white-space:nowrap}
+.assistant-separated-panel iframe{min-height:0;flex:1 1 0}
+.assistant-separated-panel iframe[hidden]{display:none!important}
+.assistant-frame-status{margin:0;padding:8px 12px;background:#fff;font-size:20px;line-height:1.4;color:#405674}
+.assistant-frame-status[hidden]{display:none}
+@media(max-width:700px){
+ .assistant-brand-actions{gap:12px!important}
+ .assistant-entry-controls{gap:6px}
+ html body .assistant-entry-controls .assistant-entry-button{font-size:24px!important;min-height:50px!important;min-width:60px!important;padding:8px 9px!important}
+ .assistant-separated-panel{inset:var(--mobile-action-height,64px) 0 0 0;max-height:none;width:100vw;height:auto;border:0;border-radius:0}
+ .assistant-separated-panel .assistant-float-head{gap:8px;padding:8px 10px;font-size:22px}
+ .assistant-separated-panel .assistant-float-head a{font-size:18px}
+ .assistant-separated-panel .assistant-float-head div{gap:8px}
+}

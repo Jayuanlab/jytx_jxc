@@ -1,0 +1,255 @@
+:root{font:15px/1.55 system-ui,-apple-system,"Microsoft YaHei",sans-serif;color:#233047;background:#f4f6fa}
+*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:wait}
+.topbar{height:66px;background:#fff;border-bottom:1px solid #e4e9f1;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:3}.brand,.identity{display:flex;align-items:center;gap:12px}.brand strong{display:block;font-size:17px}.brand small{display:block;color:#78859a;font-size:12px}.mark{display:grid;place-items:center;background:#2457db;color:#fff;width:38px;height:38px;border-radius:11px;font-weight:700}.identity{color:#66748a}
+.shell{display:grid;grid-template-columns:196px minmax(0,1fr);min-height:calc(100vh - 66px)}nav{padding:18px 12px;background:#fff;border-right:1px solid #e4e9f1}nav button{width:100%;text-align:left;border:0;background:transparent;color:#516178;padding:10px 14px;border-radius:9px;margin:1px 0}nav button.active,nav button:hover{background:#eaf0ff;color:#2457db}main{max-width:1320px;width:100%;padding:28px;margin:0 auto}.heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}.heading h1{margin:0;font-size:26px}.heading p{margin:4px 0 0;color:#778398}
+.card{background:#fff;border:1px solid #e3e8ef;border-radius:14px;padding:20px;margin-bottom:18px;box-shadow:0 2px 8px #1b2b4606}.card h2{font-size:18px;margin:0 0 14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}.stat{padding:18px;background:#fff;border:1px solid #e3e8ef;border-radius:12px}.stat span{display:block;color:#728098}.stat strong{display:block;font-size:25px;margin-top:8px}.actions,.form-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.primary,.secondary,.danger{padding:9px 15px;border-radius:9px;border:1px solid #2457db;background:#2457db;color:#fff}.secondary{background:#fff;color:#2457db}.danger{background:#fff;color:#c23636;border-color:#e3b6b6}.text-button{border:0;background:none;color:#2457db;padding:5px}.muted{color:#778398}.error{color:#b32828}.success{color:#137a52}
+.dashboard-stock{margin-bottom:18px}.dashboard-panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}.dashboard-panels .card{min-width:0}.dashboard-panels table{min-width:0}.dashboard-panels th,.dashboard-panels td{white-space:nowrap}.dashboard-panels td:first-child{white-space:normal}.card h2 small{font-size:13px;font-weight:400;margin-left:8px}
+label{display:block;font-size:13px;color:#56657a;margin-bottom:4px}input,select,textarea{border:1px solid #cbd4e1;border-radius:8px;background:#fff;color:#26354a;padding:9px 10px;width:100%;min-height:40px}textarea{min-height:78px;resize:vertical}.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px;margin:14px 0}.field.wide{grid-column:1/-1}.field small{display:block;color:#8a95a5;margin-top:3px}.form-actions{margin-top:15px}.search{max-width:360px}
+.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:650px}th,td{padding:11px 9px;text-align:left;border-bottom:1px solid #edf0f5;vertical-align:top}th{color:#718096;font-weight:600;font-size:13px}td small{display:block;color:#8b97a7}td .actions{white-space:nowrap}.right{text-align:right}.pill{display:inline-block;background:#eff4ff;color:#325ec3;padding:3px 9px;border-radius:99px;font-size:12px}.empty{padding:25px;text-align:center;color:#8490a3}.stack>*+*{margin-top:11px}.line{border-top:1px solid #edf0f5;padding:11px 0}.line:first-child{border:0}.notice{padding:12px 15px;background:#fff8e9;border:1px solid #f5deb2;border-radius:9px;color:#7b5814}.modal{position:fixed;inset:0;background:#1b2b4666;z-index:5;display:grid;place-items:center;padding:18px}.modal-content{background:#fff;border-radius:15px;padding:24px;max-width:760px;max-height:90vh;overflow:auto;width:100%;box-shadow:0 16px 48px #101e3b33}.modal h2{margin:0 0 12px}#toast{position:fixed;right:20px;bottom:20px;z-index:8;background:#20314f;color:#fff;padding:10px 16px;border-radius:9px;display:none;max-width:370px}#toast.show{display:block}
+@media(max-width:700px){.topbar{height:58px;padding:0 12px}.shell{display:block}nav{display:flex;overflow-x:auto;padding:8px;border-right:0;border-bottom:1px solid #e4e9f1;position:sticky;top:58px;z-index:2}nav button{white-space:nowrap;width:auto}main{padding:15px}.heading h1{font-size:21px}.card{padding:15px}.identity{font-size:12px}.fields{grid-template-columns:1fr 1fr}.field.wide{grid-column:1/-1}}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.stat{padding:12px}.stat strong{font-size:20px;overflow-wrap:anywhere}.staff-list .table-wrap{overflow:visible}.staff-list table,.staff-list tbody,.staff-list tr,.staff-list td{display:block;width:100%;min-width:0}.staff-list thead{display:none}.staff-list tr{padding:10px 0;border-bottom:1px solid #e3e8ef}.staff-list tr:last-child{border-bottom:0}.staff-list td{border:0;padding:6px 0;display:flex;gap:10px;justify-content:space-between;align-items:flex-start}.staff-list td::before{content:attr(data-label);color:#718096;flex:0 0 72px}.staff-list td .actions{justify-content:flex-end;white-space:normal}.staff-list .secondary,.staff-list .danger{padding:7px 9px}}
+.sale-results{display:grid;gap:6px;margin-top:10px}.sale-results:empty{display:none}.sale-results button{border:1px solid #e3e8ef;border-radius:8px;background:#fff;text-align:left;padding:10px;cursor:pointer}.sale-results button:hover{background:#eff4ff}.sale-results button span{display:block;color:#718096;font-size:13px;margin-top:3px}.sale-material-add{display:grid;grid-template-columns:minmax(0,1fr) 92px auto;gap:8px}.sale-material-add button{white-space:nowrap}@media(max-width:700px){.sale-material-add{grid-template-columns:minmax(0,1fr) 80px}.sale-material-add button{grid-column:1/-1}}
+.sale-item-modal input[type=checkbox]{width:22px;min-height:22px}.sale-item-modal .field:has(input[type=checkbox]){display:flex;align-items:center;justify-content:space-between;gap:12px}.sale-item-modal .field:has(input[type=checkbox]) label{margin:0}@media(max-width:700px){.sale-item-modal .fields{grid-template-columns:1fr}.sale-item-modal .field.wide{grid-column:auto}}
+.sale-item-modal [hidden]{display:none!important}
+
+/* 大字触控：开单与财务表单 */
+:root{font-size:17px}
+label{font-size:16px;color:#334766;font-weight:600}
+input,select,textarea{font-size:18px;min-height:52px;border-color:#9cacc3;padding:11px 13px}
+textarea{min-height:94px}
+.primary,.secondary,.danger{font-size:17px;min-height:48px;padding:10px 16px;font-weight:700}
+nav button{font-size:16px;min-height:44px}
+th,td{font-size:16px}
+th{color:#435873}
+.muted,.hint,.field small,.sale-results button span{color:#536781;font-size:15px}
+.sale-results button{min-height:54px;font-size:17px}
+.select-filter{margin-bottom:8px;background:#f8fbff}
+@media(max-width:700px){.fields{grid-template-columns:1fr}.heading h1{font-size:24px}.modal-content{padding:18px}.topbar .identity>a{display:none}}.copilot-card{border-color:#b9c9f7;background:linear-gradient(135deg,#f7f9ff,#fff)}
+.copilot-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.copilot-head h2{margin-bottom:3px}.copilot-head p{margin:0}
+.copilot-result{display:grid;gap:6px;margin-top:14px;padding:14px;border-radius:10px;background:#fff;border:1px solid #dce5fa}
+.copilot-result strong{font-size:19px;color:#1745a3}
+.copilot-result ul{margin:5px 0;padding-left:24px}.copilot-result li{padding:4px 0}
+.copilot-stop{color:#a12727;font-weight:700}.copilot-warn{color:#835300}.copilot-tip{color:#2d5b89}
+.copilot-result small{color:#536781}
+@media(max-width:700px){.copilot-head{align-items:stretch;flex-direction:column}.copilot-head button{align-self:flex-start}}
+
+/* 电脑版销售单：表头、明细、结算按纸质单据顺序排列 */
+.sale-sheet{padding:0;overflow:hidden}
+.sale-sheet-title{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:18px 22px;background:#f3f7ff;border-bottom:1px solid #dce5f3;color:#40536f}
+.sale-sheet-title strong{font-size:24px;color:#1d355c;margin-right:auto}
+.sale-sheet form{padding:20px 22px 24px}
+.sale-sheet-header{margin:0 0 18px}
+.sale-fixed-value{display:flex;align-items:center;min-height:52px;padding:11px 13px;background:#f5f7fb;border:1px solid #d9e1ed;border-radius:8px;font-size:18px;color:#233047}
+.sale-sheet-items{margin:18px 0;border-top:1px solid #dfe6f0;border-bottom:1px solid #dfe6f0;padding:18px 0}
+.sale-sheet-section-title{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+.sale-sheet-section-title h2{margin:0 0 12px}.sale-sheet-section-title span{color:#60718b;font-size:15px}
+.sale-sheet-items .search{max-width:520px;margin-bottom:10px}
+.sale-sheet-items table{min-width:1080px}
+.sale-sheet-items th,.sale-sheet-items td{white-space:nowrap}
+.sale-sheet-items td:nth-child(3){white-space:normal;min-width:160px}
+.sale-sheet-settlement{background:#f8faff;border:1px solid #e0e8f4;border-radius:10px;padding:16px 18px;margin-bottom:18px}
+.sale-sheet-summary{display:flex;justify-content:flex-end;gap:26px;flex-wrap:wrap}
+.sale-sheet-summary span{color:#536781}.sale-sheet-summary strong{color:#1c355a;font-size:21px;margin-left:8px}
+.sale-sheet-summary span:last-child strong{color:#bd3939;font-size:26px}
+.sale-sheet-paid{color:#60718b;margin:3px 0 0}
+@media(min-width:900px){.sale-sheet-header{grid-template-columns:repeat(4,minmax(0,1fr))}.sale-sheet-items .table-wrap{overflow:auto}}
+@media(max-width:899px){.sale-sheet-title{gap:8px;padding:14px}.sale-sheet-title strong{width:100%}.sale-sheet form{padding:14px}.sale-sheet-summary{justify-content:flex-start;gap:10px;flex-direction:column}.sale-sheet-items table{min-width:900px}}
+
+/* 销售单按办理顺序引导，宽屏与手机均保持清晰 */
+.sale-step{display:flex;align-items:flex-start;gap:12px;margin:18px 0 10px;scroll-margin-top:90px}
+.sale-step-number{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:#2457db;color:#fff;font-weight:800;font-size:19px}
+.sale-step h2{margin:0 0 2px;font-size:20px;color:#1c355a}
+.sale-step p{margin:0;color:#536781;font-size:15px}
+.sale-step-next{display:flex;justify-content:flex-end;margin:12px 0}
+.sale-sheet-items,.sale-sheet-settlement{scroll-margin-top:90px}
+.sale-submit{width:100%;font-size:19px;min-height:56px}
+@media(max-width:700px){.sale-step{gap:9px}.sale-step h2{font-size:19px}.sale-step p{font-size:15px}.sale-step-next button{width:100%}}
+.sale-review{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px;padding:16px;margin:12px 0 16px;border:1px solid #adc5f6;border-radius:10px;background:#f3f7ff}.sale-review strong{grid-column:1/-1;color:#1c4a9d;font-size:19px}.sale-review span{font-size:16px;color:#263b5d}
+@media(max-width:700px){
+ .sale-sheet-items .table-wrap{overflow:visible}
+ .sale-sheet-items table,.sale-sheet-items tbody,.sale-sheet-items tr,.sale-sheet-items td{display:block;width:100%;min-width:0}
+ .sale-sheet-items thead{display:none}
+ .sale-sheet-items tr{border:1px solid #d6e1ef;border-radius:13px;background:#fff;padding:10px 14px;margin:12px 0;box-shadow:0 2px 8px #213a6010}
+ .sale-sheet-items td,.sale-sheet-items td:nth-child(3){display:flex;justify-content:space-between;gap:12px;align-items:flex-start;white-space:normal;min-width:0;border:0;padding:7px 0;text-align:right;overflow-wrap:anywhere}
+ .sale-sheet-items td::before{content:attr(data-label);flex:0 0 82px;color:#536781;text-align:left;font-weight:700}
+ .sale-sheet-items td[data-label="商品名称"] strong{font-size:20px}
+ .sale-sheet-items td[data-label="金额"]{border-top:1px solid #dfe6f0;margin-top:4px;color:#ad3030;font-weight:800;font-size:21px}
+ .sale-sheet-items td[data-label="操作"] .actions{justify-content:flex-end;white-space:normal}
+ .sale-sheet-items .search{max-width:none}
+ .sale-sheet-section-title{align-items:center;justify-content:space-between}
+ .sale-sheet-section-title h2{margin:0}
+ .sale-sheet-header{grid-template-columns:1fr}
+ .sale-review{grid-template-columns:1fr}
+ .sale-review span{font-size:18px}
+}
+@media(max-width:700px){.sale-step,.sale-sheet-items,.sale-sheet-settlement{scroll-margin-top:calc(var(--mobile-action-height, 64px) + 135px)}}
+
+@media(max-width:700px){
+ .sales-orders-list .table-wrap{overflow:visible}
+ .sales-orders-list table,.sales-orders-list tbody,.sales-orders-list tr,.sales-orders-list td{display:block;width:100%;min-width:0}
+ .sales-orders-list thead{display:none}
+ .sales-orders-list tr{border:1px solid #d6e1ef;border-radius:13px;background:#fff;padding:10px 14px;margin:12px 0}
+ .sales-orders-list td{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;white-space:normal;min-width:0;border:0;padding:7px 0;text-align:right;overflow-wrap:anywhere}
+ .sales-orders-list td::before{content:attr(data-label);flex:0 0 82px;color:#536781;text-align:left;font-weight:700}
+ .sales-orders-list td small{margin-top:5px;overflow-wrap:anywhere}
+ .sales-orders-list td[data-label="单号"],.sales-orders-list td[data-label="金额"]{display:block;text-align:left}
+ .sales-orders-list td[data-label="单号"]::before,.sales-orders-list td[data-label="金额"]::before{display:block;margin-bottom:5px}
+ .sales-orders-list td[data-label="操作"] button{width:100%}
+}
+.sale-lookup-actions{display:flex;gap:10px;flex-wrap:wrap;margin:13px 0}
+.sale-lookup-actions button{min-width:116px}
+#sale-camera-preview{width:min(100%,520px);max-height:360px;object-fit:cover;border-radius:13px;border:1px solid #ccdaec;background:#15263d}
+#sale-scan-status{margin:8px 0 15px}
+.sale-dropdowns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:12px;margin:14px 0 20px}
+.sale-dropdowns label{font-weight:700}
+.sale-dropdowns select{display:block;margin-top:5px}
+@media(max-width:700px){.sale-lookup-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.sale-lookup-actions button{min-width:0}.sale-dropdowns{grid-template-columns:minmax(0,1fr)}}
+.sale-gifts{border:1px solid #d7e5fd;border-radius:12px;padding:14px 18px;margin:18px 0;background:#f8fbff;scroll-margin-top:90px}.gift-list{display:grid;gap:8px;margin:12px 0}.gift-line{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 11px;background:#fff;border:1px solid #e2e9f4;border-radius:9px}.gift-estimate{font-weight:700;color:#1b4b93}.sale-gifts .field{margin-top:12px}.sales-orders-list details{min-width:180px;padding:5px 0}.sales-orders-list details summary{cursor:pointer;color:#1856bc;font-weight:700}.sales-orders-list details small{display:block;margin:5px 0}.gift-modal [hidden]{display:none!important}@media(max-width:700px){.sale-gifts{padding:12px}.gift-line{align-items:flex-start}.sales-orders-list details{min-width:0}}
+
+.cash-drawer-check{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;margin:14px 0;border-radius:12px;background:#fff7e8;border:1px solid #e4c884;font-size:18px;line-height:1.5}.cash-drawer-check input{width:24px;height:24px;flex:none;margin-top:2px}.cash-drawer-check[hidden]{display:none}
+
+.sale-modal-picker{display:grid;gap:10px;padding:14px;border:1px solid #bfd0ed;border-radius:12px;background:#f8fbff}
+.sale-modal-picker>label{font-size:19px;font-weight:700}
+.sale-modal-picker>p{margin:0}
+.sale-modal-picker select,.sale-modal-picker input[type=search]{width:100%;min-height:52px;font-size:18px;padding:10px;border:1px solid #b5c7de;border-radius:9px;background:#fff}
+.sale-modal-matches{display:grid;gap:6px;max-height:250px;overflow:auto}
+.sale-modal-matches button{display:block;width:100%;text-align:left;background:#fff;border:1px solid #cbd8eb;border-radius:9px;padding:10px 12px;min-height:55px;font-size:17px;color:#20314f}
+.sale-modal-matches small{display:block;color:#536781;margin-top:3px;font-size:14px}
+#modal-sale-video{width:100%;max-height:260px;object-fit:cover;border-radius:10px;background:#15263d}
+#modal-sale-picker-status{font-size:16px;font-weight:600}
+@media(max-width:700px){.sale-modal-matches{max-height:180px}.sale-modal-picker{padding:12px}}
+.field-feedback{margin:6px 0 2px;padding:8px 10px;border-radius:8px;font-size:16px;font-weight:700;line-height:1.45}
+.field-feedback[data-kind="error"]{background:#fff0ed;color:#a32620;border-left:4px solid #d33d2c}
+.field-feedback[data-kind="good"]{background:#e7f5e9;color:#146333;border-left:4px solid #27934b}
+.field-feedback[data-kind="hint"]{background:#fff7e8;color:#755322;border-left:4px solid #d7a037}
+.field-feedback:empty{display:none}
+.field input[aria-invalid="true"],.field select[aria-invalid="true"]{border:2px solid #c83228!important}
+#sale-success-dialog{border:0;border-radius:18px;padding:26px;width:min(500px,calc(100% - 32px));box-shadow:0 18px 50px #122e5580;font-size:19px;line-height:1.5}
+#sale-success-dialog::backdrop{background:#12294d99}
+#sale-success-dialog h2{font-size:29px;margin:0 0 14px;color:#126432}
+#sale-success-dialog .success-order-number{padding:14px;border-radius:10px;background:#ecf7ef;color:#173f2b;font-size:22px;font-weight:800;overflow-wrap:anywhere}
+#sale-success-dialog .success-actions{display:flex;gap:10px;flex-wrap:wrap}
+#sale-success-dialog button{flex:1;min-height:56px;border:0;border-radius:10px;background:#2458d5;color:#fff;font-size:18px;font-weight:800}
+#sale-success-dialog button:first-child{background:#eaf1ff;color:#174aab}
+#main td details{font-size:12px;color:#52647e;margin-top:5px}
+#main td details code{overflow-wrap:anywhere;white-space:normal}
+
+/* 手机库存与供应商：一条一张卡，金额与操作不挤进横向窄列。 */
+.mobile-record-detail{display:none}.record-summary{margin:0 0 18px;background:#fff;border:1px solid #d6e2f2;border-radius:13px;padding:14px 16px}
+.record-summary>summary{cursor:pointer;color:#2457db;font-weight:700}.record-summary>.grid{margin-top:14px}
+@media(max-width:700px){
+ .topbar .brand small{display:none}.topbar .brand{min-width:0}.topbar .identity{min-width:0;max-width:38%}.topbar #who{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.topbar #logout{display:none}
+ #main:has(.mobile-record-list)>.heading{align-items:stretch;flex-direction:column}
+ #main:has(.mobile-record-list)>.heading .actions{width:100%}
+ #main:has(.mobile-record-list)>.heading .actions button{width:100%;white-space:normal}
+ .mobile-record-list{padding:0;border:0;background:transparent;box-shadow:none}
+ .mobile-record-list .search{max-width:none;margin-bottom:14px}
+ .mobile-record-list .table-wrap{overflow:visible}
+ .mobile-record-list table,.mobile-record-list tbody{display:block;width:100%;min-width:0}
+ .mobile-record-list thead{display:none}
+ .mobile-record-list tr{display:block;width:100%;min-width:0;margin:0 0 16px;padding:14px 16px;border:1px solid #ccdaed;border-radius:16px;background:#fff;box-shadow:0 3px 12px #213a6010}
+ .mobile-record-list tr[hidden]{display:none!important}
+ .mobile-record-list td{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 14px;width:100%;min-width:0;border:0;padding:9px 0;white-space:normal;overflow-wrap:break-word;text-align:left}
+ .mobile-record-list td::before{content:attr(data-label);flex:none;color:#536781;font-weight:600}
+ .mobile-record-list .record-title{display:block;padding:0 0 14px;margin-bottom:4px;border-bottom:1px solid #e3eaf4;line-height:1.4;font-weight:700;word-break:normal}
+ .mobile-record-list .record-title::before{display:none}
+ .mobile-record-list .record-title strong{display:block;font-size:var(--phone-control,27px)!important;line-height:1.4;overflow-wrap:break-word}
+ .mobile-record-list .record-title small{margin-top:8px;color:#536781;overflow-wrap:break-word}
+ .mobile-record-list .record-value{min-width:0;max-width:100%;overflow-wrap:break-word}
+ .mobile-record-list .money-value{white-space:nowrap;word-break:normal;overflow-wrap:normal;flex:none;font-variant-numeric:tabular-nums;font-weight:700}
+ .mobile-record-list .record-code{flex-basis:100%;overflow-wrap:anywhere}
+ .mobile-record-list td[data-label="操作"]{padding-top:14px;gap:10px;border-top:1px solid #e3eaf4;margin-top:8px}
+ .mobile-record-list td[data-label="操作"]::before{display:none}
+ .mobile-record-list td[data-label="操作"]:empty{display:none}
+ .mobile-record-list td[data-label="操作"] button{width:100%;min-width:0;white-space:normal}
+ .mobile-record-list .record-desktop-meta{display:none!important}
+ .mobile-record-list .mobile-record-detail{display:block;margin-top:12px;padding:9px 12px;border-radius:10px;background:#f3f7ff;font-weight:400}
+ #main .mobile-record-list .mobile-record-detail summary{font-size:var(--phone-detail,24px)!important;line-height:1.5;margin:0;color:#2457db}
+ #main .mobile-record-list .mobile-record-detail p{margin:12px 0 0;font-size:var(--phone-detail,24px)!important;overflow-wrap:anywhere}
+ html:is(.mobile-text-large,.mobile-text-double) .mobile-record-list td{font-size:var(--phone-detail)!important}
+ html:is(.mobile-text-large,.mobile-text-double) #main .mobile-record-list .money-value,
+ html:is(.mobile-text-large,.mobile-text-double) #main .record-summary .money-value{font-size:clamp(24px,7.8vw,var(--phone-detail))!important}
+}
+
+@media(max-width:700px){
+ body.record-view .assistant-float{top:calc(var(--mobile-action-height,64px) + 6px);bottom:auto;width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important;right:12px}
+ body.record-view .topbar .identity{display:none}
+ body.record-view .topbar .brand{max-width:calc(100% - 58px)}
+}
+
+/* Form writing boxes are blue, required badges red, instructions amber, and fixed identity green. */
+.required-tag{display:inline-block;padding:3px 9px;border-radius:7px;background:#b42328;color:#fff;font-size:14px;line-height:1.4;font-weight:800;vertical-align:middle;white-space:nowrap}
+#sale-checkout .field,#modal-form .field{padding:14px;border:2px solid #adc6ea;border-radius:12px;background:#f1f6ff;min-width:0}#sale-checkout .field label,#modal-form .field label{font-weight:800;color:#174c98}
+#sale-checkout :is(input,select,textarea),#modal-form :is(input,select,textarea){background:#fff;border:2px solid #7299d4;color:#15315c;max-width:100%;min-width:0}
+#sale-checkout .operation-tip,#modal-form .operation-tip,.sale-step p,#sale-scan-status,#modal-sale-picker-status{padding:12px;border-left:5px solid #d99c28;background:#fff6df;color:#694914;border-radius:9px;font-weight:500;line-height:1.5}
+.sale-sheet-items,.sale-customer-block,.sale-sheet-settlement,.sale-gifts{border:3px solid #7fa6df;border-radius:16px;padding:20px;margin:18px 0;background:#f5f9ff}.sale-sheet-items{border-color:#316bd0}.sale-customer-block{border-color:#83a5d8}.sale-sheet-settlement{border-color:#619978;background:#f3faf5}.sale-gifts{border-color:#b89548;background:#fffbf0}
+.sale-opening-staff,.sale-fixed-value{padding:14px;background:#e8f5ee;border:1px solid #70a68b;border-radius:12px;color:#205538;font-weight:700}.sale-opening-staff{margin:14px 0}
+.serial-entry-panel{background:#eef5ff!important;border:3px solid #3974cd!important}.serial-entry-panel>label{font-weight:800}.submit-feedback:not([hidden]),#modal-error:not(:empty){display:block;padding:16px;border:3px solid #c23932;border-radius:12px;background:#fff1ef;color:#962b25;font-weight:800;scroll-margin-top:180px}.submit-feedback[hidden]{display:none}
+.sale-submit{margin-top:15px;min-height:62px;background:#136342;border-color:#136342}.sale-step-next button{white-space:normal}
+.audit-card{padding:20px;border:2px solid #b6cbea;border-radius:16px;background:#fff;margin:16px 0;min-width:0}.audit-card-head{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:12px}.audit-card-head>div{min-width:0;flex:1 1 200px}.audit-card-head strong{font-size:21px;color:#194b98}.audit-card p{margin:7px 0;overflow-wrap:anywhere}.audit-excerpt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5;color:#4a607c}.audit-controls{display:grid;grid-template-columns:2fr 1fr;gap:14px}.audit-controls .actions{grid-column:1/-1}.audit-dialog{width:min(720px,calc(100% - 24px));box-sizing:border-box;max-height:calc(100dvh - 100px);overflow:auto;padding:22px;border:2px solid #a9c1e7;border-radius:16px}.audit-dialog::backdrop{background:#18345188}.audit-meta{display:grid;gap:10px}.audit-meta div{padding:12px;background:#eef4ff;border-radius:10px}.audit-meta dt{color:#4e6485;font-weight:700}.audit-meta dd{margin:5px 0 0;overflow-wrap:anywhere}.audit-original,.audit-change{border:2px solid #c4d5eb;background:#f6f9ff;border-radius:12px;padding:14px;margin:14px 0}.audit-dialog pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;max-width:100%;margin:8px 0}.audit-change>div{padding:10px;background:#fff;border-radius:8px;margin-top:8px}.audit-change>div:last-child{background:#edf8ef}.audit-dialog>button{position:sticky;bottom:-22px;display:block;width:100%;margin-top:16px;min-height:54px}
+@media(max-width:700px){.sale-sheet-items,.sale-customer-block,.sale-sheet-settlement,.sale-gifts{padding:12px}.sale-sheet{padding:12px}.sale-opening-staff{overflow-wrap:anywhere}.required-tag{font-size:var(--phone-detail,20px)!important}.sale-dropdowns label{background:#eef5ff;padding:12px;border:2px solid #8eb0e5;border-radius:12px}.audit-controls{grid-template-columns:minmax(0,1fr)}.audit-card{padding:14px}.audit-card-head button{width:100%;white-space:normal}.audit-dialog{padding:14px}.sale-modal-picker .sale-lookup-actions,.serial-entry-panel .sale-lookup-actions{grid-template-columns:minmax(0,1fr)}#sale-checkout .fields{grid-template-columns:minmax(0,1fr)}.modal .form-actions button{white-space:normal}}
+
+.serial-full-number{display:block;font-family:Consolas,monospace;font-size:24px;line-height:1.6;white-space:nowrap;overflow-x:auto}@media(max-width:700px){#modal-form select[name=serialNo]{font-size:24px!important}}
+
+/* 库存查询：仓库/供货商/商品筛选，手机以串号为一张卡。 */
+.inventory-warehouse-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px}.inventory-warehouse{background:#fff;border:2px solid #b7ccec;border-radius:14px;padding:16px;text-align:left;color:#234b88;min-width:0}.inventory-warehouse.active{border-color:#2457db;background:#edf4ff}.inventory-warehouse span,.inventory-warehouse strong{display:block}.inventory-warehouse strong{font-size:28px;margin-top:7px}
+.inventory-filter-panel{border:2px solid #87a9db;background:#eef5ff;padding:20px;border-radius:16px;margin:18px 0}.inventory-filter-panel h2{margin:0 0 16px;color:#174d98}.inventory-filter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.inventory-filter-panel label{display:block;font-weight:700;min-width:0;color:#164986}.inventory-filter-panel :is(select,input){display:block;width:100%;min-width:0;margin-top:6px;border:2px solid #86a5d5;border-radius:10px;background:#fff;min-height:48px;padding:10px;color:#1e3658}.inventory-search-label{margin-top:16px}.inventory-filter-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}.inventory-filter-actions button{background:#fff;border:1px solid #a8bee0;border-radius:10px;padding:10px 16px;color:#2457db}.inventory-result-summary{background:#eaf5ef;border-left:5px solid #308458;border-radius:10px;padding:14px;font-weight:700;scroll-margin-top:180px}
+.inventory-unit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.inventory-unit{border:2px solid #b7ccea;background:#fff;border-radius:16px;padding:20px;min-width:0}.inventory-unit h2{font-size:23px;margin:0 0 12px;color:#1c3459;overflow-wrap:anywhere}.inventory-chips{display:flex;gap:8px;flex-wrap:wrap}.inventory-chip{background:#edf4ff;border-radius:8px;padding:5px 9px;font-size:14px;color:#315788}.inventory-serial{padding:12px;background:#edf4ff;border-radius:10px;margin:14px 0}.inventory-serial>span{display:block;font-weight:700;color:#315788}.inventory-serial code{display:block;font:24px/1.55 Consolas,monospace;white-space:nowrap;max-width:100%;overflow-x:auto;color:#133868}
+.inventory-facts{margin:14px 0;display:grid;gap:12px}.inventory-facts>div{display:flex;gap:15px;flex-wrap:wrap}.inventory-facts dt{color:#586b87;flex:0 0 90px;font-weight:600}.inventory-facts dd{margin:0;min-width:0;flex:1 1 130px;overflow-wrap:anywhere}.inventory-price{font-weight:800;color:#194b93;white-space:nowrap}.inventory-more{border-top:1px solid #dbe5f2;padding-top:10px;margin-top:15px}.inventory-more summary{color:#275db5;cursor:pointer;font-weight:700}.inventory-more p{overflow-wrap:anywhere}.inventory-unit-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.inventory-unit-actions :is(button,a){flex:1 1 140px;min-width:0;background:#edf4ff;border:1px solid #a9bfe2;border-radius:10px;min-height:48px;padding:10px 13px;font:inherit;font-weight:700;color:#2153ad;text-align:center;text-decoration:none;white-space:normal}.inventory-warning{padding:12px;border:2px solid #d79b45;background:#fff7e5;color:#7e4814;border-radius:10px;overflow-wrap:anywhere}.inventory-warning[hidden]{display:none!important}.inventory-empty{padding:30px;border:2px dashed #b4c6e0;border-radius:14px;background:#fff;grid-column:1/-1}.inventory-pagination{display:flex;justify-content:center;gap:15px;align-items:center;margin:22px 0}.inventory-pagination button{padding:10px;border:1px solid #b1c6e4;background:#fff;color:#2457db;border-radius:10px}.inventory-count-history{margin-top:20px;border:2px solid #bbcee8;background:#fff;padding:18px;border-radius:14px}.inventory-count-history>summary{cursor:pointer;font-weight:700;color:#2457db}.inventory-history-record{border-top:1px solid #d6e3f2;margin-top:16px;padding-top:14px;overflow-wrap:anywhere}.inventory-history-record button{padding:12px;background:#eaf2ff;border:1px solid #95b3df;border-radius:10px;color:#2457db}
+.inventory-count-dialog{width:min(740px,calc(100% - 20px));max-height:calc(100dvh - 100px);border:2px solid #9db9e1;border-radius:16px;padding:22px;overflow:auto;min-width:0}.inventory-count-dialog::backdrop{background:#172d5299}.inventory-count-dialog h2{margin:0 0 14px}.inventory-count-dialog :is(input,textarea){display:block;width:100%;max-width:100%;min-width:0;padding:12px;background:#fff;border:2px solid #7e9ed0;border-radius:10px;margin-top:7px}.inventory-count-dialog label{display:block;font-weight:700;color:#174d98;padding:12px;background:#eef5ff;border-radius:12px;margin:14px 0}.inventory-fixed{padding:12px;background:#eaf5ee;color:#275b3d;border-radius:10px;font-weight:700}.inventory-count-dialog button{font:inherit;border:1px solid #9ab8e2;border-radius:10px;background:#eef4ff;padding:12px;color:#2457db;min-height:48px;white-space:normal}.inventory-count-actions{display:flex;flex-wrap:wrap;gap:10px}.inventory-count-actions button{flex:1 1 160px}.inventory-count-dialog :is(video){width:100%;max-height:280px;background:#142b4f;margin-top:14px}.inventory-count-dialog [hidden]{display:none!important}.inventory-count-good{padding:10px;color:#236543;background:#edf7ef;border-radius:10px}.inventory-count-selected{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;padding:10px;background:#f4f7fc;border-radius:10px;margin:8px 0}.inventory-count-selected code{font:22px/1.5 Consolas,monospace;white-space:nowrap;max-width:100%;overflow-x:auto;align-self:center}.inventory-count-known{display:block;width:100%;text-align:left;margin:10px 0;overflow-wrap:anywhere}.inventory-count-submit{display:flex;flex-wrap:wrap;gap:12px;position:sticky;bottom:-22px;background:#fff;padding:12px 0}.inventory-count-submit button{flex:1 1 180px}.inventory-count-submit [type=submit]{background:#176644;color:#fff;border-color:#176644}.inventory-count-success{border:3px solid #45956a;background:#f1faf4}.inventory-count-success h2{color:#176644}.inventory-count-success button{width:100%}
+@media(max-width:1000px){.inventory-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.inventory-unit-grid,.inventory-filter-grid{grid-template-columns:minmax(0,1fr)}.inventory-unit,.inventory-filter-panel{padding:14px}.inventory-warehouse-grid{grid-template-columns:minmax(0,1fr);gap:10px}.inventory-warehouse{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;padding:12px;gap:8px}.inventory-warehouse strong{margin:0;white-space:nowrap;font-size:30px!important}.inventory-filter-actions{display:grid;grid-template-columns:minmax(0,1fr)}.inventory-unit-actions{display:grid;grid-template-columns:minmax(0,1fr)}.inventory-unit h2{font-size:var(--phone-control,27px)!important}.inventory-chip,.inventory-facts dt,.inventory-more,.inventory-more p{font-size:var(--phone-detail,24px)!important}.inventory-facts>div{display:block;background:#f6f8fc;border-radius:10px;padding:10px}.inventory-facts dd{margin-top:5px;font-size:var(--phone-detail,24px)!important}.inventory-serial code{font-size:24px!important;white-space:nowrap}.inventory-result-summary{font-size:var(--phone-detail,24px)!important}.inventory-count-dialog{padding:14px;max-height:calc(100dvh - 86px)}.inventory-count-actions,.inventory-count-submit{display:grid;grid-template-columns:minmax(0,1fr)}.inventory-count-submit{bottom:-14px}.inventory-count-selected code{font-size:var(--phone-detail,22px)!important}.inventory-count-selected button{width:100%}.inventory-count-known{font-size:var(--phone-detail,22px)!important}.inventory-pagination{flex-wrap:wrap}.inventory-count-dialog :is(p,label,summary){font-size:var(--phone-detail,24px)!important}.inventory-count-dialog input::placeholder{font-size:22px}.inventory-count-dialog [type=file]{display:none}}
+
+/* 分类总览按商品型号统计，展开查看，手机用独立大框。 */
+.inventory-classification{padding:18px;border:2px solid #a6bee3;border-radius:14px;background:#fff;margin:18px 0;min-width:0}.inventory-classification>summary,.inventory-category-review>summary{font-weight:800;color:#2056a5;cursor:pointer}.inventory-category-groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.inventory-category-group{min-width:0;padding:14px;background:#f5f8ff;border-radius:12px}.inventory-category-group h3{margin:0 0 12px;color:#194b95;overflow-wrap:anywhere}.inventory-category-row{padding:14px;border:1px solid #b9cde9;border-radius:12px;background:#fff;margin:10px 0;min-width:0;overflow-wrap:anywhere}.inventory-category-row strong{display:block;font-size:20px;color:#213f67}.inventory-category-row p{line-height:1.6;margin:9px 0;color:#526b8b}.inventory-category-row button{padding:10px 14px;border:1px solid #9ebbe3;background:#edf4ff;border-radius:10px;color:#2457db;white-space:normal}.inventory-category-review{margin-top:18px;border-top:1px solid #b7cce6;padding-top:18px}
+@media(max-width:700px){.inventory-classification{padding:14px}.inventory-category-groups{grid-template-columns:minmax(0,1fr)}.inventory-category-row strong,.inventory-category-row p,.inventory-category-group h3{font-size:var(--phone-detail,24px)!important}.inventory-category-row button{width:100%}.inventory-classification>summary,.inventory-category-review>summary{font-size:var(--phone-detail,24px)!important}}
+
+/* 工资管理与逐笔查询：手机卡片保留核对入口。 */
+.payroll-view-switch{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 18px}.payroll-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;border:2px solid #9cbbe4;background:#eef5ff;border-radius:15px;padding:18px;margin-bottom:18px}.payroll-controls label{min-width:0;margin:0;color:#164a94}.payroll-controls input,.payroll-controls select{margin-top:7px}.payroll-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.payroll-overview>[hidden]{display:none!important}.payroll-employee-card{background:#fff;border:2px solid #b8cce7;border-radius:16px;padding:20px;margin-bottom:18px;min-width:0}.payroll-card-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}.payroll-card-head h2{margin:0;color:#173d77}.payroll-state{padding:5px 10px;background:#edf3ff;border-radius:10px;color:#2b548f;font-size:15px}.payroll-main-amount{padding:16px 0;border-bottom:1px solid #d8e4f3}.payroll-main-amount>span{display:block;color:#506781}.payroll-main-amount>strong{display:block;font-size:36px;color:#174d98;overflow-wrap:anywhere}.payroll-facts{display:grid;gap:9px;margin:16px 0}.payroll-facts>div{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline}.payroll-facts dt{flex:0 0 110px;color:#536985}.payroll-facts dd{margin:0;min-width:0;flex:1 1 140px;overflow-wrap:anywhere}.payroll-card-actions{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}.payroll-card-actions button{white-space:normal;flex:1 1 160px;min-width:0}.payroll-attention{border:2px solid #d59540;background:#fff5df;border-radius:12px;padding:14px;color:#814c0c;font-weight:700;overflow-wrap:anywhere}.payroll-section{background:#fff;border:2px solid #bdcfe7;border-radius:15px;margin:18px 0;padding:16px;min-width:0}.payroll-section>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#1d519b;font-weight:800;cursor:pointer}.payroll-section>summary:before{content:'＋';flex:none}.payroll-section[open]>summary:before{content:'−'}.payroll-section>summary>span{background:#edf3ff;border-radius:12px;padding:4px 12px;margin-left:auto;font-size:17px}.payroll-section-body{margin-top:16px}.payroll-line{min-width:0;padding:16px;background:#f7faff;border:1px solid #b7cdea;border-radius:12px;margin:12px 0;overflow-wrap:anywhere}.payroll-line p{margin:10px 0;color:#4d637f}.payroll-line-amount{font-weight:800;color:#1d589f;white-space:nowrap}.payroll-negative{color:#aa3330}.payroll-line-kind{color:#254f88!important}.payroll-line-warning{border:2px solid #dfa65a;background:#fffaf0}.payroll-source{width:100%;white-space:normal;text-align:left;overflow-wrap:anywhere}.payroll-evidence{border-top:1px solid #d2e0f1;padding-top:12px;margin-top:12px}.payroll-evidence summary{color:#2d5993;font-weight:700;cursor:pointer}.payroll-resolution{background:#eaf6ed;padding:12px;border-radius:10px;color:#225939!important}.payroll-feedback:not([hidden]){display:block;border:3px solid #3c9464;border-radius:14px;background:#edf9f0;color:#205f3b;padding:18px;font-weight:800;scroll-margin-top:190px}.payroll-feedback[data-kind=error]{border-color:#c43d33;background:#fff0ed;color:#982b24}.payroll-feedback[hidden]{display:none!important}.payroll-dialog{width:min(740px,calc(100vw - 24px));max-height:calc(100dvh - 40px);padding:0;min-width:0;border:2px solid #acc4e7;border-radius:17px;overflow:auto;background:#fff}.payroll-dialog::backdrop{background:#18375988}.payroll-dialog-head{display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;padding:18px;border-bottom:1px solid #d0dfef;z-index:1}.payroll-dialog-head h2{margin:0;color:#174c98}.payroll-dialog-body{padding:18px}.payroll-document-no{overflow-wrap:anywhere;padding:12px;background:#eef5ff;border-radius:10px;font-weight:700}
+@media(max-width:700px){.payroll-overview,.payroll-controls{grid-template-columns:minmax(0,1fr)}.payroll-controls,.payroll-employee-card,.payroll-section,.payroll-line{padding:14px}.payroll-view-switch{display:grid;grid-template-columns:minmax(0,1fr)}.payroll-view-switch button{white-space:normal}.payroll-card-actions{display:grid;grid-template-columns:minmax(0,1fr)}.payroll-facts>div{display:block;background:#f6f9fd;padding:10px;border-radius:10px}.payroll-facts dd{margin-top:5px}.payroll-card-head>strong,.payroll-main-amount>strong{font-size:var(--phone-control,27px)!important}.payroll-main-amount>span,.payroll-state,.payroll-facts dt,.payroll-facts dd,.payroll-line p,.payroll-line-amount,.payroll-evidence summary,.payroll-section>summary{font-size:var(--phone-detail,24px)!important}.payroll-section>summary>span{font-size:24px!important}.payroll-main-amount>strong{font-size:var(--phone-metric,44px)!important}.payroll-line-amount{white-space:normal}.payroll-dialog{max-height:calc(100dvh - 24px)}.payroll-dialog-head,.payroll-dialog-body{padding:14px}.payroll-dialog-head button{width:100%;white-space:normal}}
+
+
+/* Purchase documents: complete money values and separate product rows. */
+.purchase-records .record-title strong{white-space:nowrap}
+.purchase-records .money-value{white-space:nowrap;font-variant-numeric:tabular-nums}
+.purchase-record-detail{margin-top:9px;font-weight:400}
+.purchase-record-detail summary{cursor:pointer;color:#2457db}
+.purchase-record-detail code,.purchase-record-detail div{display:block;overflow-wrap:anywhere;white-space:normal;margin-top:8px}
+.purchase-item-lines{display:grid;gap:10px;min-width:0;width:100%}
+.purchase-item-lines>div{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.purchase-item-lines>div>span{flex:1 1 150px;min-width:0}
+.purchase-item-lines>div>strong{flex:none;white-space:nowrap}
+@media(max-width:700px){
+ .purchase-records h2{font-size:var(--phone-control,28px)!important;color:#193d6c;margin:20px 0 14px}
+ .purchase-records tr{padding:16px;margin-bottom:20px}
+ .purchase-records td[data-label="商品"],.purchase-records td[data-label="收货进度"]{display:block;margin:6px 0;padding:12px 0;border-block:1px solid #e1e9f2}
+ .purchase-records td[data-label="商品"]::before,.purchase-records td[data-label="收货进度"]::before{display:block;margin-bottom:10px}
+ .purchase-records .purchase-item-lines>div>span{font-size:var(--phone-detail,24px)!important;line-height:1.5}
+ .purchase-records .purchase-item-lines>div>strong{font-size:var(--phone-detail,24px)!important;line-height:1.5;color:#35577d}
+ .purchase-records .purchase-record-detail summary,.purchase-records .purchase-record-detail code{font-size:var(--phone-detail,24px)!important}
+ .purchase-records .purchase-record-detail{padding:9px 12px;background:#f1f6ff;border-radius:9px;line-height:1.5}
+ .purchase-records .purchase-empty td{display:block;color:#536781}
+ .purchase-records .purchase-empty td::before{display:none}
+}
+
+
+/* Staff facts follow their short labels; names stay prominent. */
+.staff-list{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.staff-card{flex:0 1 390px;width:100%;min-width:0;background:#fff;border:1px solid #dbe3ee;border-radius:12px;padding:20px;box-shadow:0 2px 8px #1b2b4606}
+.staff-facts{margin:0;display:grid;gap:10px}
+.staff-facts>div{display:flex;justify-content:flex-start;align-items:baseline;gap:0;min-width:0}
+.staff-facts dt{color:#536781;flex:none;margin:0;white-space:nowrap}
+.staff-facts dd{margin:0;min-width:0;font-size:20px}
+.staff-name-row{margin-bottom:4px}
+.staff-list .staff-name{font-size:30px;font-weight:800;line-height:1.4;color:#172f56;white-space:nowrap}
+.staff-list .staff-actions{justify-content:flex-start;gap:10px;margin-top:18px;padding-top:14px;border-top:1px solid #edf0f5}
+@media(max-width:700px){
+ .staff-card{flex-basis:100%;padding:16px}
+ html body #main .staff-facts :is(dt,dd){font-size:var(--phone-detail,28px)!important;line-height:1.5}
+ html body #main .staff-list .staff-name{font-size:clamp(32px,var(--phone-heading,40px),42px)!important;line-height:1.4;font-weight:800}
+ html body #main .staff-list .staff-actions button{font-size:var(--phone-detail,28px)!important;padding:9px 12px}
+}
+
+.staff-list .staff-account-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid #8fa7d2;border-radius:8px;background:#eef4ff;color:#174aac;font-size:20px;font-weight:700;line-height:1.4;padding:9px 12px}
+@media(max-width:700px){html body #main .staff-list .staff-account-link{font-size:var(--phone-detail,28px)!important;}}

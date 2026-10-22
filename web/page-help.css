@@ -1,0 +1,29 @@
+/* Page help uses the user's existing text scale. */
+[data-page-explanation][hidden],.page-help-hidden{display:none!important}
+.page-help-button{font:inherit!important;font-size:.88em!important;min-height:44px;min-width:80px;padding:8px 12px!important;line-height:1.25!important;border:1px solid #9bb4d8!important;border-radius:10px!important;background:#eef4ff!important;color:#174b97!important;white-space:nowrap;cursor:pointer;flex-shrink:0}
+.page-title-with-help{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.page-title-with-help>h1{margin-bottom:0}
+.page-help-floating{position:fixed;bottom:20px;left:12px;z-index:75;box-shadow:0 3px 12px #17324d26}
+body.page-help-open{overflow:hidden}
+.page-help-dialog{box-sizing:border-box;width:min(720px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:calc(100dvh - 32px);padding:0;border:1px solid #aac2e3;border-radius:16px;background:#fff;color:#1c2c46;font:inherit;overflow:auto;box-shadow:0 16px 60px #152e5066}
+.page-help-dialog::backdrop{background:#10213a8c}
+.page-help-header{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#edf4ff;padding:16px;border-bottom:1px solid #cfddf0;z-index:2}
+.page-help-header h2{margin:0;font-size:1.12em;overflow-wrap:anywhere}
+.page-help-close{font:inherit;font-size:.9em;min-height:44px;padding:8px 14px;border:1px solid #8ea9ce;border-radius:10px;background:#fff;color:#174b97;cursor:pointer;white-space:nowrap}
+.page-help-content{padding:16px 20px;overflow-wrap:anywhere;line-height:1.65}
+.page-help-section+ .page-help-section{border-top:1px solid #dce5f1;margin-top:16px;padding-top:12px}
+.page-help-section h3{font-size:1em;margin:0 0 8px;color:#174b97}
+.page-help-section p{margin:8px 0!important;font-size:1em!important;color:#283c57!important}
+.page-help-section ul,.page-help-section ol{padding-left:1.5em}
+.page-help-section [hidden]{display:none!important}
+.page-help-dialog:focus-visible,.page-help-button:focus-visible,.page-help-close:focus-visible{outline:3px solid #f59d19;outline-offset:3px}
+.page-help-dialog button:not(.page-help-close){font:inherit}
+@media(max-width:700px){.page-help-dialog{margin:auto;width:calc(100vw - 16px);max-width:calc(100vw - 16px);max-height:calc(100dvh - 20px)}.page-help-content{padding:14px}.page-help-header{padding:12px}.page-help-button{font-size:.8em!important;padding:7px 10px!important}.page-help-floating{bottom:14px}.sale-sheet-title.clean-document-info{margin-top:12px}.sale-opening-staff{font-size:.82em!important}.heading .actions{gap:8px}.heading .actions .secondary{font-size:.82em!important}}
+
+.field-limit{display:block;color:#8a4e00;font-size:.82em;line-height:1.4;margin-top:6px}
+
+@media(max-width:700px){.page-help-dialog .page-help-header #page-help-title{font-size:.88em!important}.page-help-dialog .page-help-header .page-help-close{font-size:.82em!important}}
+
+#sale-scan-status:empty,#sale-item-feedback:empty,#modal-sale-picker-status:empty{display:none}
+.sale-related{margin:16px 0}.sale-related summary{cursor:pointer}.sale-related .actions{margin-top:12px}
+@media(max-width:700px){#main .sale-page-heading{margin-bottom:12px}#main .sale-page-heading h1{font-size:var(--phone-detail,24px)!important;line-height:1.35}#main .sale-page-heading .page-help-button{font-size:.8em!important}#sale-checkout .sale-opening-staff{margin:0 0 10px;padding:10px;line-height:1.4}#sale-checkout .sale-opening-staff strong{font-size:inherit!important}#sale-step-items .sale-step{margin-top:6px}#sale-step-items .sale-step h2{font-size:var(--phone-detail,24px)!important}#sale-step-items label[for="sale-search"]{display:block;margin-top:8px}}

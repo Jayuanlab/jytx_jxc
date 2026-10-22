@@ -1,0 +1,15 @@
+.metric-group{border:1px solid #dce5f0;border-radius:12px;padding:14px;margin:12px 0;background:#fff}
+.metric-group h3{margin:0 0 9px;font-size:18px}.metric-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(90px,.8fr) minmax(110px,.8fr) minmax(90px,.8fr);align-items:center;gap:8px;padding:7px 0;border-top:1px solid #edf1f7}.metric-row:first-of-type{border-top:0}
+.metric-row label{margin:0}.metric-row input{min-height:46px}.metric-row strong{font-size:17px}.metric-row .unknown{color:#a26206}.metric-row .mismatch{color:#bd2929;font-weight:800}.metric-row .match{color:#157853}
+.cash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.cash-grid label{display:block}.cash-preview{font-weight:700;color:#21477b;padding:12px;background:#f1f6ff;border-radius:9px}
+.daily-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.daily-stats article{background:#f3f6fc;border-radius:10px;padding:12px}.daily-stats span{display:block;color:#536580}.daily-stats strong{font-size:20px}
+.detail-list{max-height:260px;overflow:auto}.detail-list table{width:100%;border-collapse:collapse;min-width:550px}.detail-list th,.detail-list td{padding:7px;border-bottom:1px solid #e6ebf2;text-align:left}
+.close-record{border:1px solid #dce5f0;border-radius:12px;padding:15px;margin:12px 0;background:#fff}.close-record h3{margin:0 0 6px}.close-record small{color:#687b97}.record-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.record-actions button{border:0;border-radius:9px;background:#2458d5;color:white;padding:10px 14px;font:inherit}.record-actions button.secondary{background:#e8edf5;color:#334763}
+#air-panel[hidden]{display:none}.error-text{color:#b12727}.warn-text{color:#8b5400}.muted-text{color:#61728a}
+@media(max-width:650px){.metric-row{grid-template-columns:1fr 1fr}.metric-row>span:first-child{grid-column:1/-1;font-weight:700}.metric-row label{font-size:14px}.metric-row strong{font-size:16px}.daily-stats{grid-template-columns:1fr 1fr}}
+.check-row{display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid #edf1f7}.check-row input{width:22px;min-height:22px}
+#action-dialog{border:0;border-radius:14px;max-width:560px;width:calc(100% - 28px);padding:20px;box-shadow:0 18px 60px #1c2e4d44}
+#action-dialog::backdrop{background:#13274580}#action-dialog textarea{min-height:100px}
+#summary details,.close-record details{border-top:1px solid #e7edf6;margin-top:12px;padding-top:10px}
+#summary summary,.close-record summary{cursor:pointer;color:#2256ba;font-weight:700}
+#summary small{color:#5e6d83}

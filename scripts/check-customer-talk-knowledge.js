@@ -1,0 +1,32 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {readStore}=require('../server/src/repository');
+const knowledge=require('../server/src/employee-knowledge');
+const importer=require('../server/src/employee-knowledge-import');
+const assistant=require('../server/src/personal-assistant');
+const store=readStore(),owner=store.users.find(user=>user.roleCode==='owner'&&user.status==='active');
+assert.ok(owner,'需要在职老板账号核对');
+const before=JSON.stringify(store),report=importer.report(store,owner);
+const entry=report.batches.find(row=>row.id==='customer-talk-20261009');
+assert.ok(entry,'顾客话术尚未导入');
+assert.equal(entry.report.inputFiles,5);assert.equal(entry.report.uniqueContentFiles,4);
+assert.equal(entry.report.dialectTraining.actualCount,156);assert.equal(entry.report.dialectTraining.anyReviewCount,42);
+const catalog=knowledge.catalog(store,owner),cards=catalog.items.filter(row=>row.importBatch==='customer-talk-20261009');
+assert.equal(cards.length,175);
+const dialect=assistant.ask(store,owner,{question:'我办个卡办哪种好'});
+const mandarin=assistant.ask(store,owner,{question:'我办个卡办哪种好',customerReplyStyle:'mandarin'});
+assert.equal(dialect.metrics.kind,'tariff-recommendations');assert.equal(dialect.metrics.replyStyle,'sichuan');
+assert.equal(mandarin.metrics.replyStyle,'mandarin');assert.notEqual(dialect.answer,mandarin.answer);
+assert.ok(dialect.context.tariff);assert.ok(dialect.followups.length);
+const emergency=assistant.ask(store,owner,{question:'我手机被偷了，卡也在里面，怎么办？'});
+assert.match(emergency.answer,/先联系运营商挂失/);assert.match(emergency.answer,/不能保证微信/);
+const polysemy=assistant.ask(store,owner,{question:'二天是什么意思'});
+assert.equal(polysemy.metrics.needsContext,true);assert.match(polysemy.answer,/以后.*下次/);
+for(const question of ['今天华为手机库存','今天手机销量','今天移动酬金到账多少']){
+ const answer=assistant.ask(store,owner,{question});assert.notEqual(answer.metrics?.kind,'customer-talk-guidance');
+}
+const fttr=assistant.ask(store,owner,{question:'升档30元可以9元办理全光吗'});
+assert.match(fttr.answer,/30元及以上.*9元/);assert.match(fttr.answer,/不能推定为9元\/月/);
+assert.equal(JSON.stringify(store),before,'问答不应改变账套');
+assert.equal(JSON.stringify(readStore()),before,'查询不应写入数据库');
+console.log(JSON.stringify({batch:entry.id,fingerprint:entry.fingerprint,activeCards:cards.length,activeLibrary:catalog.items.length,sourceFiles:entry.report.inputFiles,uniqueContents:entry.report.uniqueContentFiles,trainingEntries:156,customerQuestions:cards.reduce((n,row)=>n+(row.customerQuestions||[]).length,0),defaultReplyStyle:dialect.metrics.replyStyle,alternateReplyStyle:mandarin.metrics.replyStyle,readonlyChecks:true,safetyChecks:true}));

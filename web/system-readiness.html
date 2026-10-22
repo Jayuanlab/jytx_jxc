@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>推广准备与设备检查 · 聚友通信</title><link rel="stylesheet" href="/system-readiness.css?v=20261013-readiness"><link rel="stylesheet" href="/readable-ui.css?v=20261010-readable"><link rel="stylesheet" href="/store-theme.css?v=20261010-interface"><script defer src="/system-readiness.js?v=20261013-readiness"></script></head>
+<body class="readiness-page">
+<header><a href="/m">‹ 返回工作台</a><h1>推广准备与设备检查</h1></header>
+<main><p id="readiness-auth" role="status" aria-live="polite">正在核对管理员权限…</p><a id="readiness-login" class="readiness-link" href="/login" hidden>前往登录</a>
+<div id="readiness-content" hidden>
+<nav class="readiness-tabs" aria-label="本页内容"><a href="#training">操作培训</a><a href="#devices">设备检查</a><a href="#monitoring">运行状态</a><a href="#settings">常用设置</a></nav>
+<p class="readiness-note">检测结果以这次查询或本人操作为准。浏览器检查不等于手机真机、实际打印或全部业务验收。</p>
+<section id="training" class="readiness-card"><h2>操作培训</h2><p>按这四步练习。实际单据请核对后再提交；不要用真实顾客、现金或员工消息做随意测试。</p>
+<div class="readiness-training">
+<article><h3>1　人员与登录</h3><p>管理员给员工建账号、授权；员工首次进入后修改密码。练习退出后换账号。</p><div class="readiness-actions"><a href="/login">账号与密码</a><a href="/app?tab=staff">员工与权限</a></div></article>
+<article><h3>2　进货、盘点与销售</h3><p>建立商品与往来单位，确认仓库、数量和串号。销售后核对单号、库存和收款。</p><div class="readiness-actions"><a href="/app?tab=purchase">订货与入库</a><a href="/stocktake">库存盘点</a><a href="/app?tab=sales">销售开单</a><a href="/sales-list">销售清单</a></div></article>
+<article><h3>3　接待与员工协作</h3><p>接待单补资料与跟进；工作助理先准备单据，再由营业员确认。考勤在“考勤打卡”中操作。</p><div class="readiness-actions"><a href="/receptions">接待与跟进</a><a href="/carrier">移动业务登记</a><a href="/assistant">工作助理与考勤</a><a href="/kitty">小猫咪问答修改</a></div></article>
+<article><h3>4　审核、现金与备份</h3><p>普通业务先开单后核对；退换货和红冲须老板批准后生效。核对分笔账户与实际到账。</p><div class="readiness-actions"><a href="/app?tab=returns">退换货申请</a><a href="/app?tab=red">单据红冲</a><a href="/sale-payments">收款核对</a><a href="/app?tab=finance">资金流水</a><a href="/app?tab=backup">备份与恢复</a></div></article>
+</div></section>
+<section id="devices" class="readiness-card"><h2>设备检查</h2><p>请在营业员实际使用的电脑或手机上检测。每项都要本人点击，不后台采集定位或图像。</p><div class="readiness-device-grid">
+<article class="readiness-device"><h3>安全连接与浏览器</h3><button id="readiness-environment" type="button">检查当前环境</button><p id="readiness-environment-result" class="readiness-result" role="status">未检测</p></article>
+<article class="readiness-device"><h3>手机定位</h3><button id="readiness-location" type="button">本人点击测定位</button><button id="readiness-copy-location" type="button" hidden>复制本次位置</button><p id="readiness-location-result" class="readiness-result" role="status">未检测；本页不登记考勤或保存门店坐标。</p><p class="readiness-note">坐标来自手机报告，WGS84；只代表现在，不能证明早先签到时的位置。请勿将高德 GCJ-02 坐标直接当成 GPS 坐标。</p></article>
+<article class="readiness-device"><h3>相机预览</h3><div class="readiness-actions"><button id="readiness-camera" type="button">打开相机预览</button><button id="readiness-camera-stop" type="button" disabled>停止相机</button></div><video id="readiness-camera-preview" muted playsinline autoplay hidden aria-label="本机相机预览"></video><p id="readiness-camera-result" class="readiness-result" role="status">未检测；不拍照、不上传。离开页面即停止。</p></article>
+<article class="readiness-device"><h3>声音与震动</h3><div class="readiness-actions"><button id="readiness-sound" type="button">本人点击试听</button><button id="readiness-vibrate" type="button">本人点击测震动</button></div><p id="readiness-sound-result" class="readiness-result" role="status">声音未检测。请本人确认是否听见。</p><p id="readiness-vibrate-result" class="readiness-result" role="status">震动未检测；电脑或部分浏览器可能不支持。</p></article>
+<article class="readiness-device"><h3>打印预览</h3><label for="readiness-print-type">纸张样式</label><select id="readiness-print-type"><option value="receipt">58毫米小票</option><option value="label">60×40毫米标签</option></select><button id="readiness-print-preview" type="button">查看打印样张</button><p class="readiness-note">预览不表示打印机已安装或实机已打印。请在接打印机的电脑上核对纸张、边距和实际输出。</p></article>
+</div></section>
+<section id="monitoring" class="readiness-card"><div class="readiness-section-head"><h2>运行、备份与用量</h2><button id="readiness-refresh" type="button">刷新真实状态</button></div><p id="readiness-monitor-at" class="readiness-note" role="status">尚未查询</p>
+<div class="readiness-monitor-grid"><article><h3>运行与自动备份</h3><div id="readiness-health">等待查询</div></article><article><h3>门店手动备份</h3><div id="readiness-backups">等待查询</div><a href="/app?tab=backup">打开备份与恢复</a></article><article><h3>模型实际 Token</h3><div id="readiness-usage">等待查询</div><a href="/companion?tab=usage">查看个人助理用量</a></article><article><h3>近期技术故障</h3><div id="readiness-faults">等待查询</div></article></div></section>
+<section id="settings" class="readiness-card"><h2>常用设置与试用准备</h2><div class="readiness-actions"><a href="/payment-accounts">收付款账户</a><a href="/app?tab=staff">员工权限</a><a href="/organization">门店管理与新门店</a><a href="/companion-admin">个人助理试用账号</a><a href="/companion?tab=memory">查看自己的记忆</a><a href="/companion?tab=usage">用量与赠送额度</a></div><p id="readiness-budget" class="readiness-result" role="status">赠送额度配置等待查询。</p><p class="readiness-note">新门店请在门店管理中确认创建范围。本页不复制库存、现金、个人记忆或定位资料，不执行初始化。</p></section>
+</div></main>
+<dialog id="readiness-print-dialog" aria-labelledby="readiness-print-title"><div class="readiness-print-toolbar"><h2 id="readiness-print-title">打印样张预览</h2><p>测试样张，不是真实单据。二维码框仅示意位置，不能用于扫码业务。</p><div class="readiness-actions"><button id="readiness-print" type="button">打开浏览器打印</button><button id="readiness-print-close" type="button">关闭预览</button></div><p id="readiness-print-result" role="status"></p></div><div id="readiness-print-sample"></div></dialog>
+</body></html>

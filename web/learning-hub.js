@@ -1,0 +1,16 @@
+(()=>{'use strict';
+ const $=id=>document.getElementById(id),el=(tag,text='',cls='')=>{const n=document.createElement(tag);n.textContent=text;if(cls)n.className=cls;return n;};let view,busy=false;
+ async function api(path,body){const r=await fetch(path,{method:body?'POST':'GET',credentials:'same-origin',cache:'no-store',headers:body?{'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()}:undefined,body:body?JSON.stringify(body):undefined});const d=await r.json();if(!r.ok)throw Error(d.error?.message||'操作失败');return d;}
+ function status(text){$('practice-status').textContent=text;}
+ async function refresh(){try{view=await api('/api/learning/hub');$('learning-stats').replaceChildren();for(const [label,value] of [['积分',view.points],['活跃',view.activeDays+'天'],['贡献',view.contributions],['待审',view.pending]]){const box=el('div','','learning-stat');box.append(el('span',label),el('strong',String(value)));$('learning-stats').append(box);}
+  const chosen=$('practice-scene').value;$('practice-scene').replaceChildren();for(const s of view.scenarios){const option=el('option',s.name);option.value=s.id;$('practice-scene').append(option);}$('practice-scene').value=view.scenarios.some(x=>x.id===chosen)?chosen:view.scenarios[0].id;scene();
+  $('contribution-review').hidden=!view.canReview;$('contribution-awards').replaceChildren();
+  for(const r of view.pendingContributions||[]){const box=el('article','','learning-contribution'),form=el('form'),label=el('label','核定贡献积分'),input=el('input'),note=el('input'),save=el('button','核定');input.type='number';input.min='0';input.max='1000';input.step='1';input.value='10';input.required=true;input.setAttribute('aria-label','核定贡献积分');note.required=true;note.maxLength=500;note.placeholder='核分说明';note.setAttribute('aria-label','核分说明');save.type='submit';label.append(input);box.append(el('h3',r.employeeName+' · '+r.status),el('p',r.question));form.append(label,note,save);form.onsubmit=async e=>{e.preventDefault();save.disabled=true;try{await api('/api/learning/contribution-award',{id:r.id,points:Number(input.value),note:note.value});await refresh();}catch(error){status(error.message);}finally{save.disabled=false;}};box.append(form);$('contribution-awards').append(box);}
+  if(view.canReview&&!view.pendingContributions.length)$('contribution-awards').append(el('p','暂无待核定的问答贡献。'));
+ }catch(e){$('learning-stats').textContent=e.message;}}
+ function scene(){const s=view?.scenarios.find(x=>x.id===$('practice-scene').value);if(!s)return;$('practice-question').textContent=s.question;$('practice-tips').replaceChildren();for(const tip of s.tips)$('practice-tips').append(el('li',tip));}
+ $('practice-scene').onchange=scene;$('practice-form').onsubmit=async e=>{e.preventDefault();if(busy)return;busy=true;const f=e.currentTarget,b=f.querySelector('[type=submit]');b.disabled=true;
+  try{const result=await api('/api/learning/practice',{scenario:$('practice-scene').value,answer:f.elements.answer.value,reflection:f.elements.reflection.value});status(result.duplicate?'今天这个场景已经提交过了，可换一个练习。':'练习已提交，老板审核后记积分。');if(!result.duplicate)f.reset();await refresh();document.getElementById('refresh')?.click();}
+  catch(error){status(error.message);}finally{busy=false;b.disabled=false;}};
+ document.addEventListener('learning:changed',refresh);refresh();
+})();

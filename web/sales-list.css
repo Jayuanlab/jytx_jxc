@@ -1,0 +1,86 @@
+*{box-sizing:border-box}body.sales-list-page{margin:0;background:#f5f3ed;color:#202936;font:18px/1.5 -apple-system,BlinkMacSystemFont,"Microsoft YaHei",sans-serif}.sales-wrap{width:min(1100px,100%);margin:0 auto;padding:20px 20px 150px}.sales-heading{display:flex;align-items:center;gap:14px;margin-bottom:20px}.sales-heading h1{font-size:32px;margin:0;flex:1}.sales-heading>a{display:grid;place-items:center;width:48px;height:48px;border:1px solid #deddd7;border-radius:12px;background:white;color:#2e4d73;font-size:40px;text-decoration:none}.sales-filter{padding:22px;background:#fff;border:1px solid #deddd7;border-radius:14px;box-shadow:0 3px 12px #29334b07}.sales-shortcuts{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}.sales-list-page :is(button,input,select){font:inherit}.sales-list-page button{cursor:pointer;padding:11px 17px;border:1px solid #ced6e3;border-radius:9px;color:#25466f;background:#f4f7fc;min-height:48px;font-weight:650}.sales-list-page button:disabled{opacity:.5;cursor:wait}.sales-list-page button.primary,.sales-shortcuts button.active,.sales-result-tabs button[aria-pressed=true]{background:#155eef;border-color:#155eef;color:#fff}.sales-dates,.sales-filter-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 24px;margin-bottom:20px}.sales-filter label{display:flex;flex-direction:column;gap:8px;color:#4e5f74;font-weight:650;min-width:0}.sales-list-page input,.sales-list-page select{display:block;width:100%;min-width:0;max-width:100%;padding:12px 14px;border:1px solid #c8d1dc;border-radius:8px;color:#202936;background:#fff;min-height:52px}.sales-list-page :is(input,select,button,a):focus-visible{outline:3px solid #8bb6ff;outline-offset:2px}.sales-filter-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:20px}.sales-filter-actions a{margin-left:auto}.sales-list-page a{color:#1553c1;text-underline-offset:4px}.sales-status{color:#526880;min-height:28px;scroll-margin-top:85px;margin:18px 0 12px}.sales-status.error{padding:12px;background:#fff0ed;color:#ac2b22;border:1px solid #e3b8b2;border-radius:10px}.sales-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:24px}.sales-summary>div{padding:15px 18px;background:#fff;border:1px solid #deddd7;border-radius:11px;display:flex;flex-direction:column;gap:6px}.sales-summary span{color:#667386}.sales-summary strong{font-size:26px;color:#1553c1;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.sales-result-tabs{display:flex;gap:16px;margin:20px 0}.sales-result-tabs button{flex:1}.sales-lines,.sales-suppliers{display:grid;gap:22px}.sales-line,.sales-supplier{background:#fff;border:1px solid #deddd7;border-radius:12px;padding:22px;box-shadow:0 2px 7px #29334b08;min-width:0}.sales-line-top{display:flex;gap:16px;align-items:center;justify-content:space-between}.sales-serial{font:800 26px/1.35 ui-monospace,Consolas,monospace;letter-spacing:.02em;overflow-wrap:anywhere}.sales-product-code{font-size:22px;overflow-wrap:anywhere}.sales-warehouse{color:#1553c1;background:#edf3ff;border-radius:7px;padding:5px 9px;flex-shrink:0;font-weight:700;font-size:16px}.sales-line h2,.sales-supplier h2{margin:12px 0;font-size:25px;overflow-wrap:anywhere}.sales-line-meta,.sales-line-origin,.sales-line-footer,.sales-return-info,.sales-supplier-meta{display:flex;gap:8px 22px;flex-wrap:wrap;color:#647181}.sales-line-price{display:flex;align-items:center;gap:14px 25px;flex-wrap:wrap;padding:16px 0;margin:10px 0;border-bottom:1px solid #edf0f3;font-variant-numeric:tabular-nums}.sales-line-price>strong{margin-left:auto;font-size:29px;color:#ae530c}.sales-line-origin{align-items:center;justify-content:space-between}.sales-state{padding:4px 10px;border-radius:6px;background:#eaf6f0;color:#23734d;white-space:nowrap}.sales-state.returned{background:#fff0e1;color:#a05b13}.sales-return-info{margin-top:10px;color:#a05b13}.sales-line-footer{align-items:center;justify-content:space-between;border-top:1px solid #edf0f3;margin-top:14px;padding-top:14px}.sales-line-footer span{overflow-wrap:anywhere}.sales-line-footer a,.sales-supplier-actions a{font-weight:700}.sales-pager{display:flex;gap:18px;justify-content:center;align-items:center;margin-top:24px}.sales-empty{padding:32px 20px;text-align:center;color:#65778c;background:#fff;border:1px solid #deddd7;border-radius:12px}.sales-supplier-title{display:flex;align-items:center;gap:15px}.sales-rank{display:grid;place-items:center;background:#edf3ff;color:#1553c1;width:42px;height:42px;border-radius:9px;font-weight:800;flex-shrink:0}.sales-supplier-metrics{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin:10px 0}.sales-supplier-metrics>strong{color:#ae530c;font-size:29px}.sales-supplier-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:18px}.sales-list-page [hidden]{display:none!important}
+@media(max-width:700px){
+ .sales-wrap{padding:16px 12px 170px}.sales-filter{padding:16px}.sales-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 24px}.sales-summary>div{padding:14px 12px}.sales-dates{grid-template-columns:1fr;gap:14px}.sales-filter-grid{gap:20px 22px}.sales-filter-actions{gap:14px}.sales-filter-actions>button{flex:1}.sales-filter-actions>a{margin-left:0;width:100%;text-align:right}.sales-line,.sales-supplier{padding:18px 15px}.sales-line-top{flex-wrap:wrap;gap:12px}.sales-line-origin{gap:12px}.sales-line-footer{gap:15px}.sales-shortcuts{gap:12px}.sales-line-meta{gap:6px 16px}.sales-line-meta>span:first-child{width:100%}
+ html.mobile-text-large .sales-list-page{--sales-text:22px;--sales-control:24px;--sales-title:30px;--sales-serial:27px;--sales-number:32px}
+ html.mobile-text-double .sales-list-page{--sales-text:28px;--sales-control:30px;--sales-title:36px;--sales-serial:31px;--sales-number:38px}
+ html:is(.mobile-text-large,.mobile-text-double) .sales-list-page :is(label,p,summary,small,.sales-status,.sales-line-meta,.sales-line-origin,.sales-line-footer,.sales-line-price>span,.sales-supplier-meta,.sales-supplier-metrics>span,.sales-return-info,.sales-filter-actions>a,.sales-pager span,.sales-empty,.sales-summary span,.sales-supplier-actions a){font-size:var(--sales-text)!important;line-height:1.5}
+ html:is(.mobile-text-large,.mobile-text-double) .sales-list-page :is(input,select,button){font-size:var(--sales-control)!important;min-height:58px!important;line-height:1.35}
+ html:is(.mobile-text-large,.mobile-text-double) .sales-list-page input[type=datetime-local]{font-size:var(--sales-text)!important}
+ html:is(.mobile-text-large,.mobile-text-double) .sales-list-page :is(h1,h2,.sales-product-code){font-size:var(--sales-title)!important;line-height:1.35}
+ html:is(.mobile-text-large,.mobile-text-double) .sales-list-page .sales-serial{font-size:var(--sales-serial)!important;letter-spacing:0}
+ html:is(.mobile-text-large,.mobile-text-double) .sales-list-page .sales-warehouse{font-size:var(--sales-text)!important}
+ html:is(.mobile-text-large,.mobile-text-double) .sales-list-page :is(.sales-summary strong,.sales-line-price>strong,.sales-supplier-metrics>strong){font-size:var(--sales-number)!important}
+ html:is(.mobile-text-large,.mobile-text-double) .sales-list-page .sales-heading .page-help-button{font-size:22px!important;min-height:48px!important;padding:7px 10px}
+ html:is(.mobile-text-large,.mobile-text-double) .sales-list-page .sales-heading>a{width:42px;height:48px}
+ html:is(.mobile-text-large,.mobile-text-double) .sales-list-page #branch-context{font-size:20px!important}
+}
+@media(max-width:370px){.sales-filter-grid{grid-template-columns:1fr}.sales-summary{gap:12px}.sales-line-price>strong{width:100%;margin-left:0}}
+
+@media(max-width:700px){html:is(.mobile-text-large,.mobile-text-double) body.sales-list-page{--phone-body:var(--sales-text);--phone-detail:var(--sales-text);--phone-control:var(--sales-control);--phone-heading:var(--sales-title)} html body.sales-list-page header.sales-heading{flex-wrap:nowrap}}
+
+@media(max-width:700px){.sales-summary>div:nth-child(n+3){grid-column:1/-1}html.mobile-text-double .sales-list-page .sales-filter-grid{grid-template-columns:1fr}}
+
+/* Computer: one item per row, phone: existing readable cards. */
+.sales-desktop-results{display:none}.sales-mobile-cards{display:grid;gap:22px}
+@media(min-width:701px){
+ html body.sales-list-page main.sales-wrap{width:100%;max-width:none;padding:24px 24px 150px}
+ html body.sales-list-page main .sales-filter{display:grid;grid-template-columns:minmax(430px,1.1fr) minmax(580px,1.7fr);gap:18px 26px;padding:20px 24px}
+ html body.sales-list-page main .sales-shortcuts{grid-column:1/-1;margin:0}
+ html body.sales-list-page main .sales-dates{margin:0;gap:18px}
+ html body.sales-list-page main .sales-filter-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin:0}
+ html body.sales-list-page main .sales-search{max-width:none}
+ html body.sales-list-page main .sales-filter-actions{margin:0;align-self:end;justify-content:flex-end}
+ html body.sales-list-page main .sales-filter-actions a{margin-left:12px}
+ html body.sales-list-page main .sales-filter :is(input,select,button,label){font-size:20px!important}
+ html body.sales-list-page main .sales-result-tabs{justify-content:flex-start}
+ html body.sales-list-page main .sales-result-tabs button{flex:0 0 auto;min-width:170px}
+ html body.sales-list-page main .sales-lines,html body.sales-list-page main .sales-suppliers{display:block}
+ html body.sales-list-page main .sales-mobile-cards{display:none}
+ html body.sales-list-page main .sales-desktop-results{display:block;max-width:100%;overflow:auto;max-height:70vh;border:1px solid #d7dfe7;border-radius:12px;background:#fff}
+ html body.sales-list-page main .sales-desktop-table{width:100%;min-width:1520px;border-collapse:collapse;table-layout:auto}
+ html body.sales-list-page main .sales-desktop-table :is(th,td){font-size:20px!important;line-height:1.5;padding:13px 12px;vertical-align:middle;border-bottom:1px solid #e3e9ef;white-space:nowrap;text-align:left}
+ html body.sales-list-page main .sales-desktop-table th{position:sticky;top:0;z-index:1;background:#edf3fb;color:#3c5574;font-weight:700}
+ html body.sales-list-page main .sales-desktop-table tbody tr:nth-child(even){background:#f8fafc}
+ html body.sales-list-page main .sales-desktop-table tbody tr:hover{background:#edf5ff}
+ html body.sales-list-page main .sales-desktop-table small{display:block;color:#60738b;font-size:17px!important;margin-top:7px;white-space:normal}
+ html body.sales-list-page main .sales-desktop-table code{font:700 20px/1.4 Consolas,monospace}
+ html body.sales-list-page main .sales-desktop-table .sales-table-product{min-width:170px;max-width:240px;white-space:normal}
+ html body.sales-list-page main .sales-desktop-table .sales-table-supplier{min-width:120px;max-width:180px;white-space:normal}
+ html body.sales-list-page main .sales-desktop-table .sales-table-order{max-width:180px;overflow-wrap:anywhere}
+ html body.sales-list-page main .sales-desktop-table .sales-table-number{text-align:right;font-variant-numeric:tabular-nums}
+ html body.sales-list-page main .sales-desktop-table .sales-table-amount{color:#a55312;font-weight:700}
+ html body.sales-list-page main .sales-supplier-table{min-width:1000px}
+ html body.sales-list-page main .sales-table-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+ html body.sales-list-page main .sales-table-actions button{font-size:18px!important;min-height:44px;padding:8px 12px}
+}
+@media(min-width:701px) and (max-width:1200px){
+ html body.sales-list-page main .sales-filter{grid-template-columns:minmax(0,1fr)}
+ html body.sales-list-page main .sales-filter-actions{justify-content:flex-start}
+ html body.sales-list-page main .sales-filter-actions a{margin-left:auto}
+}
+
+@media(min-width:701px){html body.sales-list-page main .sales-table-order a,html body.sales-list-page main .sales-table-number,html body.sales-list-page main .sales-desktop-table code{white-space:nowrap;overflow-wrap:normal}html body.sales-list-page main .sales-table-warehouse{min-width:65px;max-width:110px;white-space:nowrap}html body.sales-list-page main .sales-table-profit{color:#20704a;font-weight:700}html body.sales-list-page main .sales-table-profit.loss{color:#b23b2b}}
+
+@media(min-width:701px){.sales-summary.has-profit{grid-template-columns:repeat(5,minmax(0,1fr))}html body.sales-list-page main .sales-desktop-table :is(td.sales-table-number,td.sales-table-order){white-space:nowrap}html body.sales-list-page main .sales-table-order a{font-variant-numeric:tabular-nums}}
+
+@media(min-width:701px){body.sales-list-page[data-sales-view=lines] .sales-summary{display:none!important}html body.sales-list-page main .sales-lines-table tfoot :is(th,td){position:sticky;bottom:0;background:#eaf2fc;border-top:2px solid #789ed7;border-bottom:0;font-size:21px!important;font-weight:750;white-space:nowrap}html body.sales-list-page main .sales-lines-table tfoot th{position:sticky;top:auto;z-index:1}}
+
+
+/* Phone filters: date label beside the control; other selectors in pairs. */
+@media(max-width:700px){
+ html body.sales-list-page main .sales-filter{padding:14px}
+ html body.sales-list-page main .sales-dates{grid-template-columns:minmax(0,1fr);gap:12px;margin-bottom:18px}
+ html body.sales-list-page main .sales-dates label{display:grid;grid-template-columns:58px minmax(0,1fr);align-items:center;gap:8px}
+ .sales-date-suffix{display:none}
+ html body.sales-list-page #sales-filter .sales-dates input{font-size:clamp(20px,5.8vw,24px)!important;min-height:58px;padding:10px 6px}
+ html body.sales-list-page #sales-filter .sales-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 14px;margin-bottom:18px}
+ html body.sales-list-page main .sales-filter-grid select{min-height:60px;padding:10px 8px;white-space:nowrap}
+ html body.sales-list-page main .sales-shortcuts{gap:10px;margin-bottom:16px}
+ html body.sales-list-page main .sales-shortcuts button{font-size:var(--sales-text,22px)!important;padding:9px 12px;min-height:54px}
+}
+
+@media(max-width:360px){
+ html body.sales-list-page #sales-filter .sales-dates label{grid-template-columns:minmax(0,1fr);gap:5px}
+ html body.sales-list-page #sales-filter .sales-dates input{font-size:20px!important}
+ .sales-list-page .sales-heading h1{text-wrap:balance}
+}

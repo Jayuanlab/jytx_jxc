@@ -1,0 +1,54 @@
+/* All application pages load this last, including standalone forms and dialogs. */
+@media(min-width:701px){
+ html body{font-size:20px!important;line-height:1.55}
+ html body :is(main,dialog,[role=dialog]) :is(label,legend,input,select,textarea,button){font-size:20px!important;line-height:1.5}
+ html body :is(main,dialog,[role=dialog]) :is(p,li,td,th,small,dt,dd,pre,.hint,.muted,.version){font-size:18px!important;line-height:1.55}
+}
+@media(max-width:700px){
+ html body{font-size:var(--phone-body,32px)!important;line-height:1.55}
+ html body :is(main,dialog,[role=dialog]) :is(span,a,em,b,strong,code,.sale-fixed-value,p,li,td,th,small,label,legend,summary,dt,dd,pre,.hint,.muted,.version,.tag,.required-tag,.review-quote,.original,.suggested,.review-message){
+  font-size:var(--phone-detail,28px)!important;line-height:1.55;overflow-wrap:anywhere
+ }
+ html body :is(main,dialog,[role=dialog]) :is(input:not([type=checkbox]):not([type=radio]),select,textarea,button,.primary,.secondary,.danger){
+  font-size:var(--phone-control,32px)!important;line-height:1.4;max-width:100%;min-height:60px
+ }
+ html body :is(main,dialog,[role=dialog]) :is(input,textarea)::placeholder{font-size:inherit;opacity:1}
+ html body :is(main,dialog,[role=dialog]) :is(h1,h2,h3){font-size:var(--phone-heading,36px)!important;line-height:1.35;overflow-wrap:anywhere}
+ html body :is(main,dialog,[role=dialog]) :is(input,select,textarea){min-width:0;box-sizing:border-box}
+ html body :is(main,dialog,[role=dialog]) button{white-space:normal;overflow-wrap:break-word}
+ html body :is(main,dialog,[role=dialog]) :is(form,.row,.actions,.form-actions){min-width:0}
+ html body :is(main,dialog,[role=dialog]) [type=checkbox],
+ html body :is(main,dialog,[role=dialog]) [type=radio]{width:28px!important;height:28px!important;min-height:28px!important;flex:0 0 28px}
+ html body header{flex-wrap:wrap;gap:8px}
+ html body header :is(a,strong,small){font-size:var(--phone-detail,28px)!important;line-height:1.4}
+ html body #branch-context{font-size:var(--phone-detail,28px)!important;flex-wrap:wrap}
+ html body #branch-context :is(strong,a){font-size:inherit!important;overflow-wrap:anywhere}
+ html body #dialogue-panel :is(label,summary),html body #answer-edit-form label,
+ html body #answer-edit-label,html body #question-label:has(+ .editing-question),
+ html body #answer-edit-more summary,html body #answer-edit-status{font-size:var(--phone-detail,28px)!important}
+ html body #answer-edit-form .answer-edit-actions button{font-size:var(--phone-control,32px)!important;min-height:60px!important}
+ html body #answer-edit-form .answer-edit-actions .page-help-button{font-size:var(--phone-detail,28px)!important}
+ html body #result .answer-heading h3{font-size:var(--phone-detail,28px)!important}
+ html body #ask .voice-setting{font-size:24px!important}
+ html body #answer-edit-form .answer-edit-actions{flex-wrap:wrap}
+ html body #answer-edit-form .answer-edit-actions #answer-edit-save{flex:1 1 100%}
+ html body :is(#answer-feedback,.feedback-item,#dialogue-panel,.admin,.tools){min-width:0}
+ html body .feedback-item :is(.original,.suggested,textarea,input,select){width:100%;overflow-wrap:anywhere}
+ html body #answer-feedback .feedback-item .row{flex-wrap:wrap}
+ html body #answer-feedback .feedback-item .row>*{min-width:0;max-width:100%}
+ html body :is(#sale-checkout,#new-form,#entry-form) .required-tag{font-size:var(--phone-detail,28px)!important}
+ html body #main td::before{font-size:var(--phone-detail,28px)!important}
+ html body #main :is(.serial-full-number,.inventory-serial code,.inventory-count-selected code,.inventory-count-known){font-size:var(--phone-detail,28px)!important}
+ html body .page-help-button{font-size:var(--phone-detail,28px)!important}
+ html body .page-help-dialog :is(.page-help-content p,.page-help-content li){font-size:var(--phone-detail,28px)!important}
+}
+
+@media(max-width:700px){
+ html body #store-electronic-board :is(#comms-board-open,#comms-board-pause){font-size:24px!important;min-height:44px!important}
+ html body #unread{font-size:var(--phone-detail,28px)!important}
+ html body main :is(.launch-icon,.tile-icon,.nav-icon){font-size:inherit!important}
+}
+
+@media(max-width:700px){
+ html:is(.mobile-text-large,.mobile-text-double) body .dashboard .stat>span{font-size:var(--phone-detail,28px)!important}
+}

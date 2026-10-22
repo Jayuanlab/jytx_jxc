@@ -1,0 +1,21 @@
+/* Visible account exit at all widths; existing login and embedded pages are excluded by JS. */
+html body.session-controls-ready .session-controls{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px;max-width:100%;min-width:0;margin-left:auto}
+html body.session-controls-ready .session-controls .session-logout{box-sizing:border-box;flex:0 0 auto;min-width:min(100%,calc(4em + 28px));max-width:100%;min-height:52px;padding:8px 12px;border:2px solid #245bd3;border-radius:12px;background:#edf3ff;color:#173f85;font-family:inherit;font-size:max(22px,var(--phone-control,var(--companion-control,22px)))!important;font-weight:750;line-height:1.35!important;white-space:normal;word-break:normal;overflow-wrap:normal;cursor:pointer}
+html body.session-controls-ready .session-controls .session-logout:disabled{opacity:.6;cursor:wait}
+html body.session-controls-ready .session-controls .session-logout:focus-visible{outline:3px solid #98baff;outline-offset:3px}
+html body.session-controls-ready .session-controls .session-controls-status{flex:1 0 100%;min-width:0;max-width:100%;margin:0;font-size:max(20px,var(--phone-detail,var(--companion-detail,20px)))!important;line-height:1.5;white-space:normal;overflow-wrap:break-word;color:#203c58}
+html body.session-controls-ready .session-controls .session-controls-status.session-controls-error{color:#a51919;font-weight:700}
+html body.session-controls-ready .session-controls [hidden]{display:none!important}
+html body.session-controls-ready .session-controls-fallback{padding:10px 16px;background:#fff;border-bottom:1px solid #c7d4e7}
+html body.session-controls-ready .home-header .hero-top.session-controls-host{flex-wrap:wrap;min-width:0}
+html body.session-controls-ready .topbar.session-controls-host{height:auto;min-height:66px;flex-wrap:wrap;gap:8px;padding-top:8px;padding-bottom:8px}
+html body.session-controls-ready .companion-header.session-controls-host>.session-controls{grid-column:1/-1;width:100%}
+html body.session-controls-ready>header.session-controls-host{flex-wrap:wrap}
+html body.session-controls-ready .mobile-action-dock .mobile-logout{display:none!important}
+html body.session-controls-ready .topbar #logout{display:none!important}
+@media(max-width:700px){
+ html body.session-controls-ready .session-controls{flex-basis:100%;width:100%}
+ html body.session-controls-ready .topbar.session-controls-host{min-height:58px}
+ html body.session-controls-ready .topbar.session-controls-host~.shell #nav{top:calc(var(--mobile-action-height,64px) + var(--session-controls-header-height,58px))}
+}
+@media print{html body.session-controls-ready .session-controls{display:none!important}}

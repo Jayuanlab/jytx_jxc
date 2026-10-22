@@ -1,0 +1,50 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const c=require('../src/common'),importer=require('../src/employee-knowledge-import'),knowledge=require('../src/employee-knowledge');
+const bundle=JSON.parse(fs.readFileSync(path.join(__dirname,'../../data/knowledge-imports/mobile-20261009/bundle.json'),'utf8'));
+const owner={id:'boss',name:'老板',roleCode:'owner',status:'active'},staff={id:'staff',name:'员工',roleCode:'employee',status:'active'};
+const clone=x=>JSON.parse(JSON.stringify(x));
+function store(){return c.initialize({users:[owner,staff],sales:[{id:'sale-keep'}],inventory:[{id:'stock-keep'}],receipts:[{id:'cash-keep'}]});}
+function signed(mutate){const x=clone(bundle);mutate(x);const {fingerprint,...raw}=x;x.fingerprint=importer.fingerprint(raw);return x;}
+test('来源19份原件、6完全重复副本、4篇合辑正文均有校验记录',()=>{assert.equal(bundle.report.inputFiles,19);assert.equal(bundle.report.uniqueBinaryFiles,13);assert.equal(bundle.report.duplicates.length,6);assert.equal(bundle.report.overlaps.length,4);assert.ok(bundle.report.overlaps.every(x=>x.completeTextMatch));assert.equal(bundle.report.independentAudit.proof.compilation.matchedBodyBlocks,141);assert.equal(bundle.report.exam.questionCount,22);assert.equal(bundle.report.exam.answerMarkMismatch,0);});
+test('所有68卡片能编辑，原文表格与来源逐段对应',()=>{assert.equal(bundle.articles.length,68);for(const item of bundle.articles){assert.ok(item.body.length<=6000);assert.equal(item.sourceBlocks.map(b=>b.text).join('\n'),item.body);assert.ok(item.sourceRefs.every(ref=>item.sourceBlocks.some(b=>b.id===ref.blockId)));}const campus=bundle.articles.find(x=>x.id.endsWith('-campus'));assert.deepEqual(campus.sourceBlocks.find(b=>b.id==='t4').rows[3],['59元档','300','20','30','3年','59元 × 承诺期剩余未履约月份数']);});
+test('导入只增加知识资料与审计，不改业务账或自动执行文档指令',()=>{const s=store(),before={sales:clone(s.sales),inventory:clone(s.inventory),receipts:clone(s.receipts)};const result=importer.apply(s,owner,bundle);assert.equal(result.inserted,68);assert.equal(s.employeeKnowledge.length,68);assert.deepEqual(s.sales,before.sales);assert.deepEqual(s.inventory,before.inventory);assert.deepEqual(s.receipts,before.receipts);assert.equal(s.operationLogs.length,1);const audit=JSON.parse(s.operationLogs[0].detail);assert.equal(audit.articles.length,68);assert.equal(knowledge.catalog(s,staff).items.length,83);assert.equal(importer.report(s,owner).report.issues.length,19);assert.throws(()=>importer.report(s,staff));});
+test('重复导入幂等且保留老板修订，账套备份还原保存来源和疑点',()=>{const s=store();importer.apply(s,owner,bundle);const row=knowledge.catalog(s,owner).items.find(x=>x.id.endsWith('-campus'));knowledge.save(s,owner,{...row,summary:'老板已补充办理对象说明。'});const before=clone(s.employeeKnowledge),logs=s.operationLogs.length;const twice=importer.apply(s,owner,bundle);assert.equal(twice.inserted,0);assert.equal(twice.unchanged,68);assert.deepEqual(s.employeeKnowledge,before);assert.equal(s.operationLogs.length,logs);const restore=c.initialize(clone(s));assert.equal(importer.report(restore,owner).fingerprint,bundle.fingerprint);assert.ok(knowledge.catalog(restore,staff).items.some(x=>x.sourceRefs?.length));});
+test('未来修订资料包遇到老板已编辑内容先保留，不静默覆盖',()=>{const s=store();importer.apply(s,owner,bundle);const r=knowledge.catalog(s,owner).items.find(x=>x.id.endsWith('-campus'));knowledge.save(s,owner,{...r,summary:'老板确认口径'});const changed=signed(x=>x.articles.find(r=>r.id.endsWith('-campus')).summary='新资料包口径');const result=importer.apply(s,owner,changed);assert.deepEqual(result.preservedEdits,[r.id]);assert.equal(s.employeeKnowledge.find(x=>x.id===r.id).summary,'老板确认口径');});
+test('包校验、正文、重复id失败全部不写入，员工不能导入',()=>{const s=store(),original=JSON.stringify(s);const damaged=clone(bundle);damaged.articles[0].summary='篡改但不更新校验';assert.throws(()=>importer.apply(s,owner,damaged));assert.equal(JSON.stringify(s),original);assert.throws(()=>importer.apply(s,owner,signed(x=>x.articles[0].body='不匹配原文')));assert.equal(JSON.stringify(s),original);assert.throws(()=>importer.apply(s,owner,signed(x=>x.articles.push(clone(x.articles[0])))));assert.equal(JSON.stringify(s),original);assert.throws(()=>importer.apply(s,staff,bundle));assert.equal(JSON.stringify(s),original);});
+test('老板只改正文或状态时保留原件出处，问答不再引用过时导入块',()=>{const s=store();importer.apply(s,owner,bundle);const row=knowledge.catalog(s,owner).items.find(x=>x.id.endsWith('-hebao'));const updated=knowledge.save(s,owner,{id:row.id,title:row.title,category:row.category,summary:'老板已对照具体产品核实。',body:'和包券会员费必须按确认的产品编码选择，不套用其他版型。',tags:row.tags,policyStatus:'current',validFrom:'2026-10-09',validTo:''});assert.deepEqual(updated.sourceFiles,row.sourceFiles);assert.deepEqual(updated.sourceRefs,row.sourceRefs);assert.ok(updated.sourceBlocks[0].id.startsWith('edit-v'));assert.equal(updated.reviewIssues.length,0);assert.ok(updated.reviewDecision.previousIssues.length);assert.ok(!updated.sourceBlocks.some(b=>b.text.includes('219')));assert.equal(updated.editedAfterImport,true);const reply=knowledge.query(s,staff,'和包券会员费是多少');assert.match(reply.answer,/产品编码/);assert.ok(!reply.answer.includes('219'));});
+test('状态、真实日期和期间验证失败，不污染知识或操作历史',()=>{const s=store();importer.apply(s,owner,bundle);const row=knowledge.catalog(s,owner).items.find(x=>x.id.endsWith('-campus')),before=JSON.stringify(s);for(const bad of [{policyStatus:'official'},{validFrom:'2026-02-31'},{validFrom:'2026-11-01',validTo:'2026-10-01'},{version:0}]){assert.throws(()=>knowledge.save(s,owner,{...row,...bad}));assert.equal(JSON.stringify(s),before);}});
+test('员工获得的嵌套来源数据与正文表格不会回写内存账套',()=>{const s=store();importer.apply(s,owner,bundle);const row=knowledge.catalog(s,staff).items.find(x=>x.id.endsWith('-campus'));row.sourceFiles[0].name='篡改';row.sourceBlocks[0].text='篡改';assert.notEqual(knowledge.catalog(s,staff).items.find(x=>x.id===row.id).sourceFiles[0].name,'篡改');});
+
+function customerBundle(){
+ const extracted=JSON.parse(fs.readFileSync(path.join(__dirname,'../../data/knowledge-imports/customer-talk-20261009/extracted.json'),'utf8'));
+ const document=extracted.documents[0],block=document.blocks.find(block=>block.text&&block.kind==='paragraph');
+ const article={...clone(bundle.articles[0]),id:'customer-talk-20261009-opening',importBatch:'customer-talk-20261009',title:'顾客口语：接待开场',category:'顾客应答',summary:'先听需求，再给参考。',body:block.text,tags:['顾客口语','开场'],keywords:['开场'],sourceTier:'store_training',policyStatus:'current',sourceFiles:[{name:document.name,sha256:document.sha256}],sourceBlocks:[{id:block.id,kind:'paragraph',text:block.text}],sourceRefs:[{file:document.name,blockId:block.id,label:'原文开场'}]};
+ const content={schemaVersion:1,id:'customer-talk-20261009',asOf:'2026-10-09',sourceAssertion:'老板提供的顾客应答学习资料。',articles:[article],report:{inputCount:2,uniqueCount:2,duplicates:[],overlaps:[],exam:null,issueGroups:[],organization:{articleCount:1,current:1,needsReview:0,disabled:0}}};
+ return {...content,fingerprint:importer.fingerprint(content)};
+}
+function resign(value){const {fingerprint,...content}=value;return {...content,fingerprint:importer.fingerprint(content)};}
+test('两个明确授权批次分别保存，默认报告保持移动字段并附两批资料',()=>{
+ const s=store();importer.apply(s,owner,bundle);const business=JSON.stringify(Object.fromEntries(Object.entries(s).filter(([key])=>!['employeeKnowledge','knowledgeImports','operationLogs'].includes(key))));
+ const talks=customerBundle(),result=importer.apply(s,owner,talks);assert.equal(result.inserted,1);assert.equal(s.employeeKnowledge.length,69);assert.equal(s.knowledgeImports.length,2);
+ assert.equal(JSON.stringify(Object.fromEntries(Object.entries(s).filter(([key])=>!['employeeKnowledge','knowledgeImports','operationLogs'].includes(key)))),business);
+ const report=importer.report(s,owner);assert.equal(report.id,'mobile-20261009');assert.equal(report.fingerprint,bundle.fingerprint);assert.equal(report.report.exam.questionCount,22);assert.deepEqual(report.batches.map(row=>row.id),['mobile-20261009','customer-talk-20261009']);assert.equal(report.batches[1].report.inputCount,2);
+});
+test('顾客话术导入幂等，修订资料包也不能静默覆盖老板已编辑内容',()=>{
+ const s=store(),talks=customerBundle();importer.apply(s,owner,talks);const logs=s.operationLogs.length;
+ assert.equal(importer.apply(s,owner,talks).unchanged,1);assert.equal(s.operationLogs.length,logs);
+ const row=knowledge.catalog(s,owner).items.find(row=>row.id===talks.articles[0].id);knowledge.save(s,owner,{...row,summary:'老板本店接待口径'});
+ const changed=clone(talks);changed.articles[0].summary='第二版资料口径';const result=importer.apply(s,owner,resign(changed));assert.deepEqual(result.preservedEdits,[row.id]);assert.equal(s.employeeKnowledge.find(item=>item.id===row.id).summary,'老板本店接待口径');
+ assert.equal(importer.report(s,owner).id,'customer-talk-20261009');
+});
+test('仅允许两批且文章编号与批次一致，失败不改知识或业务账',()=>{
+ const s=store(),before=JSON.stringify(s),talks=customerBundle();
+ const unknown=clone(talks);unknown.id='unauthorized-20261009';unknown.articles[0].id='unauthorized-20261009-opening';unknown.articles[0].importBatch=unknown.id;
+ assert.throws(()=>importer.apply(s,owner,resign(unknown)));assert.equal(JSON.stringify(s),before);
+ for(const change of [row=>row.id='mobile-20261009-other',row=>row.importBatch='mobile-20261009',row=>row.id='customer-talk-20261009-../unsafe']){const mixed=clone(talks);change(mixed.articles[0]);assert.throws(()=>importer.apply(s,owner,resign(mixed)));assert.equal(JSON.stringify(s),before);}
+ assert.throws(()=>importer.apply(s,staff,talks));assert.throws(()=>importer.report(s,staff));assert.equal(JSON.stringify(s),before);
+});
+test('批次报告不会暴露可回写的嵌套对象，备份后仍保留两个来源',()=>{
+ const s=store();importer.apply(s,owner,bundle);importer.apply(s,owner,customerBundle());const report=importer.report(s,owner);report.report.exam.questionCount=999;report.batches[1].report.issueGroups.push({title:'客户端修改'});assert.equal(importer.report(s,owner).report.exam.questionCount,22);assert.equal(importer.report(s,owner).batches[1].report.issueGroups.length,0);
+ const restored=c.initialize(clone(s));assert.equal(importer.report(restored,owner).batches.length,2);assert.equal(importer.report(store(),owner).available,false);
+});

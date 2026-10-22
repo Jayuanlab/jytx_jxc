@@ -1,0 +1,31 @@
+'use strict';
+require('./simulation-preload.cjs');
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const {chromium}=require('C:/Users/A/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+process.env.STORE_SEED_PATH=path.resolve('artifacts/simulation-20261010/seed.json');
+const repo=require('../server/src/repository'),sessions=require('../server/src/auth-sessions'),server=require('../server/src/application').createServer();
+(async()=>{let browser;const errors=[],checks=[];try{
+ await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;
+ browser=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});
+ const context=await browser.newContext({viewport:{width:390,height:1000},isMobile:true,hasTouch:true});
+ await context.addCookies([{name:'erp_session',value:sessions.issue('demo-clerk'),url:origin}]);
+ await context.addInitScript(()=>{
+  window.BarcodeDetector=class {async detect(){return window.__scanValue?[{rawValue:window.__scanValue}]:[]}};
+  navigator.mediaDevices.getUserMedia=async()=>{if(window.__denyCamera)throw Error('Denied');const c=document.createElement('canvas');c.width=64;c.height=64;c.getContext('2d').fillRect(0,0,64,64);return c.captureStream(1)};
+ });
+ await context.route('**/*',r=>new URL(r.request().url()).origin===origin?r.continue():r.abort());
+ const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
+ const before=JSON.stringify(repo.readStore());let writes=0;page.on('request',r=>{if(r.method()==='POST'&&r.url().endsWith('/api/sale-orders'))writes++});
+ await page.goto(origin+'/assistant?mode=store',{waitUntil:'networkidle'});await page.waitForFunction(()=>me!=null);
+ await page.evaluate(()=>window.__scanValue='990000000001234');await page.locator('#sale-camera-button').click();
+ await page.waitForFunction(()=>saleFlow?.serialNo==='990000000001234');assert.equal(await page.evaluate(()=>saleFlow.stage),'price');
+ assert.equal(await page.locator('#sale-camera-preview').isVisible(),false);checks.push('模拟相机扫码：实际库存匹配完整串号，只补成交价');
+ await page.locator('#question').fill('2399');await page.locator('#ask .primary').click();await page.waitForFunction(()=>saleFlow?.stage==='review');assert.equal(await page.evaluate(()=>saleFlow.salePrice),2399);
+ await page.locator('#new-topic').click();
+ const png=Buffer.from(await page.evaluate(()=>{const c=document.createElement('canvas');c.width=64;c.height=64;c.getContext('2d').fillRect(0,0,64,64);return c.toDataURL('image/png').split(',')[1]}),'base64');
+ await page.locator('#sale-photo-input').setInputFiles({name:'simulated-serial.png',mimeType:'image/png',buffer:png});await page.waitForFunction(()=>saleFlow?.serialNo==='990000000001234');checks.push('照片识码入口：识码后建立同一份草稿');
+ await page.locator('#new-topic').click();await page.evaluate(()=>window.__denyCamera=true);await page.locator('#sale-camera-button').click();await page.waitForFunction(()=>document.getElementById('sale-scan-status').textContent.includes('相机未打开'));checks.push('相机拒绝权限：显示原因，允许文字继续');
+ assert.equal(writes,0);assert.equal(JSON.stringify(repo.readStore()),before);assert.deepEqual(errors,[]);
+ const result={checkedAt:new Date().toISOString(),passed:checks.length,checks,pageErrors:errors,businessWrites:0,physicalCameraTested:false};
+ fs.writeFileSync('artifacts/assistant-batch-input/scan-report.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));await context.close();
+}finally{await browser?.close();server.closeAllConnections();await new Promise(r=>server.close(r));sessions.close()}})().catch(e=>{console.error(e);process.exitCode=1});

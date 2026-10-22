@@ -1,0 +1,55 @@
+/* Owner readiness page only; external stylesheet compatible with self-only CSP. */
+.readiness-page{background:#f4f7fb;color:#152b45;margin:0;font-family:system-ui,"Microsoft YaHei",sans-serif;line-height:1.55;font-size:24px}
+.readiness-page [hidden]{display:none!important}
+.readiness-page>header{display:flex;align-items:center;flex-wrap:wrap;gap:14px;padding:18px 24px;background:#fff;border-bottom:1px solid #dbe2eb}
+.readiness-page h1{font-size:34px;margin:0;line-height:1.3}
+.readiness-page main{max-width:1280px;margin:auto;padding:22px}
+.readiness-page h2{font-size:30px;margin:0 0 14px}
+.readiness-page h3{font-size:26px;margin:0 0 10px}
+.readiness-page p{margin:10px 0}
+.readiness-page a{color:#174dc4;text-underline-offset:4px}
+.readiness-tabs,.readiness-actions{display:flex;flex-wrap:wrap;gap:10px}
+.readiness-page button,.readiness-actions a,.readiness-tabs a,.readiness-link{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:54px;padding:10px 16px;border:1px solid #98b3d8;border-radius:10px;background:#fff;color:#174dc4;font-size:24px;line-height:1.4;text-decoration:none;white-space:normal;overflow-wrap:break-word;text-align:center;cursor:pointer;max-width:100%}
+.readiness-page button:disabled{opacity:.55;cursor:default}
+.readiness-page button:focus-visible,.readiness-page a:focus-visible{outline:3px solid #b46a00;outline-offset:3px}
+.readiness-page select{font:inherit;max-width:100%;min-height:54px;padding:10px;border:1px solid #98b3d8;border-radius:8px;background:white}
+.readiness-page label{display:block;margin-bottom:8px}
+.readiness-card{background:#fff;border:1px solid #dae2ec;border-radius:16px;padding:22px;margin-top:22px;scroll-margin-top:18px}
+.readiness-training,.readiness-device-grid,.readiness-monitor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.readiness-training>article,.readiness-device,.readiness-monitor-grid>article{border:1px solid #dfe6ef;background:#f8fbff;border-radius:12px;padding:18px;min-width:0}
+.readiness-training p,.readiness-note{color:#425873}
+.readiness-note{font-size:20px}
+.readiness-result{padding:10px 12px;border-left:4px solid #72859e;background:#eff3f8;overflow-wrap:anywhere;white-space:pre-line}
+.readiness-result[data-state=ok]{border-color:#217047;background:#eff9f1}
+.readiness-result[data-state=warning],.readiness-result[data-state=unavailable]{border-color:#9f6a16;background:#fff7e8}
+.readiness-result[data-state=error]{border-color:#b83838;background:#fff0ee}
+.readiness-section-head{display:flex;justify-content:space-between;flex-wrap:wrap;align-items:center;gap:12px}
+.readiness-page dl{margin:10px 0}.readiness-page dl>div{display:flex;flex-wrap:wrap;gap:5px 10px;padding:5px 0}
+.readiness-page dt{font-weight:700}.readiness-page dd{margin:0;overflow-wrap:anywhere}
+.readiness-page video{display:block;width:100%;max-height:360px;background:#172333;border-radius:10px;margin-top:12px}
+.readiness-page dialog{max-width:min(94vw,720px);max-height:90vh;overflow:auto;border:1px solid #a6b6cc;border-radius:14px;padding:20px;color:#152b45}
+.readiness-page dialog::backdrop{background:#10243d88}
+#readiness-print-sample{margin:20px auto;background:white;color:black;border:1px dashed #888;box-sizing:border-box;overflow:hidden;font-size:12px;line-height:1.35;font-family:system-ui,"Microsoft YaHei",sans-serif}
+#readiness-print-sample[data-paper=receipt]{width:58mm;padding:3mm}
+#readiness-print-sample[data-paper=label]{width:60mm;height:40mm;padding:3mm}
+#readiness-print-sample h3{font-size:16px!important;line-height:1.3!important;margin:0 0 5px;text-align:center}
+#readiness-print-sample p{font-size:12px!important;line-height:1.35!important;margin:5px 0!important}
+#readiness-print-sample[data-paper=label]{display:grid;grid-template-columns:minmax(0,1fr) 20mm;gap:1mm;align-items:start}
+#readiness-print-sample[data-paper=label]>h3{grid-column:1/-1;font-size:12px!important}
+#readiness-print-sample[data-paper=label]>p{grid-column:1;font-size:10px!important;margin:0!important}
+#readiness-print-sample[data-paper=label]>.readiness-qr-placeholder{grid-column:2;grid-row:2 / span 2;margin:0}
+.readiness-qr-placeholder{width:20mm;height:20mm;border:2px solid black;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;margin:4px auto}
+@media(max-width:700px){
+ .readiness-page>header{padding:14px}.readiness-page main{padding:12px}.readiness-page h1{font-size:32px}.readiness-card{padding:16px}
+ .readiness-training,.readiness-device-grid,.readiness-monitor-grid{grid-template-columns:1fr}
+ .readiness-actions>*{flex:1 1 140px}.readiness-tabs a{flex:1 1 40%}
+ .readiness-page dialog{padding:14px;box-sizing:border-box;max-width:calc(100vw - 16px)}
+}
+@media print{
+ body.readiness-page>*:not(#readiness-print-dialog){display:none!important}
+ #readiness-print-dialog{position:static!important;display:block!important;border:0!important;padding:0!important;width:auto!important;max-width:none!important;max-height:none!important;overflow:visible!important}
+ #readiness-print-dialog:not([open]){display:none!important}
+ #readiness-print-dialog .readiness-print-toolbar{display:none!important}
+ #readiness-print-sample{margin:0!important;border:0!important}
+ @page{margin:0}
+}

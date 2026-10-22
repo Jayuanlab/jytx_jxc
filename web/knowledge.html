@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><script defer src="/page-help.js?v=20261010-clean-layout"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>业务知识与销售技巧</title><link rel="stylesheet" href="/knowledge.css?v=20261010-clean-layout"><script src="/knowledge.js?v=20261010-clean-layout" defer></script><link rel="stylesheet" href="/page-help.css?v=20261010-clean-layout"><link rel="stylesheet" href="/store-communication.css?v=20261011-special-review"><script defer src="/store-communication.js?v=20261011-special-review"></script><link rel="stylesheet" href="/mobile-nav.css?v=20261010-readable"><script defer src="/mobile-nav.js?v=20261010-clean-layout"></script></head>
+<body>
+<header><a href="/m">⌂ 首页</a><strong>业务知识与销售技巧</strong><a href="/assistant">问助理</a></header>
+<main>
+<section class="intro"><div class="row"><h1>业务知识与销售技巧</h1><button type="button" class="page-help-button" data-help-target="knowledge-page-help">? 帮助</button></div><a class="primary" href="/learning">记录学习单</a></section>
+<section aria-label="查找学习资料" class="tools"><label for="search">查知识、技巧或操作流程</label><input id="search" type="search" placeholder="例如：资费、购机政策、升档、现金交接" maxlength="120"><div class="filter-row"><div><label for="source-filter">按资料来源看</label><select id="source-filter"><option value="">全部资料 · 现行资料优先</option><option value="current">店内现行资料</option><option value="general">一般学习与技巧</option><option value="review">待核实或历史资料</option></select></div><div><label for="category">按分类看</label><select id="category"><option value="">全部分类</option></select></div></div><p id="status" role="status">正在加载…</p></section>
+<section id="upload-section" class="tools upload-section" hidden aria-labelledby="upload-heading">
+<div class="row"><h2 id="upload-heading">上传学习资料</h2><button type="button" class="page-help-button" data-help-target="knowledge-upload-help">? 帮助</button></div>
+
+<form id="upload-form">
+<label for="upload-file">选择文件</label><input id="upload-file" type="file" name="file" accept=".docx,.txt,.md" required>
+<p class="source-note">支持 Word（.docx）、TXT、Markdown，每个文件最多 5MB。</p>
+<button id="upload-preview-button" class="primary" type="submit">预览资料</button>
+<div id="upload-preview" hidden>
+<label for="upload-title">资料标题</label><input id="upload-title" maxlength="65" required disabled>
+<label for="upload-category">资料分类</label><input id="upload-category" disabled value="学习资料" maxlength="30" list="category-list" required>
+<p id="upload-note" class="source-note"></p><div id="upload-parts"></div>
+<button id="upload-confirm" type="button" class="primary">确认上传</button>
+</div>
+<p id="upload-status" role="status" aria-live="polite"></p>
+</form></section>
+
+<section id="admin" class="admin" hidden><div class="row"><h2>老板维护知识</h2><button type="button" class="page-help-button" data-help-target="knowledge-manage-help">? 帮助</button><div class="manage-actions"><a class="primary" href="/knowledge-review">核对待核实资料</a><button id="go-upload" type="button">上传资料 ↑</button><button id="new-article" type="button">新增文章</button></div></div><div id="managed"></div></section>
+<div id="articles" aria-live="polite"></div>
+<p data-page-explanation class="footer-note">办理资格、条件与金额须核对当时的移动 BOSS 结果。</p>
+</main>
+<dialog id="edit-dialog"><form id="edit-form"><div class="row"><h2 id="edit-title">维护文章</h2><button type="button" class="page-help-button" data-help-target="knowledge-edit-help">? 帮助</button><button id="cancel" type="button">关闭</button></div><input name="id" type="hidden"><input name="version" type="hidden"><label>文章标题（必填）<input name="title" maxlength="80" required></label><label>分类（必填）<input name="category" maxlength="30" required list="category-list"><datalist id="category-list"></datalist></label><label>简要说明（必填）<textarea name="summary" maxlength="240" rows="3" required></textarea></label><label>正文与步骤（必填）<textarea name="body" maxlength="6000" rows="10" required></textarea></label><fieldset id="conversation-settings" class="policy-settings" hidden><legend>让助理听懂这张话术</legend><label>常见问法（最多12句，每行一句）<textarea name="customerQuestions" rows="4" maxlength="2891" placeholder="每行一句，例如：办卡要带什么？"></textarea></label><label>关键词组合（最多8组）<textarea name="matchKeywords" rows="5" maxlength="3000" placeholder="办卡|开卡&#10;身份证|证件"></textarea></label></fieldset><label>关键词<input name="tags" placeholder="用逗号分开，例如：收货，验收" maxlength="600"></label><fieldset class="policy-settings"><legend>适用范围与政策状态</legend><label>适用范围<input name="applicableScope" maxlength="200" placeholder="例如：本店、中国移动重庆、指定渠道"></label><div class="filter-row"><label>生效日期<input name="validFrom" type="date"></label><label>截至日期<input name="validTo" type="date"></label></div><label>资料状态<select name="policyStatus"><option value="">普通学习资料</option><option value="current">店内确认现行</option><option value="needs_review">待核实</option><option value="historical">历史资料</option></select></label></fieldset><label>使用状态<select name="enabled"><option value="true">启用</option><option value="false">停用</option></select></label><p id="edit-status" role="status"></p><button class="primary" type="submit">确认保存</button></form></dialog>
+<template id="knowledge-page-help" data-page-help-template="知识资料帮助"><p>接待、演示、验收、交班，每件小事都可以记录所学。学习和贡献由老板核定积分或奖励。</p><p>现行资料以店内提供的文件为依据，每篇可查看原文件与出处。资料存在疑义时标记待核实。</p><p>现行资料和一般学习建议分开标记。办理资格、条件与金额还须核对当时的移动 BOSS 结果；真实账目请让助理查询。</p></template><template id="knowledge-upload-help" data-page-help-template="上传资料帮助"><p>选文件 → 预览内容 → 确认上传。原文件保留，长资料自动分篇，重复文件会提示。</p></template><template id="knowledge-manage-help" data-page-help-template="知识维护帮助"><p>可改成店内实际做法。每次修改保留版本与操作记录；停用文章仍能恢复。</p></template><template id="knowledge-edit-help" data-page-help-template="文章编辑帮助"><p>每行一句，最多12句。多种问法应与这张话术表达同一件事。</p><p>关键词每行一组；同一组用 | 分开，出现任意一个词即可。不同组都要符合，最多8组。</p><p>例如“办卡|开卡”和“身份证|证件”两组，可识别“开卡要带证件吗”。只改变助理如何找到话术，不改变办理规则。</p><p>按实际适用范围维护，修改会保存版本；导入原文件和出处仍保留。</p></template></body></html>

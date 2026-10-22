@@ -1,0 +1,52 @@
+:root{font-family:system-ui,"Microsoft YaHei",sans-serif;color:#173052;background:#f3f7fd}*{box-sizing:border-box}body{margin:0}main{max-width:620px;margin:0 auto;padding:28px 18px 60px}header{display:flex;align-items:center;gap:16px;margin:10px 0 24px}.mark{height:58px;width:58px;border-radius:14px;display:grid;place-items:center;background:#235ce1;color:white;font-size:28px;font-weight:800}h1{margin:0;font-size:27px}header p{margin:3px 0;color:#62748b}.card{background:white;border:1px solid #dfe7f3;border-radius:18px;padding:25px;margin:18px 0;box-shadow:0 7px 24px #214c9a12}.card[hidden],label[hidden],#issued[hidden]{display:none}h2{font-size:25px;margin:0 0 13px}.hint{color:#536982;font-size:17px;line-height:1.6}label{display:block;font-weight:700;margin:20px 0;color:#193452;font-size:18px}input,select{display:block;width:100%;height:54px;margin-top:8px;padding:0 14px;border:1px solid #9cacc2;border-radius:10px;color:#173052;background:#fff;font:inherit;font-size:19px}button,.secondary{min-height:54px;padding:11px 18px;border:0;border-radius:10px;background:#225ce1;color:white;font:inherit;font-size:19px;font-weight:700;cursor:pointer}form>button{width:100%;margin:10px 0}.secondary{display:block;text-align:center;background:#eef3fc;color:#174aac;text-decoration:none;margin-top:15px}.message{min-height:22px;color:#b12635;font-size:17px;font-weight:600}.message.ok{color:#146443}.links{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px}.links a{font-size:18px}.links button{background:#edf2fb;color:#194dac}#issued{border:2px solid #225ce1;border-radius:12px;padding:16px;margin-top:16px;overflow-wrap:anywhere;font-size:18px}#issued strong{font-size:22px;color:#1247ab}@media(max-width:440px){main{padding:18px 12px 50px}.card{padding:20px 17px}h1{font-size:24px}}
+
+#admin-panel{scroll-margin-top:20px}.admin-tools{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin:12px 0}.admin-tools a{font-size:20px;font-weight:700}.admin-tools button{background:#edf2fb;color:#194dac;min-height:44px;padding:8px 12px;font-size:19px}
+
+/* Account screens: keep names and instructions readable at phone viewing distance. */
+html body.account-page main#account-main :is(h1,h2){font-size:30px!important;line-height:1.35}
+html body.account-page main#account-main :is(p,.links a,.admin-tools a){font-size:22px!important;line-height:1.55}
+html body.account-page main#account-main label{font-size:24px!important}
+html body.account-page main#account-main :is(input,select,button,.secondary){font-size:24px!important;line-height:1.4}
+html body.account-page main#account-main :is(input,select){height:auto;min-height:62px;padding:12px 14px}
+html body.account-page main#account-main :is(select,input[name="username"]){font-weight:750}
+html body.account-page main#account-main h2{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+html body.account-page main#account-main .links{flex-wrap:wrap;justify-content:flex-start;gap:18px}
+html body.account-page main#account-main #issued strong{font-size:26px!important;overflow-wrap:anywhere}
+@media(max-width:700px){
+ html body.account-page{
+  --account-detail:max(30px,var(--phone-detail,28px));
+  --account-label:max(32px,var(--phone-detail,28px));
+  --account-control:max(36px,var(--phone-control,32px));
+  --account-heading:max(40px,var(--phone-heading,36px));
+ }
+ html body.account-page main#account-main{padding:20px 12px 50px}
+ html body.account-page main#account-main .card{padding:22px 16px}
+ html body.account-page main#account-main header{flex-wrap:nowrap;gap:12px;align-items:flex-start}
+ html body.account-page main#account-main header>div:last-child{min-width:0}
+ html body.account-page main#account-main .mark{flex:0 0 58px;font-size:34px}
+ html body.account-page main#account-main :is(h1,h2){font-size:var(--account-heading)!important;line-height:1.3}
+ html body.account-page main#account-main :is(p,.hint,.links a,.admin-tools a){font-size:var(--account-detail)!important;line-height:1.55}
+ html body.account-page main#account-main label{font-size:var(--account-label)!important;line-height:1.4;margin:24px 0}
+ html body.account-page main#account-main :is(input,select,button,.secondary){font-size:var(--account-control)!important;line-height:1.4;min-height:76px}
+ html body.account-page main#account-main :is(input,select){padding:12px 10px}
+ html body.account-page main#account-main input[name="username"]{font-size:max(38px,var(--phone-control,32px))!important}
+ html body.account-page main#account-main :is(.page-help-button,.admin-tools button){font-size:var(--account-detail)!important;min-height:58px}
+ html body.account-page main#account-main #signed-in{font-size:var(--account-label)!important;font-weight:700}
+ html body.account-page main#account-main #issued strong{font-size:var(--account-control)!important;line-height:1.4}
+ html body.account-page main#account-main form>button{padding:14px 8px}
+}
+
+/* Account actions and password verification. */
+.session-card{border-color:#b8cdee;background:#f6f9ff}.session-card #signed-in{margin:0;color:#173052;font-weight:750}.session-card .links{margin-top:12px}.status-retry{background:#edf2fb;color:#194dac;margin-bottom:6px}#status-message:empty+.status-retry{display:none}
+.password-field{display:flex;align-items:stretch;gap:8px;margin-top:8px}.password-field input{margin-top:0;min-width:0;flex:1}.password-field button{flex:0 0 auto;min-width:68px;background:#edf2fb;color:#194dac;padding:10px}
+.reset-warning{padding:14px;border:1px solid #e7bd75;border-radius:10px;background:#fff8eb;line-height:1.5}.reset-warning input[type="checkbox"]{display:inline-block;width:26px;height:26px;min-height:0;margin:0 10px 0 0;padding:0;vertical-align:middle}
+.issued-actions{display:flex;flex-wrap:wrap;gap:12px}.issued-actions button:last-child{background:#edf2fb;color:#194dac}button:disabled{cursor:wait;opacity:.6}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #175ee5;outline-offset:3px}
+@media(max-width:700px){html body.account-page main#account-main .password-field button{font-size:26px!important;min-width:62px;padding:10px 8px}html body.account-page main#account-main .reset-warning input[type="checkbox"]{width:28px;height:28px;min-height:0}html body.account-page main#account-main .session-card{padding:18px 16px}html body.account-page main#account-main .session-card .links>*{font-size:30px!important;min-height:60px}}
+
+/* Workbench identity: one title, readable without clipping on narrow phones. */
+html body.account-page main#account-main header.workbench-header{align-items:center;gap:14px}
+html body.account-page main#account-main header.workbench-header .mark{flex:0 0 58px}
+html body.account-page main#account-main header.workbench-header>div:last-child{min-width:0;flex:1}
+html body.account-page main#account-main header.workbench-header h1{white-space:normal;overflow-wrap:break-word;word-break:normal}
+
+html body.account-page main#account-main header.workbench-header .mark{background:linear-gradient(140deg,#235ce1,#107f97);font-size:40px;font-weight:800;box-shadow:0 3px 8px #14529220}

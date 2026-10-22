@@ -1,0 +1,62 @@
+/* Namespaced external CSS: preserve the production self-only CSP and clock controls. */
+html body.assistant-chat-page.wechat-chat #attendance-management-dialog{box-sizing:border-box;position:fixed;inset:0;margin:auto;width:calc(100vw - 20px);max-width:1280px;max-height:92vh;max-height:92svh;padding:0;border:2px solid #7692b8;border-radius:16px;background:#fff;color:#17324f;font-size:26px;line-height:1.5;overflow:hidden}
+#attendance-management-dialog[open]{display:flex;flex-direction:column}
+#attendance-management-dialog::backdrop{background:#132c50a6}
+#attendance-management-dialog .attm-header{display:flex;flex:none;gap:12px;align-items:center;justify-content:space-between;margin:0;padding:14px 18px;background:#eef4fd;border-bottom:1px solid #b6c9e0}
+#attendance-management-dialog h2{font-size:30px!important;line-height:1.35;margin:0;overflow-wrap:break-word}
+#attendance-management-dialog .attm-body{min-height:0;overflow:auto;overscroll-behavior:contain;padding:16px 18px}
+#attendance-management-dialog :is(p,li,td,strong,span){font-size:26px!important;line-height:1.5;overflow-wrap:break-word}
+#attendance-management-dialog :is(h3,label,summary,button,input,select){font-size:26px!important;line-height:1.4}
+#attendance-management-dialog h3{margin:20px 0 10px;font-weight:800}
+#attendance-management-dialog p{margin:6px 0}
+#attendance-management-dialog button{box-sizing:border-box;font:inherit;min-height:58px;max-width:100%;padding:10px 14px;margin:0;border:2px solid #87a6ce;border-radius:10px;background:#fff;color:#174273;white-space:normal;word-break:normal}
+#attendance-management-dialog button:disabled{opacity:.6}
+#attendance-management-dialog .attm-close{flex:none;min-width:88px}
+#attendance-management-dialog .attm-primary{background:#245fe2;color:#fff;font-weight:750;align-self:end}
+#attendance-management-dialog .attm-filters{display:grid;grid-template-columns:1.2fr 1.2fr 1.2fr auto;gap:12px;padding:0;margin:0;border:0;background:transparent}
+#attendance-management-dialog .attm-filters label{display:flex;flex-direction:column;gap:8px;min-width:0;font-weight:700}
+#attendance-management-dialog .attm-filters :is(input,select){box-sizing:border-box;width:100%;min-width:0;min-height:58px;padding:8px;border:2px solid #8ba9d1;border-radius:9px;color:#17324f;background:#fff;font:inherit}
+#attendance-management-dialog .attm-status{min-height:1.5em;margin:12px 0;color:#355673}
+#attendance-management-dialog .attm-status.attm-error{color:#a02218;font-weight:750}
+#attendance-management-dialog .attm-period{font-weight:750}
+#attendance-management-dialog .attm-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:12px 0}
+#attendance-management-dialog .attm-metric{padding:12px;border:1px solid #bfcee0;border-radius:12px;background:#f3f7fd;min-width:0}
+#attendance-management-dialog .attm-metric :is(span,strong,small){display:block}
+#attendance-management-dialog .attm-metric strong{font-size:30px!important;color:#164ead}
+#attendance-management-dialog .attm-metric small{font-size:22px;line-height:1.5;color:#465f78}
+#attendance-management-dialog .attm-note{font-size:24px!important;color:#425e78}
+#attendance-management-dialog .attm-analysis{border-left:5px solid #3268c6;background:#f5f9ff;padding:12px 16px;margin:16px 0}
+#attendance-management-dialog .attm-analysis h3{margin-top:0}
+#attendance-management-dialog .attm-analysis ul{padding-left:28px;margin:8px 0}
+#attendance-management-dialog .attm-analysis li{margin-bottom:14px}
+#attendance-management-dialog .attm-table{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:10px}
+#attendance-management-dialog .attm-table th{padding:10px;font-size:24px;background:#e9f0fb;text-align:left;border-bottom:2px solid #9fb6d2}
+#attendance-management-dialog .attm-table td{padding:12px 10px;vertical-align:top;border-bottom:1px solid #c6d3e2;word-break:normal}
+#attendance-management-dialog .attm-table th:last-child{width:30%}
+#attendance-management-dialog .attm-table td strong{font-weight:800}
+#attendance-management-dialog .attm-badge{display:inline-block;border-radius:8px;padding:4px 8px;font-weight:750}
+#attendance-management-dialog .attm-normal{color:#175a33;background:#e5f4e9}
+#attendance-management-dialog .attm-pending{color:#8f3516;background:#fff0e5}
+#attendance-management-dialog .attm-day-open{margin-top:8px;font-weight:750}
+#attendance-management-dialog .attm-limitations{margin-top:20px;border-top:1px solid #afc3df;padding-top:8px}
+html body.assistant-chat-page.wechat-chat #attendance-panel .attm-copy-position{margin:8px 0 8px 12px;font-size:26px!important;min-height:56px}
+#attendance-panel .attm-copy-status{display:block;font-size:24px!important;color:#235c3b}
+#attendance-panel .attm-copy-fallback{box-sizing:border-box;width:100%;height:220px;font-size:24px!important;line-height:1.5}
+@media(max-width:900px){
+ #attendance-management-dialog .attm-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #attendance-management-dialog .attm-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #attendance-management-dialog .attm-table,#attendance-management-dialog .attm-table tbody{display:block}
+ #attendance-management-dialog .attm-table thead{display:none}
+ #attendance-management-dialog .attm-table tr{display:block;border:2px solid #bed0e4;border-radius:12px;margin:14px 0;padding:12px;background:#fff}
+ #attendance-management-dialog .attm-table td{display:block;width:auto!important;padding:5px 0;border:0}
+ #attendance-management-dialog .attm-table td::before{display:block;content:attr(data-label);color:#425e78;font-size:22px;font-weight:700}
+}
+@media(max-width:520px){
+ html body.assistant-chat-page.wechat-chat #attendance-management-dialog{width:calc(100vw - 12px);max-height:94svh}
+ #attendance-management-dialog .attm-header{padding:12px;gap:8px}
+ #attendance-management-dialog h2{font-size:28px!important}
+ #attendance-management-dialog .attm-body{padding:12px}
+ #attendance-management-dialog .attm-filters,#attendance-management-dialog .attm-metrics{grid-template-columns:minmax(0,1fr)}
+ #attendance-management-dialog .attm-analysis{padding:12px}
+ #attendance-management-dialog .attm-close{min-width:72px;padding:8px}
+}

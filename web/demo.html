@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>聚友通信城 · 本机进销存演示</title>
+  <link rel="stylesheet" href="/demo.css">
+  <script src="/demo.js" defer></script>
+<link rel="stylesheet" href="/readable-ui.css?v=20261010-readable"></head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">聚</span><div><strong>聚友通信城</strong><small>进销存测试账套</small></div></div>
+    <div class="top-actions"><span class="badge">仅本机演示</span><span id="signed-in"></span><button id="logout" class="text-button" hidden>退出</button></div>
+  </header>
+  <main>
+    <section id="login-panel" class="login-card">
+      <p class="eyebrow">欢迎使用</p>
+      <h1>本机进销存演示</h1>
+      <p class="muted">选择一个测试角色，查看库存和试开单。这里的数据与真实门店分开。</p>
+      <label for="user-select">测试账号</label>
+      <select id="user-select"></select>
+      <button id="login" class="primary">进入系统</button>
+      <p id="login-error" class="error" role="alert"></p>
+    </section>
+    <section id="app-panel" hidden>
+      <div class="intro"><div><p class="eyebrow">门店工作台</p><h1>今天的生意，从这里开始</h1><p class="muted">库存与单据由原进销存后端计算。门店业务数据由服务器直接计算。</p></div><button id="refresh" class="secondary">刷新数据</button></div>
+      <div class="stats"><article><span>在库商品</span><strong id="stat-products">—</strong></article><article><span>在库件数</span><strong id="stat-quantity">—</strong></article><article><span>销售单数</span><strong id="stat-orders">—</strong></article></div>
+      <div class="layout">
+        <section class="card inventory-card"><div class="section-title"><div><h2>当前库存</h2><p>按名称、编号或分类查找</p></div><input id="search" type="search" placeholder="搜索商品"></div><div class="table-wrap"><table><thead><tr><th>商品</th><th>分类</th><th>仓库</th><th class="right">数量</th><th class="right">预设售价</th></tr></thead><tbody id="inventory-body"></tbody></table></div><p id="inventory-empty" class="empty" hidden>没有匹配的商品</p></section>
+        <section class="card sale-card"><div class="section-title"><div><h2>快速开单</h2><p>先用测试数据体验销售出库</p></div></div><form id="sale-form"><label for="product">商品</label><select id="product" required></select><div class="two-col"><div><label for="quantity">数量</label><input id="quantity" type="number" min="1" step="1" value="1" required></div><div><label for="price">实际售价（元）</label><input id="price" type="number" min="0" step="0.01" required></div></div><div id="serial-wrap" hidden><label for="serial">串码</label><select id="serial"></select></div><label for="account">收款方式</label><select id="account"><option>微信</option><option>支付宝</option><option>现金</option><option>银行卡</option></select><div class="sale-total"><span>应收金额</span><strong id="total">¥0.00</strong></div><button id="submit-sale" class="primary" type="submit">确认收款并开单</button><p id="sale-message" class="feedback" role="status"></p></form></section>
+      </div>
+      <section class="card orders-card"><div class="section-title"><div><h2>最近销售单</h2><p>开单后自动刷新</p></div></div><div id="orders-list" class="orders-list"></div></section>
+      <footer>测试演示 · 暂无云服务器，手机暂不能访问本机服务</footer>
+    </section>
+  </main>
+</body>
+</html>
