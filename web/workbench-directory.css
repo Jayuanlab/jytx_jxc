@@ -1,0 +1,67 @@
+html body{margin:0;background:#d9edf7;color:#183b55;font-family:"Microsoft YaHei","PingFang SC",sans-serif}
+#workbench-directory{max-width:760px;margin:0 auto;padding:16px 12px 32px;box-sizing:border-box}
+#workbench-directory *{box-sizing:border-box}
+#workbench-directory [hidden]{display:none!important}
+#workbench-directory .directory-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0;background:transparent;border:0;position:static}
+#workbench-directory h1{font-size:24px!important;margin:0;line-height:1.4}
+#workbench-directory .directory-header a{font-size:16px!important;color:#185d8c;text-decoration:none}
+#workbench-directory button{font-family:inherit;font-size:16px!important;min-height:40px;border:0;border-radius:12px;padding:8px 12px;color:#185d8c;background:#f5fbff;cursor:pointer}
+#workbench-directory button:disabled{opacity:.5;cursor:default}
+#workbench-directory .directory-tools{display:flex;align-items:center;gap:10px;margin:18px 0 12px}
+#workbench-directory .directory-tools label{flex:1}
+#workbench-directory input{font:inherit;font-size:16px!important;min-height:44px;width:100%;border:1px solid #b6d7e5;background:#f5fbff;padding:10px 12px;border-radius:14px;outline-offset:2px}
+#workbench-directory #directory-persona{font-size:14px;white-space:nowrap;color:#496b81}
+#workbench-directory #directory-status{font-size:15px!important;line-height:1.5;margin:8px 0 12px}
+#workbench-directory #directory-status:empty{display:none}
+#workbench-directory #directory-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:stretch;touch-action:pan-y}
+#workbench-directory .directory-card{position:relative;min-width:0;background:#f5fbff;border:1px solid transparent;border-radius:18px;box-shadow:none;aspect-ratio:1;transition:background .1s}
+#workbench-directory .directory-card>a{height:100%;width:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;padding:12px 6px;text-decoration:none;color:#183b55;overflow-wrap:anywhere;touch-action:pan-y}
+#workbench-directory .directory-icon{width:32px;height:32px;display:block;flex:none;color:#247bb1}
+#workbench-directory .directory-icon svg{width:100%;height:100%}
+#workbench-directory .directory-label{display:block;text-align:center;font-size:clamp(13px,2.6vw,18px)!important;font-weight:650;line-height:1.35}
+#workbench-directory .directory-card[data-voice=true]{background:#247bb1}
+#workbench-directory .directory-card[data-voice=true] :is(a,.directory-icon){color:#fff}
+#workbench-directory .directory-grip{display:none;position:absolute;top:0;right:0;padding:0!important;border-radius:0 16px 0 10px!important;width:30px;min-height:30px!important;background:#d0e7f3;color:#185d8c;touch-action:none;cursor:grab}
+#workbench-directory.is-arranging .directory-grip{display:block}
+#workbench-directory.is-arranging .directory-card{border-style:dashed;border-color:#75b4d3}
+#workbench-directory .directory-card.is-dragging{opacity:.5;border:2px solid #247bb1;background:#bcddeb}
+#workbench-directory .directory-card a:focus-visible,#workbench-directory button:focus-visible{outline:3px solid #a75417;outline-offset:2px}
+#workbench-directory .directory-sr{position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden}
+#workbench-directory #directory-arrange[aria-pressed=true]{background:#247bb1;color:#fff}
+@media(max-width:400px){#workbench-directory #directory-grid{gap:7px}#workbench-directory .directory-card{border-radius:15px;aspect-ratio:auto;min-height:90px}#workbench-directory .directory-card>a{padding:12px 4px;gap:7px}#workbench-directory .directory-icon{width:27px;height:27px}#workbench-directory .directory-label{font-size:13px!important}#workbench-directory h1{font-size:22px!important}}
+@media(prefers-reduced-motion:reduce){#workbench-directory *{transition:none}}
+
+#workbench-directory #directory-movebar{display:flex;align-items:center;gap:6px;position:sticky;bottom:8px;padding:8px;margin-top:12px;border-radius:14px;background:#edf7fdeF;border:1px solid #abcddf;z-index:4}
+#workbench-directory #directory-selected{flex:1;min-width:0;font-size:14px;overflow-wrap:anywhere}
+#workbench-directory #directory-movebar button{padding:4px 10px;min-width:34px;min-height:36px}
+#workbench-directory .directory-card.is-selected{outline:2px solid #247bb1;outline-offset:1px}
+
+/* Fixed, grouped function directory: common workflows first, related entries together. */
+#workbench-directory{max-width:1100px}
+#workbench-directory #directory-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#workbench-directory .directory-group-heading{grid-column:1/-1;margin:22px 0 0;padding:10px 0;border-bottom:1px solid #dbe3ef;font-size:20px!important;line-height:1.4!important}
+#workbench-directory .directory-card{aspect-ratio:auto!important;min-height:88px!important;border-radius:10px}
+#workbench-directory .directory-card>a{min-height:88px;gap:6px;padding:12px 8px}
+#workbench-directory .directory-icon{width:26px;height:26px}
+@media(max-width:700px){#workbench-directory #directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#workbench-directory .directory-card>a{min-height:80px}#workbench-directory .directory-label{font-size:16px!important}}
+
+/* The eight workbench modules are the directory's outer structure. */
+#workbench-directory:not(.is-document-view){max-width:1040px;background:#eef6fb}
+#workbench-directory:not(.is-document-view) #directory-grid{display:flex;flex-direction:column;gap:16px}
+#workbench-directory .directory-module{min-width:0;padding:0 16px 16px;background:#fff;border:1px solid #c8dfe9;border-radius:16px}
+#workbench-directory .directory-module-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 -16px 14px;padding:13px 16px 12px;border-bottom:2px solid #247bb1;background:#f5fbff;border-radius:15px 15px 0 0}
+#workbench-directory .directory-module-heading h2{margin:0;font-size:20px!important;line-height:1.35;color:#173e5c}
+#workbench-directory .directory-module-count{color:#55758a;font-size:14px;white-space:nowrap}
+#workbench-directory .directory-subgroup+.directory-subgroup{margin-top:16px}
+#workbench-directory .directory-subgroup-heading{margin:0 0 9px;color:#486d83;font-size:15px!important;font-weight:650}
+#workbench-directory .directory-subgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+#workbench-directory:not(.is-document-view) .directory-card{min-height:68px!important;border:1px solid #d8e7ee;border-radius:10px;background:#f7fbfe}
+#workbench-directory:not(.is-document-view) .directory-card>a{min-height:68px;height:100%;display:flex;flex-direction:row;justify-content:flex-start;gap:9px;padding:10px 12px;text-align:left}
+#workbench-directory:not(.is-document-view) .directory-icon{width:21px;height:21px}
+#workbench-directory:not(.is-document-view) .directory-label{text-align:left;font-size:15px!important;line-height:1.3}
+#workbench-directory:not(.is-document-view) .directory-card[data-voice=true]{background:#e7f2fb;border-color:#b8d9eb}
+#workbench-directory:not(.is-document-view) .directory-card[data-voice=true] :is(a,.directory-icon){color:#185d8c}
+#workbench-directory:not(.is-document-view) .directory-card[data-voice=true] .directory-icon{width:16px;height:16px}
+#workbench-directory .directory-empty{padding:16px;color:#486d83}
+@media(max-width:700px){#workbench-directory .directory-subgrid{grid-template-columns:repeat(2,minmax(0,1fr))}#workbench-directory .directory-module{padding:0 12px 12px}#workbench-directory .directory-module-heading{margin:0 -12px 12px;padding:12px}#workbench-directory:not(.is-document-view) .directory-card>a{padding:9px;gap:7px}#workbench-directory:not(.is-document-view) .directory-label{font-size:14px!important}}
+@media(max-width:360px){#workbench-directory .directory-subgrid{grid-template-columns:1fr}}

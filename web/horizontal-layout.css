@@ -1,0 +1,49 @@
+/* Keep names and financial values readable from left to right. */
+html body .store-category-content{min-width:0}
+html body .store-category-nav .scn-desktop{overflow:auto;overscroll-behavior:contain}
+html body .store-category-nav .scn-tree{width:max-content;min-width:100%;box-sizing:border-box}
+html body .store-category-nav .scn-tree ul{width:max-content;min-width:calc(100% - 26px);box-sizing:border-box}
+html body .store-category-nav .scn-node{min-width:max-content;width:100%;box-sizing:border-box;flex-wrap:nowrap!important}
+html body .store-category-nav .scn-pick{flex:1 0 auto;min-width:max-content;gap:14px}
+html body .store-category-nav :is(.scn-pick,.scn-all button)>span{flex:0 0 auto;white-space:nowrap;overflow-wrap:normal;word-break:keep-all}
+html body .store-category-nav :is(.scn-pick,.scn-all button)>small{flex:0 0 auto;white-space:nowrap!important;overflow-wrap:normal;word-break:keep-all}
+html body .store-category-nav .scn-all{width:max-content;min-width:calc(100% - 14px);box-sizing:border-box}
+html body .store-category-nav .scn-node:has([data-move-node]){flex-wrap:wrap!important}
+html body .scn-dialog .scn-mobile-options{overflow:auto}
+html body .scn-dialog .scn-mobile-options :is(button>span,small){word-break:keep-all;overflow-wrap:normal}
+html body .scn-dialog .scn-mobile-options small{white-space:nowrap!important;flex-shrink:0}
+@media(min-width:761px) and (max-width:1199px){
+ html body .store-category-layout{grid-template-columns:minmax(0,1fr)!important}
+ html body .store-category-nav{width:100%;min-width:0}
+ html body .store-category-nav .scn-desktop{position:static;max-height:360px}
+}
+@media(min-width:1200px){
+ html body .store-category-layout{grid-template-columns:minmax(340px,380px) minmax(0,1fr)!important}
+}
+/* Amounts stay intact; containers can wrap whole groups or scroll. */
+html body :is(.money-value,.payroll-line-amount,.payroll-main-amount>strong,.fc-money strong,.fc-net b,.fc-day-summary strong,.dashboard .stat>strong,.record-summary strong){white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important;font-variant-numeric:tabular-nums}
+html body :is(.fc-money,.payroll-main-amount,.dashboard .stat){min-width:0;max-width:100%;overflow-x:auto}
+html body .fc-four{grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr))!important}
+html body .fc-line-top{flex-wrap:wrap}
+html body .fc-line-top b{white-space:nowrap;flex:0 0 auto}
+html body .fc-day-summary>span{white-space:nowrap}
+/* Financial account comparisons use one row per account, including phones. */
+html body .fc-table-wrap{overflow:auto;max-width:100%;overscroll-behavior-x:contain}
+html body table.fc-accounts{display:table!important;width:100%;min-width:800px;table-layout:auto}
+html body .fc-accounts thead{display:table-header-group!important}
+html body .fc-accounts tbody{display:table-row-group!important}
+html body .fc-accounts tr{display:table-row!important}
+html body .fc-accounts :is(th,td){display:table-cell!important;white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important;padding:12px 10px;border-bottom:1px solid #dbe4ee;text-align:right}
+html body .fc-accounts th:first-child{min-width:180px;text-align:left}
+html body .fc-accounts button{white-space:nowrap!important;font-size:inherit!important}
+html body .fc-accounts td[data-label]::before{display:none!important}
+html body .fc-accounts .fc-name{white-space:nowrap!important;text-align:left!important}
+html body .fc-accounts .fc-flags{min-width:180px;text-align:left;white-space:normal!important}
+@media print{
+ html body :is(.fc-table-wrap,.store-category-nav .scn-desktop){overflow:visible}
+}
+
+/* Read the label and its complete amount together. */
+html body .fc-money{display:flex;align-items:center;justify-content:space-between;gap:16px}
+html body .fc-money>span{flex:0 0 auto}
+html body .fc-money>strong{flex:0 0 auto;margin-top:0!important}

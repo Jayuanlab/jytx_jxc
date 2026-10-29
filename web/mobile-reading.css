@@ -1,0 +1,20 @@
+/* Screen readability only. Printed receipts and each communication widget keep their own typography. */
+@media screen and (max-width:1023px), screen and (hover:none) and (pointer:coarse){
+ body :where(small,.hint,.muted,.guidance,.form-feedback,.form-note,.help-text,.helper-text,.status,.error,.date,.meta,.timestamp,.record-meta,.record-date,.row-meta,.field-note,.page-note,.comms-local-note,label,time,[role=status],[role=alert]):not(:where(#store-messages *,#comms-launcher *,#store-electronic-board *,.privacy-controls *,.mobile-action-dock *,.assistant-float-panel *, #customer-receipt *,.customer-receipt *,#sale-receipt *,.receipt-paper *,.label-sheet *,#print-sheet *)){
+  font-size:max(1em,18px)!important;line-height:1.5;overflow-wrap:anywhere;
+ }
+ body input::placeholder,body textarea::placeholder{font-size:max(1em,18px);opacity:1}
+ body :where(button,a,summary,input,select,textarea):focus-visible{outline:3px solid #1758b7;outline-offset:3px}
+}
+/* These existing summaries were 16px; increase screen notes without expanding paper typography. */
+@media screen and (max-width:1023px), screen and (hover:none) and (pointer:coarse){
+ html body #work-notice-strip,html body #work-notice-strip :is(summary,a,p,span,small),html body #work-notice-strip #normal-workflow-entry{font-size:18px!important;line-height:1.5!important}
+ html body #work-notice-strip>details>summary,html body #work-notice-strip #normal-workflow-entry{min-height:44px!important}
+ html body #store-messages small,html body #store-messages.is-message-only small,html body #store-messages :is(.comms-reading-note,.comms-work-note,.comms-local-note),html body #comms-connection{font-size:max(1em,18px)!important}
+}
+/* Existing inventory, query and money detail captions use the same readable screen floor. */
+@media screen and (max-width:1023px), screen and (hover:none) and (pointer:coarse){
+ body :where(.note,.tips,.caption,.description,.subtitle,.subline,.record-subtitle,.record-sub,.document-meta,.document-note,.item-meta,.item-note,.item-detail,.line-meta,.line-note,.row-detail,.secondary-text,.badge,.tag,.chip,.pill,.required-tag,.inventory-chip,.inventory-date,.inventory-meta,.payroll-state,.field-feedback,.scn-help,.scn-pick small,.scn-all small,.scn-mobile-options small,.fc-note,.fc-source,.fc-record-meta,.receipt-meta):not(:where(#store-messages *,#comms-launcher *,#store-electronic-board *,.privacy-controls *,.mobile-action-dock *,.assistant-float-panel *,#customer-receipt *,.customer-receipt *,#print-sheet *)){
+  font-size:max(1em,18px)!important;line-height:1.5;overflow-wrap:anywhere;
+ }
+}

@@ -28,23 +28,29 @@ function sourceReached(store,targetSkuId,originSkuId,sourceId,seen=new Set()) {
  return (store.stockTransfers||[]).some(t=>t.status==="completed"&&t.targetSkuId===targetSkuId&&(t.sourceCostSources||[]).some(part=>part.sourceId===sourceId&&part.quantity>0)&&sourceReached(store,t.sourceSkuId,originSkuId,sourceId,next));
 }
 function enrich(store, product, stock, refs) {
-  const serials = (stock.serials || []).map(serial => {
-    let match;
-    if (serial.purchaseId) {
-      const order = refs.purchases.get(serial.purchaseId);
-      const item = order?.items?.find(row => row.skuId === (serial.originSkuId || product.skuId) && ((row.serials || []).length ? row.serials.includes(serial.no) : row.id === serial.purchaseItemId));
-      if (item) match = {order, item};
-    } else {
-      const choices = refs.serials.get(JSON.stringify([product.skuId, serial.no])) || [];
-      if (choices.length === 1) match = choices[0];
-    }
-    return {...serial, ...source(store, match?.order), sourceStatus: match ? '原入库单' : (store.stockTransfers || []).some(t => t.id === serial.lastTransferId && (t.serialSources || []).some(s => s.no === serial.no && s.sourceType === 'historical-bound')) ? '历史来源待补' : '待补来源', inStock: inStock(serial)};
-  });
+  const serials = (stock.serials || []).map(serial => ({...serial,...require('./serial-sources').resolve(store,product,serial,refs),inStock:inStock(serial)}));
   const sources = tracked(product) ? serials.filter(inStock).map(row => ({purchaseId:row.purchaseId, supplierId:row.supplierId, supplier:row.supplier, purchaseDate:row.purchaseDate})) :
     (stock.costSources || []).filter(row => row.quantity > 0).map(row => {
       const match = refs.items.get(row.sourceId);
-      return source(store, match && sourceReached(store, product.skuId, match.item.skuId, row.sourceId) ? match.order : null);
+      const exchange=(store.supplierExchanges||[]).flatMap(order=>(order.receipts||[]).flatMap(receipt=>receipt.items.filter(item=>item.id===row.sourceId&&sourceReached(store,product.skuId,item.skuId,row.sourceId)).map(item=>({order,receipt,item})))).at(0);
+      if(exchange)return {purchaseId:'',supplierId:exchange.order.supplierId,supplier:(store.suppliers||[]).find(x=>x.id===exchange.order.supplierId)?.name||exchange.order.supplierName,purchaseDate:exchange.receipt.at,sourceStatus:'供货商换货验收',supplierExchangeId:exchange.order.id};
+      const supplierReturn=(store.supplierOutboundTransfers||[]).flatMap(order=>(order.goodsReceipts||[]).flatMap(receipt=>(receipt.items||[]).filter(item=>item.id===row.sourceId&&item.skuId===product.skuId).map(item=>({order,receipt,item})))).at(0);
+      if(supplierReturn){const supplier=(store.suppliers||[]).find(item=>item.id===supplierReturn.order.supplierId);return {purchaseId:'',supplierId:supplierReturn.order.supplierId,supplier:supplier?.name||supplierReturn.order.supplierName||'',purchaseDate:source(store,{createdAt:supplierReturn.receipt.at}).purchaseDate,sourceStatus:'供货商调货换回验收'};}
+      if(match && sourceReached(store, product.skuId, match.item.skuId, row.sourceId)) return source(store, match.order); const entry=(store.openingImportBatches||[]).flatMap(batch=>(batch.products||[]).map(item=>({batch,item}))).find(({item})=>item.sourceId===row.sourceId && sourceReached(store,product.skuId,item.skuId,row.sourceId)); if(entry){const supplier=(store.suppliers||[]).find(item=>item.id===entry.item.supplierId);return {purchaseId:"",supplierId:supplier?.id||"",supplier:supplier?.name||entry.item.supplier||"",purchaseDate:"",sourceStatus:"期初登记"};} return source(store,null);
     });
+  // A zero-quantity opening profile has documentary provenance but no FIFO stock layer.
+  if (!tracked(product) && stock.quantity === 0) {
+    const warehouseId = stock.warehouseId || product.warehouseId || 'wh-sale';
+    for (const batch of store.openingImportBatches || []) {
+      if (batch.kind !== 'opening_quantity_append') continue;
+      for (const item of batch.products || []) {
+        const sourceWarehouseId = item.warehouseId || batch.warehouseId;
+        if (item.skuId !== product.skuId || item.quantity !== 0 || sourceWarehouseId !== warehouseId || (batch.warehouseId && batch.warehouseId !== warehouseId)) continue;
+        const supplier = (store.suppliers || []).find(row => row.id === item.supplierId);
+        sources.push({purchaseId:'', supplierId:item.supplierId || '', supplier:supplier?.name || item.supplier || '', purchaseDate:'', sourceStatus:'期初档案'});
+      }
+    }
+  }
   const unique = [...new Map(sources.map(row => [JSON.stringify([row.purchaseId,row.supplierId,row.supplier]),row])).values()];
   const count = serials.filter(inStock).length;
   return {serials, stockSources:unique, serialRequired:tracked(product), trackSerial:tracked(product), serialBoundCount:count,

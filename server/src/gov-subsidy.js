@@ -79,8 +79,7 @@ function receive(store,user,payload) {
   if((store.govSubsidyClaims||[]).some((x)=>x.events.some((e)=>e.reference===bankRef)))throw new c.HttpError(409,'银行流水号已登记');
   const pa=require('./payment-accounts'),paymentParts=pa.normalize(store,payload,amount);const account=paymentParts.length===1?paymentParts[0].account:'多账户';
   const event={id:c.id('GBE'),type:'receive',amount,reference:bankRef,account,paymentParts,operatorId:user.id,createdAt:c.now()};row.events.push(event);row.received=c.round(row.received+amount);row.status=row.received===row.confirmed?'已到账':'部分到账';
-  const ownerId=store.users.find((u)=>u.roleCode==='owner'&&u.status==='active')?.id;
-  pa.record(store,user,'gov_subsidy',event.id,paymentParts.map(part=>({...part,...(!part.accountOwnerId&&ownerId?{accountOwnerId:ownerId}:{}),...(!part.reference&&paymentParts.length===1?{reference:bankRef}:{})})));
+  pa.record(store,user,'gov_subsidy',event.id,paymentParts.map(part=>({...require('./account-ownership').project(store,part),...(!part.reference&&paymentParts.length===1?{reference:bankRef}:{})})));
   c.audit(store,user,'gov:receive',row.id+' '+amount);
   require('./feishu-notices').notice(store,'gov-receive:'+event.id,'国补返款到账',{id:row.id,summary:'到账 '+amount+' 元，流水 '+bankRef,amount});
   return row;
@@ -95,7 +94,6 @@ function refund(store,user,payload) {
   const pa=require('./payment-accounts'),sourceIds=new Set(row.events.filter(e=>e.type==='receive').map(e=>e.id)),originals=store.receipts.filter(r=>r.kind==='gov_subsidy'&&sourceIds.has(r.sourceId));
   const paymentParts=row.events.some(e=>e.type==='receive'&&e.paymentParts)?pa.originalParts(store,originals,amount,payload.refundPayments??payload.payments):pa.normalize(store,payload,amount);const account=paymentParts.length===1?paymentParts[0].account:'多账户';
   const event={id:c.id('GBE'),type:'refund',amount,reference:bankRef,account,paymentParts,operatorId:user.id,createdAt:c.now()};row.events.push(event);row.refunded=c.round(row.refunded+amount);row.status=row.refunded===row.received?'已退回补贴':'部分退回补贴';
-  const ownerId=store.users.find((u)=>u.roleCode==='owner'&&u.status==='active')?.id;
   pa.record(store,user,'gov_subsidy_refund',event.id,paymentParts,-1);
   c.audit(store,user,'gov:refund',row.id+' '+amount);
   require('./feishu-notices').notice(store,'gov-refund:'+event.id,'国补补贴退回',{id:row.id,summary:'原渠道退回 '+amount+' 元，流水 '+bankRef,amount});

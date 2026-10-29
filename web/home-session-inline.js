@@ -1,0 +1,1 @@
+(()=>{'use strict';const tools=document.getElementById('home-account-tools'),workspace=document.querySelector('.home-modules')?.closest('section');if(tools&&workspace&&tools.parentElement===workspace.parentElement)workspace.after(tools);})();

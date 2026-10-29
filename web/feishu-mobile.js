@@ -1,19 +1,64 @@
-const $=id=>document.getElementById(id);
-if(new URLSearchParams(location.search).has("logged_out")){document.documentElement.classList.add("signed-out");document.addEventListener("DOMContentLoaded",()=>{const note=document.createElement("section");note.className="logout-notice";note.innerHTML='<h1>已退出门店进销存</h1><p>门店业务数据已退出。您可以随时使用员工账号重新登录。</p><a href="/login">用员工账号登录</a><p data-page-explanation>要关闭此页面，请使用手机浏览器的返回或关闭标签页按钮。</p>';document.querySelector(".wrap")?.prepend(note);});}
-const E=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function ownerEntries(){return [...document.querySelectorAll("[data-owner-only]"),...Array.from(document.querySelectorAll("template[data-page-help-template]")).flatMap(template=>Array.from(template.content.querySelectorAll("[data-owner-only]")))];}
+(function(){'use strict';
+ const E=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function card(row){
+  if(!row||typeof(row.actionHref||row.href)!=='string')return '';let url;try{url=new URL(row.actionHref||row.href,location.origin);}catch{return '';}
+  const id=url.searchParams.get('id');if(url.origin!==location.origin||url.pathname!=='/supplier-exchanges'||!/^SX-[a-z0-9-]{1,100}$/i.test(id||'')||row.id!==id)return '';
+  const src='/supplier-exchanges?id='+encodeURIComponent(id)+'&embedded=pending';
+  return '<section class="pending-original" data-original-id="'+E(id)+'"><p class="original-load-state" role="status">正在读取换货原单…</p><iframe class="pending-original-frame" title="供货商换货单 '+E(row.documentNo||id)+'" src="'+E(src)+'"></iframe><button class="original-retry" type="button" hidden>重新读取原单</button></section>';
+ }
+ function mount(onUpdated){
+  function bind(){for(const frame of document.querySelectorAll('.pending-original-frame')){if(frame.dataset.originalBound)continue;frame.dataset.originalBound='1';const host=frame.closest('.pending-original'),state=host.querySelector('.original-load-state'),retry=host.querySelector('.original-retry');retry.onclick=()=>{state.hidden=false;state.textContent='正在重新读取原单…';retry.hidden=true;frame.src=frame.getAttribute('src');};frame.addEventListener('load',()=>{try{if(frame.contentWindow.location.pathname==='/login'){state.hidden=false;state.textContent='登录已失效，请返回工作台重新登录后读取原单。';retry.hidden=false;}}catch{state.hidden=false;state.textContent='原单未能读取，请重新读取。';retry.hidden=false;}});}}
+  new MutationObserver(bind).observe(document.body,{childList:true,subtree:true});bind();
+  window.addEventListener('message',event=>{
+   const message=event.data;if(event.origin!==location.origin||!message||message.type!=='erp-original-document')return;
+   const frame=[...document.querySelectorAll('.pending-original-frame')].find(f=>f.contentWindow===event.source&&f.closest('.pending-original').dataset.originalId===message.documentId);if(!frame)return;
+   const host=frame.closest('.pending-original'),state=host.querySelector('.original-load-state'),retry=host.querySelector('.original-retry');
+   if(message.action==='resize'){const height=Number(message.height);if(Number.isFinite(height))frame.style.height=Math.min(16000,Math.max(220,Math.ceil(height)))+'px';if(message.ready){state.hidden=true;retry.hidden=true;}else if(typeof message.error==='string'&&message.error){state.hidden=false;state.textContent=message.error;retry.hidden=false;}}
+   if(message.action==='updated')Promise.resolve(onUpdated?.()).catch(()=>{state.hidden=false;state.textContent='原单已办理，待办未能刷新，请点待办页的“刷新”核对。';});
+  });
+ }
+ window.StoreOriginalPending={card,mount};
+})();
+
+(()=>{
+'use strict';
+const shapes={store:'<path d="M3 10h18l-2-6H5zM5 10v10h14V10M9 20v-6h6v6M3 10c0 3 4 3 4 0 0 3 5 3 5 0 0 3 5 3 5 0 0 3 4 3 4 0"/>',search:'<circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/>',document:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>',person:'<circle cx="12" cy="7" r="4"/><path d="M5 21v-3a7 7 0 0 1 14 0v3"/>',stock:'<path d="m3 7 9-4 9 4v11l-9 4-9-4zM3 7l9 4 9-4M12 11v11"/>',list:'<path d="M8 5h12M8 12h12M8 19h12M3 5h1M3 12h1M3 19h1"/>',wallet:'<rect x="3" y="5" width="18" height="15" rx="2"/><path d="M17 12h4M3 8V4l14-2v3"/>',check:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="m8 12 3 3 5-6"/>',mail:'<rect x="2" y="5" width="20" height="15" rx="2"/><path d="m2 6 10 8L22 6"/>',team:'<circle cx="9" cy="7" r="3"/><path d="M2 21v-3a7 7 0 0 1 14 0v3M17 4a3 3 0 0 1 0 6M22 21v-4a6 6 0 0 0-4-6"/>',chat:'<path d="M21 15a3 3 0 0 1-3 3H9l-6 4V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3zM7 8h10M7 12h6"/>',cat:'<path d="M4 10V3l6 4h4l6-4v7a9 9 0 1 1-16 0zM8 13h.01M16 13h.01M10 17l2 1 2-1"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>',notice:'<path d="m4 10 14-6v16L4 14zM4 10H2v4h2M7 15l2 6h4l-3-5"/>',arrow:'<path d="m9 5 7 7-7 7"/>'};
+const icon=n=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+(shapes[n]||shapes.document)+'</svg>';
 const ownerItems=[
-  ['assistantFeedback','助理回答待纠错','/knowledge-review#answer-feedback'],
+ ['simpleDailyClose','简易扎账单待核对与审核','/simple-daily-close#review'],
+ ['walletFundingPay','门店微信待充值','/store-wallet-funding'],['walletFundingConfirm','门店微信待本人确认到账','/store-wallet-funding'],['walletFundingException','门店微信到账有异议','/store-wallet-funding'],
+  ['businessReconciliation','正常业务待老板对账','/business-reconciliation?section=business'],
+  ['inventoryLossCases','持续库存差异待处理','/business-reconciliation?section=losses'],
+  ['holderPaymentRequests','待本人实际办理付款','/business-reconciliation?section=payments'],
+  ['orderRedPacketReview','红包待发放','/order-red-packets?status='+encodeURIComponent('待老板核定')],
+  ['orderRedPacketPayment','已核定红包待发放','/order-red-packets?status='+encodeURIComponent('已核定待支付')],
+  ['personnelLeaves','请休假待老板终审','/personnel'],
+  ['openingImportDrafts','商品期初待老板确认','/opening-drafts'],
+  ['airOpeningDrafts','空充期初待老板确认','/air-recharge'],
+  ['airFundingOrders','空充boss待老板处理','/air-accounts?mine=pending'],
+  ['airHistoryDrafts','历史空充补单待老板终审','/air-history?mine=pending'],
+  ['airHistoryStaleDrafts','空充历史补单店长变更待处理','/air-history'],
+  ['assistantFeedback','助理纠错（暂缓）','/knowledge-review#answer-feedback'],
   ['assistantReports','员工情况待核实','/assistant?mode=store#report-panel'],
   ['fundTransferDispute','店内转款到账有异议','/funds'],
   ['fundTransfer','店内转款待收款人确认','/funds'],
   ['cashDispute','现金交接有异议','/cash-handover'],
   ['cashHandover','现金交接待接收人确认','/cash-handover'],
-  ['salePayments','销售款待本人核对','/sale-payments'],
+  ['salePaymentAssignments','销售款待指定收款人','/sale-payments'],
+  ['salePayments','销售款待我核对','/sale-payments'],
   ['salePaymentDisputes','销售收款有异议','/sale-payments'],
   ['procurementPaymentReview','订货待老板决定付款','/app?tab=purchase'],
   ['expenseRed','单据红冲待老板批准','/app?tab=red'],
   ['saleReturn','退换货待老板批准','/app?tab=returns#sale-return-requests'],
+  ['businessChange','业务变更退换申请待批准','/business-change-returns'],
+  ['businessChangePayment','业务变更待实际退款','/business-change-returns'],
+  ['businessChangeReceive','业务变更和包待核实到账','/business-change-returns'],
+  ['businessChangeAdvance','业务变更老板垫付待结算','/business-change-returns'],
+  ['businessChangeWithholding','业务变更和包代扣税待核实','/business-change-returns'],
+  ['supplierExchangeReview','供货商换货待批准','/supplier-exchanges'],
+  ['supplierExchangeOpen','供货商换货未完成','/supplier-exchanges'],
+  ['supplierOutboundReview','供货商调货待批准','/supplier-outbound-tracking'],
+  ['supplierOutboundOpen','供货商调货未闭合','/supplier-outbound-tracking'],
   ['purchaseReturn','采购退货待老板批准','/app?tab=purchase#purchase-return-requests'],
   ['catalogAddition','新增档案核对','/app?tab=purchase#catalog-reviews'],
   ['productPrice','商品调价待审核','/app?tab=products'],
@@ -22,183 +67,130 @@ const ownerItems=[
   ['procurement','进行中的订货与收货','/app?tab=purchase'],
   ['dailyClose','每日扎账待老板签认','/daily-close'],
   ['dailyReview','日结待复核或修订','/daily-close'],
-  ['reception','接待单待结案','/receptions'],
-  ['assist','协助单待确认','/receptions'],
-  ['wechat','加微信待核分','/receptions'],
+  ['receiptReconciliation','收款单待老板对账','/boss-overview#urgent'],
+  ['reception','接待单待结案','/receptions?pendingCloseout=1'],
+  ['assist','协助单待确认','/receptions?pendingAssist=1'],
+  ['wechat','加微信待核分','/receptions?pendingWechat=1'],
   ['conversion','成交归属待判断','/receptions'],
   ['learning','学习单待审核','/learning'],
-  ['dutyReview','值日照片待审核','/duties'],
-  ['usedPhoneReview','二手机评估待复核','/used-phones'],
-  ['workJournal','工作日志待核定','/work-journal'],
-  ['closeout','交班单待核对','/close'],
-  ['closeoutRevision','交班单退回待修订','/close']
+  ['workJournal','工作日志待核定','/boss-batch'],
+  ['closeout','临时扎账待复核','/close'],
+  ['closeoutRevision','临时扎账退回待补正','/close']
 ];
-function item(label,count,href){return '<a class="pending-item '+(count?'urgent':'')+'" href="'+href+'"><span class="pending-name">'+E(label)+'</span><span class="pending-item-action"><strong>'+count+'</strong><span class="pending-go">'+(count?'去处理 ›':'查看 ›')+'</span></span></a>';}
-function setMetric(id,value){
- const node=$(id);
- node.textContent=value;
- node.closest('.stat')?.classList.toggle('wide-count',String(value??'').length>2);
+const employeeAlertItems=[
+ ['businessChangeToPay','业务变更待实际退款'],
+ ['businessChangeFollowUp','业务变更待老板办理'],
+ ['supplierExchangeReady','供货商换货待办理'],
+ ['simpleToCheck','扎账单待我核对'],
+ ['leaveToReview','请休假待审核'],['airHistoryToReview','历史空充待初审'],['airFundingToConfirm','空充到账待确认'],
+ ['dutyToReview','岗位职责待审核'],['usedPhoneToReview','二手机评估待复核'],['workToReview','工作日志待复核'],['feedbackToReview','问答纠错待审核'],
+ ['learningToReview','学习单待审核'],['giftApprovalsToReview','赠品待审批'],['salePaymentsToConfirm','销售款待处理'],
+ ['walletFundingToConfirm','门店微信到账待确认'],['transferToConfirm','店内转款待确认'],['cashToConfirm','现金交接待确认'],
+ ['cashToResubmit','现金交接待核实'],['receiptCorrectionsToRevise','收款单待更正'],['assignedPlans','订货待验收'],
+ ['followups','到期回访'],['unreviewedLearning','学习单待老板审核'],['unreviewedWork','工作日志待核定'],['masterDataToReview','新增资料待审核']
+];
+window.StorePendingAlertCategories={fromWorkbench(data){return (data.owner?ownerItems.map(([key,label])=>[key,label,Number(data.reviews?.[key]||0)]):employeeAlertItems.map(([key,label])=>[key,label,Number(data[key]||0)])).filter(([, ,count])=>count>0).map(([key,label,count])=>({key,label,count}));}};
+const $=id=>document.getElementById(id),E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const groups=['销售业务','进货库存','基础资料管理','财务中心','移动业务','查询分析','员工学习','管理中心'];
+const mapGroup=g=>({'收款付款':'财务中心','交接扎账':'财务中心','账户往来':'财务中心','财务结算':'财务中心','商品资料':'基础资料管理','员工日常':'员工学习','管理设置':'管理中心','单据 · 销售业务':'销售业务','单据 · 采购库存':'进货库存','单据 · 员工日常':'员工学习'}[g]||(String(g).startsWith('单据')?'财务中心':g));
+const notes={'销售业务':'销售开单、退换货','进货库存':'进货、库存、调拨','基础资料管理':'商品、顾客、往来单位','财务中心':'单据归类、资金收支','移动业务':'业务办理、顾客充值','查询分析':'单据、报表、经营分析','员工学习':'资料中心、学习复盘','管理中心':'人员、权限、门店设置'};
+let me=null,directory=null,shortcuts=null,work=null,feed=[],screenIndex=0,paused=false,screenTimer=null,screenDeadline=0,screenRemaining=0,currentSlide='',activePage=0,focusBefore=null,loading=false,commLoad=null;
+const safeHref=value=>{try{const u=new URL(value,location.origin);return u.origin===location.origin&&value.startsWith('/')&&!value.startsWith('//')?u.pathname+u.search+u.hash:null;}catch{return null;}};
+const featureText=value=>String(value??'').normalize('NFKC').toLowerCase().replace(/[\p{P}\p{S}\s]/gu,'');
+const featureQuery=value=>featureText(value).replace(/^(?:请|麻烦)?(?:帮我)?(?:搜索|查找|查一下|找一下|查询|查|找|打开|进入|我要|我想)/,'').replace(/接菜单|接带单/g,'接待单');
+function featureMatches(entries,query){const term=featureQuery(query);if(!term)return [];return (entries||[]).filter(entry=>[entry.label,entry.group,...(entry.aliases||[])].some(value=>{const word=featureText(value);return word&&(word.includes(term)||term.includes(word));})).filter(entry=>safeHref(entry.href));}
+async function submitHomeSearch(event){event.preventDefault();const query=$('search').value.trim();if(!query){openDirectory();return;}try{if(!directory)directory=await api('/api/display-preferences?page=home-directory');const matches=featureMatches(directory.entries,query),term=featureQuery(query),exact=matches.filter(entry=>featureText(entry.label)===term),entry=exact.length===1?exact[0]:matches.length===1?matches[0]:null;if(entry){const href=entry.id==='/receptions'&&term==='接待单'?'/receptions?view=new':entry.href;location.href=safeHref(href);return;}if(matches.length){openDirectory();$('directoryFilter').value=query;$('directoryFilter').dispatchEvent(new Event('input'));return;}location.href='/search?q='+encodeURIComponent(query);}catch(error){errorBox('查找功能',error,()=>submitHomeSearch(event));}}
+async function api(route,payload){const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),15000);try{const r=await fetch(route,{credentials:'same-origin',cache:'no-store',signal:ctl.signal,...(payload?{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()},body:JSON.stringify(payload)}:{})});let d;try{d=await r.json();}catch{throw Error('返回内容不完整，请重试');}if(!r.ok){const e=Error(d.error?.message||'读取失败，请重试');e.status=r.status;throw e;}return d;}finally{clearTimeout(timer);}}
+function show(title,html){if(alertControl.closest('#dialogBody'))alertParking.append(alertControl);const session=$('dialogBody').querySelector('.session-controls');if(session)document.body.prepend(session);if(!$('dialog').open)focusBefore=document.activeElement;$('dialogTitle').textContent=title;$('dialogBody').innerHTML=html;if(!$('dialog').open)$('dialog').showModal();}
+function errorBox(title,error,retry){show(title,'<p class="error">'+E(error.message||error)+'</p><button class="retry" id="retryAction">重新读取</button>');$('retryAction').onclick=retry;}
+const link=(href,label,cls='item')=>safeHref(href)?'<a class="'+cls+'" href="'+E(safeHref(href))+'">'+label+'</a>':'<p class="error">原入口地址暂不可用，请刷新核对。</p>';
+function hasFeature(href){return directory?.entries.some(e=>e.href===href||e.id===href);}
+function renderDirectory(){const es=directory.entries;const ordered=directory.order?.map(id=>es.find(e=>e.id===id)).filter(Boolean)||es;
+ $('modules').innerHTML=groups.map(g=>({g,rows:ordered.filter(e=>mapGroup(e.group)===g)})).filter(g=>g.rows.length).map(({g})=>'<button class="module" data-group="'+E(g)+'"><span><strong>'+E(g)+'</strong><small>'+E(me.owner||g!=='管理中心'?notes[g]:'本人账号、个人设置')+'</small></span></button>').join('');
+ $('modules').querySelectorAll('[data-group]').forEach(b=>b.onclick=()=>openDirectory(b.dataset.group));
 }
-let workbenchLoadVersion=0;
-async function load(){
-  const version=++workbenchLoadVersion,current=()=>version===workbenchLoadVersion;
-  try{
-    const response=await fetch('/api/workbench',{credentials:'same-origin',cache:'no-store'});
-    if(!current())return;
-    if(response.status===403){location.replace('/assistant?mode=customer');return;}
-    if(!response.ok)throw new Error(response.status===401?'LOGIN':'工作台读取失败（'+response.status+'）');
-    const data=await response.json();
-    if(!current())return;
-    window.PageHelp?.setUser({roleCode:data.owner?"owner":"employee",owner:data.owner});
-    $('identity').textContent=String(data.name??'');
-    const identityLabel=String(data.name??'')+' · '+(data.owner?'老板':'员工');
-    $('identity').title=identityLabel;
-    $('identity').setAttribute('aria-label',identityLabel);
-    $('pending-label').textContent=data.owner?'待办审核':'我的待办';
-    setMetric('pending-count',data.pendingCount);
-    setMetric('followup-count',data.followups);
-    const entries=data.owner
-      ?ownerItems.map(([key,label,href])=>[label,data.reviews?.[key]||0,href])
-      :[
-        ['值日照片待我审核',data.dutyToReview||0,'/duties'],
-        ['二手机评估待我复核',data.usedPhoneToReview||0,'/used-phones'],
-        ['工作积分待我核定',data.workToReview||0,'/work-journal'],
-        ['问答纠错待我审核',data.feedbackToReview||0,'/knowledge-review#answer-feedback'],
-        ['学习单待我审核',data.learningToReview||0,'/learning'],
-        ['超限赠品待我审批',data.giftApprovalsToReview||0,'/gift-approvals'],
-        ['销售款待我核对',data.salePaymentsToConfirm||0,'/sale-payments'],
-        ['我开的销售单收款有异议',data.ownPaymentDisputes||0,'/sale-payments'],
-        ['待我确认店内转款',data.transferToConfirm||0,'/funds'],
-        ['待我确认现金交接',data.cashToConfirm||0,'/cash-handover'],
-        ['待我验收的订货',data.assignedPlans||0,'/app?tab=purchase'],
-        ['到期回访',data.followups||0,'/receptions'],
-        ['学习单待老板审核',data.unreviewedLearning||0,'/learning'],
-        ['工作日志待核定',data.unreviewedWork||0,'/work-journal'],
-        ['进行中接待',data.openReceptions||0,'/receptions']
-      ];
-    const active=entries.filter(([,count])=>count>0), rest=entries.filter(([,count])=>!(count>0));
-    pendingTotal=Number(data.pendingCount)||0;updatePendingSummary();
-    $('pending-list').innerHTML=(active.length?active.map(row=>item(...row)).join(''):'<p class="muted">暂无待办。</p>')
-      +(rest.length?'<details class="pending-rest"><summary>查看无待办的项目</summary><div class="pending-list">'+rest.map(row=>item(...row)).join('')+'</div></details>':'');
-    for(const card of ownerEntries())card.hidden=!data.owner;
-    for(const card of document.querySelectorAll('[data-capability]'))card.hidden=!data.capabilities?.[card.dataset.capability];
-    for(const card of document.querySelectorAll('[data-any-capability]'))card.hidden=!card.dataset.anyCapability.split(',').some(key=>data.capabilities?.[key]);
-    if(data.owner){
-      try{const n=await fetch("/api/local-notices",{credentials:"same-origin",cache:"no-store"});if(!current())return;if(n.ok){const v=await n.json();if(current())setMetric('notice-count',v.unread);}else $('notice-count').textContent='暂未更新';}
-      catch{if(current())$('notice-count').textContent='暂未更新';}
-    }
-  }catch(error){
-    if(!current())return;
-    $('identity').textContent=error.message==='LOGIN'?'请先登录':'加载失败';
-    $('identity').title=$('identity').textContent;
-    $('identity').setAttribute('aria-label',$('identity').textContent);
-    $('pending-list').innerHTML=error.message==='LOGIN'
-      ?'<p class="muted">请先使用员工账号登录，查看你有权限处理的单据。 <a href="/login">去登录 →</a></p>'
-      :'<p class="muted">'+E(error.message)+'，请点“刷新”重试。</p>';
-    for(const card of ownerEntries())card.hidden=true;
-  }
+function openDirectory(group=''){if(!directory)return errorBox('全部功能','功能目录暂未读到',load);let es=directory.entries.filter(e=>!group||mapGroup(e.group)===group);
+ showDirectoryEntries(group,es);
 }
-let pendingTotal=0;
-function updatePendingSummary(){$('pending-summary').textContent=($('pending-details').open?'收起待办明细':'查看待办明细')+(pendingTotal>0?'（'+pendingTotal+'）':'');}
-$('pending-details').addEventListener('toggle',updatePendingSummary);
-$('pending-clear').addEventListener('click',()=>{
- $('pending-details').open=false;
- for(const detail of $('pending-list').querySelectorAll('details'))detail.open=false;
- $('pending-screen-status').textContent='已收起，待办记录保留。';updatePendingSummary();
- $('pending').scrollIntoView({block:'start'});$('pending-clear').focus({preventScroll:true});
-});
-$('refresh').addEventListener('click',()=>{$('pending-screen-status').textContent='';load();});
-addEventListener('pageshow',event=>{if(event.persisted)load();});
-load();
+function showDirectoryEntries(group,es){show(group||'全部功能','<input class="directory-filter" id="directoryFilter" placeholder="查找功能名称" aria-label="筛选功能"><p class="context" id="directoryCount"></p><div id="directoryResults"></div>');
+ const draw=()=>{const q=$('directoryFilter').value.trim(),rows=q?featureMatches(es,q):es;$('directoryCount').textContent='当前账号可用 '+rows.length+' 个入口';$('directoryResults').innerHTML=rows.length?rows.map(e=>group==='移动业务'&&safeHref(e.href)==='/carrier'?'<button type="button" class="item" style="width:100%;text-align:left" data-mobile-carrier-choice aria-haspopup="dialog"><span><strong>'+E(e.label)+'</strong><small>选择普通业务或新办卡组合</small></span>'+icon('arrow')+'</button>':link(e.href,'<span><strong>'+E(e.label)+'</strong><small>'+E(mapGroup(e.group))+'</small></span>'+icon('arrow'))).join(''):'<p class="empty">没有找到对应功能，换一个名称试试。</p>';$('directoryResults').querySelector('[data-mobile-carrier-choice]')?.addEventListener('click',()=>showCarrierChoices(es));};$('directoryFilter').oninput=draw;draw();
+}
+function showCarrierChoices(es){
+ const ordinary=es.find(e=>safeHref(e.href)==='/carrier'),bundle=es.find(e=>safeHref(e.href)==='/mobile-card-bundles');
+ show('选择移动业务','<p class="context">请选择本次办理内容</p><div id="carrierChoices">'+(bundle?link(bundle.href,'<span><strong>新办卡组合办理（含红包申请）</strong><small>巴渝卡、承诺套餐、惠巴渝、终端券及顾客实收</small></span>'+icon('arrow')):'')+(ordinary?link(ordinary.href,'<span><strong>普通移动业务与酬金</strong><small>号卡、充值、宽带、套餐及逐月酬金</small></span>'+icon('arrow')):'')+'</div><button type="button" id="carrierChoiceBack">返回移动业务列表</button>');
+ const readyAt=performance.now()+500;$('carrierChoices').addEventListener('click',event=>{if(event.detail!==0&&performance.now()<readyAt&&event.target.closest('a[href]')){event.preventDefault();event.stopImmediatePropagation();}},true);
+ $('carrierChoiceBack').onclick=()=>showDirectoryEntries('移动业务',es);
+}
+function quickIcon(l){return /库存|进货|订货/.test(l)?'stock':/接待/.test(l)?'person':/档案/.test(l)?'list':/充值|财务|付款/.test(l)?'wallet':/考勤/.test(l)?'clock':/扎账/.test(l)?'check':'document';}
+function renderShortcuts(){const es=new Map(shortcuts.entries.map(e=>[e.id,e]));const pages=shortcuts.pages||[[],[]];if(!pages[activePage]?.length)activePage=pages[0]?.length?0:1;
+ let tabs=$('shortcutPages');if(!tabs){tabs=document.createElement('div');tabs.id='shortcutPages';tabs.className='ps-pages';$('shortcuts').before(tabs);}tabs.innerHTML=pages[0]?.length&&pages[1]?.length?[0,1].map(i=>'<button data-page="'+i+'" aria-pressed="'+(i===activePage)+'">常用第'+(i+1)+'页</button>').join(''):'';tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{activePage=Number(b.dataset.page);renderShortcuts();});
+ const rows=(pages[activePage]||[]).map(id=>es.get(id)).filter(Boolean);$('shortcuts').innerHTML=rows.length?rows.map(e=>link(e.href,'<span class="glyph">'+icon(quickIcon(e.label))+'</span><span>'+E(e.label)+'</span>','quick')).join(''):'<p class="context">尚未添加常用功能，点“编辑常用”选择。</p>';
+}
+async function editShortcuts(){try{shortcuts=await api('/api/display-preferences?page=home-shortcuts');}catch(e){return errorBox('编辑常用',e,editShortcuts);}const chosen=new Map(shortcuts.pages.flatMap((p,i)=>p.map(id=>[id,i]))),es=shortcuts.entries;show('编辑常用','<p class="context">沿用当前账号的两页常用，每张单据可分别加入。保存仅调整入口，不改业务。</p><input class="directory-filter" id="quickFilter" placeholder="查找要加入的功能" aria-label="筛选常用功能"><div id="quickEditor">'+es.map(e=>'<div class="editrow" data-label="'+E(e.label)+'"><label><input type="checkbox" data-id="'+E(e.id)+'" '+(chosen.has(e.id)?'checked':'')+'> '+E(e.label)+'</label><select aria-label="'+E(e.label)+'所在常用页" data-page-id="'+E(e.id)+'"><option value="0" '+(chosen.get(e.id)===0?'selected':'')+'>第一页</option><option value="1" '+(chosen.get(e.id)===1?'selected':'')+'>第二页</option></select></div>').join('')+'</div><p id="saveState" role="status"></p><div class="dialog-actions"><button class="primary" id="saveShortcuts">保存常用</button><button id="reloadShortcuts">重新读取</button></div>');
+ $('quickFilter').oninput=()=>{const q=$('quickFilter').value.trim();$('quickEditor').querySelectorAll('[data-label]').forEach(n=>n.hidden=!n.dataset.label.includes(q));};$('reloadShortcuts').onclick=editShortcuts;
+ $('saveShortcuts').onclick=async()=>{const button=$('saveShortcuts');button.disabled=true;const pages=[[],[]],prior=shortcuts.pages.flat(),ordered=[...prior,...es.map(e=>e.id).filter(id=>!prior.includes(id))];for(const id of ordered){const check=[...$('quickEditor').querySelectorAll('[data-id]')].find(n=>n.dataset.id===id);if(check?.checked){const select=[...$('quickEditor').querySelectorAll('[data-page-id]')].find(n=>n.dataset.pageId===id);pages[Number(select.value)].push(id);}}
+  try{shortcuts=await api('/api/display-preferences',{page:'home-shortcuts',revision:shortcuts.revision,pages});renderShortcuts();$('dialog').close();$('homeStatus').hidden=false;$('homeStatus').textContent=shortcuts.message||'常用入口已保存';}catch(e){$('saveState').textContent=e.message+(e.status===409?'；本次选择未保存，请重新读取。':'');}finally{button.disabled=false;}};
+}
+function renderPriority(){const rows=me.owner?[['本人待办',work?.pendingCount,'check','mine'],['员工待办',work?.waitingOnOthersCount,'team','staff'],['扎账报告',work?.reports?.simpleDailyClose?.count??null,'check','reports'],['店内消息',null,'mail','messages']]:[['本人待办',work?.pendingCount,'check','mine'],['店内消息',null,'mail','messages'],['考勤打卡',null,'clock','attendance']];
+ $('priority').style.gridTemplateColumns=me.owner?'repeat(2,minmax(0,1fr))':'';$('priority').innerHTML=rows.map(([l,n,i,k])=>'<button data-priority="'+k+'">'+icon(i)+'<span>'+l+'</span>'+(n==null?'':'<b class="count">'+E(n)+'</b>')+'</button>').join('');$('priority').querySelectorAll('button').forEach(b=>b.onclick=()=>{const k=b.dataset.priority;if(k==='messages')openMessages();else if(k==='reports')location.href='/simple-daily-close?view=reports';else if(k==='attendance')location.href='/assistant?work-signin=1';else openPending(k);});}
+function renderAssistantCashReminder(){
+ let card=$('assistantCashReminder');if(!card){card=document.createElement('section');card.id='assistantCashReminder';card.setAttribute('aria-label','工作助理现金待办提醒');$('priority').after(card);}
+ const rows=Array.isArray(work?.assistantCashReminders)?work.assistantCashReminders:[];card.hidden=!rows.length;if(!rows.length){card.replaceChildren();return;}
+ card.style.cssText='margin:14px 0;padding:16px;border:1px solid #d4b46b;border-radius:14px;background:#fffaf0;color:#3f321c';
+ card.innerHTML='<strong>工作助理提醒 · '+rows.length+' 笔现金待核</strong>'+rows.slice(0,3).map(row=>'<p style="margin:10px 0">'+(me.owner?E(row.handler)+'：':'')+(row.receiptNos?.length?'收款单 '+E(row.receiptNos.join('、'))+'（关联销售单 '+E(row.orderId)+'）':'销售单 '+E(row.orderId)+' 的收款待核')+'，顾客现金 ¥'+Number(row.amount).toFixed(2)+' 已登记收取，系统尚未记录交入门店现金。请按实际去向办理或登记差异。 <a href="'+E(row.href)+'">打开收款核对</a></p>').join('')+(rows.length>3?'<button type="button" id="assistantCashMore">查看其余待办</button>':'');
+ if($('assistantCashMore'))$('assistantCashMore').onclick=()=>openPending(me.owner?'staff':'mine');
+}
+function pendingDateText(value){if(!value)return '';const raw=String(value);if(/^\d{4}-\d{2}-\d{2}$/.test(raw))return raw;const date=new Date(raw);return Number.isNaN(date.getTime())?'':date.toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});}
+function pendingDateLine(row){const business=pendingDateText(row.businessDate||row.pendingPreview?.occurredAt||row.date),submitted=pendingDateText(row.submittedAt||row.registeredAt||row.createdAt||row.at);return '<p class="pending-date">'+(business?'业务日期：'+E(business):submitted?'提交时间：'+E(submitted):'日期：原单未记录')+(business&&submitted?' · 提交时间：'+E(submitted):'')+'</p>';}
+function pendingRow(row){const original=window.StoreOriginalPending.card(row);if(original)return original;const no=row.documentNo||row.documentId||row.id||'原单编号待核对',href=row.actionHref||row.href,p=row.pendingPreview;return '<article class="pending-row">'+(row.batchReady?'<label class="pending-select"><input type="checkbox" data-pending-batch="'+E(row.id)+'"> 选入批量核对</label>':'')+'<h3>'+E(row.label===row.id?'待处理单据':row.label||'待处理单据')+'</h3>'+pendingDateLine(row)+(p?'<p class="pending-main"><strong>对象：</strong>'+E(p.object||'原单未登记，请补全')+'</p><p class="pending-main"><strong>用途：</strong>'+E(p.purpose||'原单未明确，请补全')+'</p>'+(p.description?'<p class="pending-meta">'+E(p.descriptionLabel||'原单说明')+'：'+E(p.description)+'</p>':'')+'<p class="pending-meta">'+(p.amount===null?'':'金额：¥'+E(p.amount)+' · ')+E(no)+'</p>':'<p>'+E(no)+'</p>')+(row.ownerInstruction?'<p class="pending-main"><strong>老板批示：</strong>'+E(row.ownerInstruction.text)+'</p>':'')+'<p>'+E(row.sub||row.status||'')+(row.handler?' · 待处理人：'+E(row.handler==='老板本人'?'老板':row.handler):'')+'</p>'+(row.originalHref?link(href,'查看对账详情 ›','textlink')+link(row.originalHref,'打开真正原单 ›','textlink'):link(href,'核对原单 ›','textlink'))+'</article>';}
+let originalPendingKind='mine';
+async function openPending(kind){originalPendingKind=kind;if(!work)return errorBox('待办','待办暂未读到',()=>refreshCounts().then(()=>openPending(kind)));show(kind==='staff'?'员工待办':'本人待办','<p class="context">正在读取原单明细…</p>');try{
+ if(kind==='staff'){if(!me.owner)throw Error('员工待办仅老板可查看');const data=await api('/api/workbench');work=data;const rows=data.waitingOnOthers||[];show('员工待办 · '+data.waitingOnOthersCount+' 项',rows.length?rows.map(g=>'<h3 class="group-title">'+E(g.person)+' · '+E(g.count)+' 项</h3>'+(g.rows||[]).map(pendingRow).join('')).join(''):'<p class="context">暂无等待员工处理的事项。</p>');return;}
+ const overview=me.owner?await api('/api/boss-overview'):null;const own=overview?(overview.tasks||[]).filter(t=>t.count>0).map(t=>'<h3 class="group-title">'+E(t.label)+' · '+E(t.count)+' 项</h3>'+(t.items?.length?t.items.map(pendingRow).join(''):'<p class="error">原单暂未定位，请刷新核对，避免打开错单。</p>')).join(''):employeePending(work);
+ const batchRows=(overview?.tasks||[]).filter(t=>t.key==='businessReconciliation').flatMap(t=>t.items||[]).filter(r=>r.batchReady);
+ show('本人待办 · '+work.pendingCount+' 项',(me.owner?'<section class="pending-batch"><h3>在这里批量处理</h3><p>先核对每条对象、用途和金额，再勾选要处理的单据。移动业务只核对登记事实；每月结算和到账另行办理。现金与内部交接仍逐笔处理。</p><div class="entry-actions"><button class="primary" id="pendingBatchStart"'+(batchRows.length?'':' disabled')+'>核对选中单据</button>'+(hasFeature('/boss-batch')?link('/boss-batch','其他类别批量处理 ›','textlink'):'')+'</div><p id="pendingBatchStatus" role="status">'+(batchRows.length?'可选择 '+batchRows.length+' 条信息完整的新待办。':'当前没有可在此批量核对的新待办。')+'</p></section>':'')+(own||'<p class="context">暂无需要本人处理的事项。</p>')+(me.owner?link('/pending-special','老板特别处理 ›','textlink'):'')+'<div class="entry-actions"><button class="textbutton" id="submitted">我提交的待处理</button><button class="textbutton" id="pendingRefresh">刷新</button></div>');$('submitted').onclick=openSubmitted;$('pendingRefresh').onclick=()=>refreshCounts().then(()=>openPending('mine'));if(me.owner){$('pendingBatchStart').onclick=()=>openPendingBatch(batchRows);$('dialogBody').onchange=event=>{if(event.target.matches('[data-pending-batch]'))$('pendingBatchStatus').textContent='已选 '+$('dialogBody').querySelectorAll('[data-pending-batch]:checked').length+' 条；请核对下方每条的对象和用途。';};}
+ }catch(e){errorBox(kind==='staff'?'员工待办':'本人待办',e,()=>openPending(kind));}}
+async function openPendingBatch(rows){
+ const selected=[...$('dialogBody').querySelectorAll('[data-pending-batch]:checked')].map(n=>n.dataset.pendingBatch),chosen=rows.filter(row=>selected.includes(row.id));
+ if(!chosen.length){$('pendingBatchStatus').textContent='请先勾选要核对的单据。';return;}
+ show('批量核对 · '+chosen.length+' 条','<p class="context">正在读取每条单据的最新事实和待核项…</p>');
+ try{
+  const fresh=await Promise.all(chosen.map(async row=>{const result=await api('/api/business-reconciliation?id='+encodeURIComponent(row.id));return result.rows?.[0];}));
+  if(fresh.some(row=>!row||row.sourceChanged||row.status!=='pending'))throw Error('有原单已变化或不再待办，请刷新列表后重新选择。');
+  const mobileIds=chosen.filter(row=>row.sourceCollection==='carrierServices').map(row=>row.id),mobileRows=new Map();
+  if(mobileIds.length){const batch=await api('/api/batch-review'),group=batch.groups?.find(row=>row.key==='carrierBusinessReconciliation');for(const id of mobileIds){const item=group?.rows?.find(row=>row.id===id);if(!item||item.unavailable||!item.token)throw Error('移动业务原单已变化或有差异，请单独核对后刷新。');mobileRows.set(id,item);}}
+  const details=fresh.map((row,i)=>{const p=chosen[i].pendingPreview,hasGoods=row.facts.items?.some(item=>item.stockManaged&&Number(item.quantity)>0),hasFunds=row.money.holderUnverifiedAmount>0||row.money.disputedParts>0||row.money.unrecordedReceivableAmount>0,hasLosses=row.openLossCases?.length>0,account=(row.expenseDetails?.payments||row.facts.receipts||[]).map(part=>[part.accountName||part.account,part.amount==null?'':'¥'+part.amount].filter(Boolean).join(' ')).filter(Boolean).join('；');return '<article class="pending-batch-item" data-batch-review="'+E(row.id)+'"><h3>'+E(row.facts.label)+' · '+E(row.facts.displayNo)+'</h3><p><strong>对象：</strong>'+E(p.object)+'</p><p><strong>用途：</strong>'+E(p.purpose)+'</p><p>金额：'+(p.amount===null?'原单未登记':'¥'+E(p.amount))+' · 登记人：'+E(row.registeredByName)+' · 时间：'+E(p.occurredAt||row.registeredAt)+'</p>'+(account?'<p>原单账户／流水：'+E(account)+'</p>':'')+'<p>状态：'+E(row.statusLabel)+' · 未经持有人核实款：¥'+E(row.money.holderUnverifiedAmount)+' · 尚未入账应收：¥'+E(row.money.unrecordedReceivableAmount)+'</p>'+(hasLosses?'<p class="error">存在持续库存差异 '+E(row.openLossCases.length)+' 项，核对后仍保留。</p>':'')+'<label><input type="checkbox" data-check="facts"> 我已核对本单对象、用途、金额和原始填写</label>'+(hasGoods?'<label><input type="checkbox" data-check="goods"> 已核对本单货物事实</label>':'')+(hasFunds?'<label><input type="checkbox" data-check="funds"> 确认待核款继续保留；本操作不代表已收款</label>':'')+(hasLosses?'<label><input type="checkbox" data-check="losses"> 确认库存差异继续保留；本操作不代表找回货物</label>':'')+(chosen[i].sourceCollection==='carrierServices'?'<p>移动业务登记核对；预计酬金、每月结算和实际到账分别待核。</p><label><input type="checkbox" data-check="mobile"> 我只确认本单移动业务登记事实，不确认酬金或到账</label>':'')+link(row.href,'有差异？打开原单登记 ›','textlink')+'</article>';}).join('');
+  show('批量核对 · '+fresh.length+' 条','<p class="context">逐条查看并勾选核对依据。确认后只登记老板业务核对结论，不新增收付款或库存记录。</p>'+details+'<div class="dialog-actions"><button class="primary" id="pendingBatchConfirm">确认已核对并处理</button><button id="pendingBatchBack">返回待办</button></div><p id="pendingBatchResult" role="status"></p>');
+  $('pendingBatchBack').onclick=()=>openPending('mine');
+  $('pendingBatchConfirm').onclick=async()=>{const button=$('pendingBatchConfirm'),status=$('pendingBatchResult');for(const row of fresh){const card=[...$('dialogBody').querySelectorAll('[data-batch-review]')].find(n=>n.dataset.batchReview===row.id);for(const checkbox of card.querySelectorAll('[data-check]'))if(!checkbox.checked){status.textContent='请逐条勾选本单所需的核对依据：'+row.facts.displayNo;checkbox.focus();return;}}
+   button.disabled=true;let done=0;for(const row of fresh){const card=[...$('dialogBody').querySelectorAll('[data-batch-review]')].find(n=>n.dataset.batchReview===row.id),checked=key=>!!card.querySelector('[data-check="'+key+'"]:checked');try{if(chosen.find(item=>item.id===row.id).sourceCollection==='carrierServices'){const item=mobileRows.get(row.id);await api('/api/batch-review/decide',{items:[{key:'carrierBusinessReconciliation',id:row.id,token:item.token,approve:true,note:'老板逐单核对移动业务登记事实；预计酬金、每月结算及实际到账仍另行核对。',values:{}}]});}else await api('/api/business-reconciliation/decide',{id:row.id,version:row.version,decision:'match',note:'老板在待办页逐单核对：业务事实一致；未核款及持续库存差异按原单保留。',goodsChecked:checked('goods'),acknowledgePendingFunds:checked('funds'),acknowledgeOpenLosses:checked('losses')});done++;card.classList.add('done');status.textContent='已处理 '+done+' / '+fresh.length+' 条。';}catch(e){status.textContent='已处理 '+done+' 条；'+row.facts.displayNo+' 未确认：'+e.message+'。后续单据未提交，请刷新待办核对。';await refreshCounts();return;}}status.textContent='已处理 '+done+' 条。待办条数正在更新。';await refreshCounts();};
+ }catch(e){errorBox('批量核对',e,()=>openPending('mine'));}
+}
+function employeePending(d){const rows=[['businessChangeFollowUp','业务变更待老板办理','/business-change-returns'],['businessChangeToPay','业务变更待实际退款','/business-change-returns'],['supplierExchangeReady','供货商换货待办理','/supplier-exchanges'],['simpleToCheck','扎账单待我核对','/simple-daily-close#review'],['leaveToReview','请休假待我审核','/personnel'],['airHistoryToReview','历史空充补单待我初审','/air-history?mine=pending'],['airFundingToConfirm','空充boss待我确认到账','/air-accounts?mine=pending'],['feedbackToReview','问答纠错待我审核','/knowledge-review#answer-feedback'],['learningToReview','学习单待我审核','/learning'],['giftApprovalsToReview','超限赠品待我审批','/gift-approvals'],['salePaymentsToConfirm','销售款待我处理','/sale-payments?pending=1'],['ownPaymentDisputes','我的销售单收款有异议','/sale-payments'],['walletFundingToConfirm','门店微信待我确认到账','/store-wallet-funding'],['transferToConfirm','店内转款待我确认','/funds'],['cashToConfirm','现金交接待我确认','/cash-handover'],['cashToResubmit','现金交接退回待核实','/cash-handover'],['receiptCorrectionsToRevise','收款单退回待更正','/app?tab=receipts'],['assignedPlans','待我验收的订货','/app?tab=purchase'],['followups','到期回访','/receptions'],['unreviewedLearning','学习单待老板审核','/learning'],['unreviewedWork','工作日志待核定','/work-journal'],['openReceptions','进行中接待','/receptions']];return rows.filter(([key])=>Number(d[key])>0).map(([key,label,href])=>link(href,'<strong>'+E(label)+'</strong><span>'+E(d[key])+' 项</span>')).join('');}
+async function openSubmitted(){try{const d=await api('/api/pending-urges');show('我提交的待处理',(d.rows||[]).map(r=>'<article class="pending-row"><h3>'+E(r.label)+' · '+E(r.documentNo)+'</h3><p>'+E(r.status)+' · 处理人：'+E(r.handler)+' · '+E(r.submittedAt||'')+'</p>'+link(r.href,'核对原单 ›','textlink')+'<button class="textbutton" data-urge="'+E(r.id)+'" data-kind="'+E(r.kind)+'">催办</button></article>').join('')||'<p class="context">暂无可催办的原单。</p>');$('dialogBody').querySelectorAll('[data-urge]').forEach(b=>b.onclick=()=>{const r=d.rows.find(x=>x.id===b.dataset.urge&&x.kind===b.dataset.kind);show('确认催办','<p>将提醒 '+E(r.handler)+' 处理 '+E(r.documentNo)+'，原单不会重复提交。</p><button class="primary" id="urgeConfirm">确认催办</button><p id="urgeState" role="status"></p>');$('urgeConfirm').onclick=async()=>{const btn=$('urgeConfirm');btn.disabled=true;try{const out=await api('/api/store-communication/urge',{kind:r.kind,id:r.id});$('urgeState').textContent='已提醒 '+out.handler;}catch(e){$('urgeState').textContent=e.message;}finally{btn.disabled=false;}};});}catch(e){errorBox('我提交的待处理',e,openSubmitted);}}
+async function refreshCounts(){if(me?.workLock?.locked)return;try{work=await api('/api/workbench');renderPriority();renderAssistantCashReminder();$('asOf').textContent='待办核对时间：'+new Date(work.asOf).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});document.dispatchEvent(new CustomEvent('store-workbench-counts',{detail:{pendingCount:work.pendingCount,categories:window.StorePendingAlertCategories.fromWorkbench(work),assistantCashReminders:work.assistantCashReminders||[]}}));}catch(e){$('priority').innerHTML='<button class="retry" id="countsRetry">待办暂未更新，点击重试</button>';$('countsRetry').onclick=refreshCounts;}}
+function timeForSlide(row){return Math.max(8,Number(row?.display?.seconds)||16,String(row?.content||'').length/4)*1000;}
+function scheduleScreen(ms){clearTimeout(screenTimer);if(paused||document.hidden||!feed.length)return;screenRemaining=ms;screenDeadline=performance.now()+ms;screenTimer=setTimeout(()=>{screenIndex=(screenIndex+1)%feed.length;renderScreen();},ms);}
+function renderScreen(){if(!feed.length)return;const row=feed[screenIndex],p=document.createElement('p'),track=document.querySelector('.screen-track');p.textContent=row.content||'';track.replaceChildren(p);$('screenNote').textContent=row.automatic?'':(row.title||'');currentSlide=JSON.stringify([row.id,row.revision,row.content]);track.classList.remove('moving');track.classList.toggle('long-fixed',row.display?.mode==='fixed'&&String(row.content||'').length>50);requestAnimationFrame(()=>{const offset=Math.max(0,track.scrollHeight-document.querySelector('.screen-window').clientHeight),duration=Math.max(20,String(row.content||'').length/4);track.style.setProperty('--screen-offset','-'+offset+'px');track.style.setProperty('--screen-duration',duration+'s');if(offset>1)track.classList.add('moving');scheduleScreen(Math.max(timeForSlide(row),offset>1?duration*1000:0));});}
+async function refreshScreen(){if(me?.workLock?.locked)return;try{const data=await api('/api/store-communication/summary');const incoming=data.screenSlides||[];const index=incoming.findIndex(row=>JSON.stringify([row.id,row.revision,row.content])===currentSlide);feed=incoming;screenIndex=index<0?0:index;if(index<0)renderScreen();if(!feed.length)document.querySelector('.screen-track').innerHTML='<p>当前没有正在播放的内容。</p>';const msg=document.querySelector('[data-priority="messages"]');if(msg&&!msg.querySelector('.count'))msg.insertAdjacentHTML('beforeend','<b class="count">'+E(data.unread)+'</b>');if(data.canPublish&&!$('screenEdit')){const b=document.createElement('button');b.id='screenEdit';b.textContent='编辑';b.onclick=()=>openMessages('notices');document.querySelector('.screen-tools').prepend(b);}}catch(e){if(!feed.length)document.querySelector('.screen-track').textContent='电子屏暂未读到，请稍后重试。';}}
+function toggleScreen(){paused=!paused;$('electronic').classList.toggle('paused',paused);$('screenPause').textContent=paused?'继续':'暂停';$('screenPause').setAttribute('aria-pressed',String(paused));if(paused){screenRemaining=Math.max(100,screenDeadline-performance.now());clearTimeout(screenTimer);}else scheduleScreen(screenRemaining||timeForSlide(feed[screenIndex]));}
+async function expandScreen(){if(!feed.length){await refreshScreen();if(!feed.length)return errorBox('门店电子屏','暂未读到播放内容',expandScreen);}show('门店电子屏','<div class="screen-detail">'+feed.map(r=>'<section><h3>'+E(r.title||'门店电子屏')+'</h3><p>'+E(r.content)+'</p></section>').join('')+'</div>');}
+async function openMessages(view='messages'){try{if(!window.StoreCommunication?.open){if(!commLoad){const style=document.createElement('link');style.rel='stylesheet';style.href='/store-communication.css?v=20261026-home-lab';document.head.append(style);commLoad=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='/store-communication.js?v=20261026-home-lab';script.onload=async()=>{for(let n=0;n<100;n++){if(window.StoreCommunication?.open)return resolve();await new Promise(r=>setTimeout(r,100));}reject(Error('店内消息暂未就绪，请重试'));};script.onerror=()=>reject(Error('店内消息未能加载'));document.head.append(script);}).catch(e=>{commLoad=null;throw e;});}await commLoad;}window.StoreCommunication.open(view);}catch(e){errorBox('店内消息',e,()=>openMessages(view));}}
+async function renderAssistants(){try{const r=await api('/api/assistant/roles'),list=[r.work&&['工作助理','查业务、辅助办公','chat','/assistant?mode=store'],r.personal&&['个人助理','个人事务与提醒','person','/companion'],r.customer&&['小猫咪','顾客咨询与推荐','cat','/kitty']].filter(Boolean);$('assistants').style.gridTemplateColumns='repeat('+Math.max(1,list.length)+',minmax(0,1fr))';$('assistants').innerHTML=list.map(([l,t,i,href])=>link(href,icon(i)+'<strong>'+l+'</strong><small>'+t+'</small>','assist')).join('');}catch(e){$('assistants').innerHTML='<p class="panel-error">助理入口暂未读取。</p>';}}
+async function account(){if(!me)return load();show('账号与设置','<p class="context">'+E(me.name)+' · '+(me.owner?'老板':'营业员')+'</p><nav class="account-actions">'+[['/organization','切换／管理门店'],['/login#account-panel','修改本人密码'],['/personnel','请假休假／人事'],['/assistant?work-signin=1','考勤与签到'],['/m?panel=electronic-screen','电子屏设置'],['/notices','业务提醒'],['/login','返回登录／切换账号']].filter(([href])=>href!=='/login').filter(([href])=>!['/m?panel=electronic-screen','/notices'].includes(href)||href==='/notices'&&me.owner||href.includes('electronic-screen')&&me.capabilities?.screenEdit).map(([h,l])=>link(h,'<strong>'+l+'</strong>')).join('')+'</nav><div id="alertPlaceholder"></div>');
+ const session=document.querySelector('.session-controls');if(session)$('dialogBody').append(session);$('alertPlaceholder').replaceWith(alertControl);}
+function locked(){const n=$('workLock');n.hidden=false;n.className='lock-box';n.innerHTML='<strong>'+(me.workLock.code==='ATTENDANCE_CLOSED'?'当前处于夜间管控时段':'请先完成考勤核对')+'</strong><p>'+(me.workLock.code==='ATTENDANCE_CLOSED'?'员工夜间使用须由老板明确授权，签到不能代替授权。':'签到状态需要核对，完成后再使用业务功能。')+'</p>'+link('/assistant?work-signin=1','打开考勤 ›','textlink');for(const sel of ['.priority','.summary','.panel','.searchline','.electronic'])document.querySelectorAll(sel).forEach(n=>n.hidden=true);}
+async function load(){if(loading)return;loading=true;$('homeStatus').hidden=true;try{me=await api('/api/home-entry');$('identity').textContent=me.name+' · '+(me.owner?'老板':'营业员');await renderAssistants();try{const org=await api('/api/organization'),branch=org.branches?.find(b=>b.id===org.currentBranchId);if(branch){document.querySelector('[data-home-branch-name]').textContent=branch.name;$('identity').textContent=branch.code+' 门店 · '+me.name+' · '+(me.owner?'老板':'营业员');}}catch{}
+ if(me.workLock?.locked){locked();return;}const results=await Promise.allSettled([api('/api/display-preferences?page=home-directory'),api('/api/display-preferences?page=home-shortcuts')]);if(results[0].status==='fulfilled'){directory=results[0].value;renderDirectory();}else $('modules').innerHTML='<button class="retry" id="directoryRetry">功能目录未读到，点击重试</button>';if(results[1].status==='fulfilled'){shortcuts=results[1].value;renderShortcuts();}else $('shortcuts').innerHTML='<p class="panel-error">常用入口暂未读取，可点“编辑常用”重试。</p>';if($('directoryRetry'))$('directoryRetry').onclick=load;
+ $('summaryLabel').innerHTML=me.owner?link('/notices','业务提醒 '+E(me.noticeUnread??'待核对')+' 条','secondary'):'本人账户与交接';$('overview').textContent=me.owner?'打开经营看板 ›':'查看交接事项 ›';document.querySelector('.summary').hidden=false;await Promise.all([refreshCounts(),refreshScreen()]);if(location.hash==='#pending')openPending('mine');if(new URLSearchParams(location.search).get('panel')==='electronic-screen')openMessages('notices');
+ }catch(e){$('homeStatus').hidden=false;$('homeStatus').innerHTML=E(e.message)+' · <a href="/login">返回登录</a> <button class="retry" id="homeRetry">重试</button>';$('homeRetry').onclick=load;for(const id of ['modules','shortcuts','priority','assistants'])$(id).replaceChildren();document.querySelector('.screen-track').textContent='登录后读取电子屏。';}finally{loading=false;}}
+const alertParking=document.createElement('div');alertParking.hidden=true;document.body.append(alertParking);const alertControl=document.createElement('section');alertControl.className='alert-settings';alertControl.innerHTML="<label for=\"pending-alert-mode\">新待办提醒</label><br><select id=\"pending-alert-mode\" disabled><option value=\"off\">关闭</option><option value=\"sound\">铃声</option><option value=\"vibrate\">震动</option><option value=\"both\">铃声和震动</option></select><p id=\"pending-alert-hint\" role=\"status\"></p>";alertParking.append(alertControl);const alertScript=document.createElement('script');alertScript.src='/pending-alerts.js?v=20261025-r1';document.head.append(alertScript);
+$('brandIcon').innerHTML=icon('store');$('searchIcon').innerHTML=icon('search');$('noticeIcon').innerHTML=icon('notice');$('all').onclick=()=>openDirectory();$('edit').onclick=editShortcuts;$('account').onclick=account;$('overview').onclick=()=>location.href=me?.owner?'/boss-overview':'/cash-handover';$('notice').onclick=expandScreen;$('screenPause').onclick=toggleScreen;
+$('search').form.addEventListener('submit',submitHomeSearch);
+$('dialog').querySelector('.close').onclick=()=>$('dialog').close();$('dialog').addEventListener('close',()=>{if(focusBefore?.isConnected)focusBefore.focus({preventScroll:true});});
+window.addEventListener('pageshow',e=>{if(e.persisted)void load();});window.addEventListener('focus',()=>{void refreshCounts();void refreshScreen();});document.addEventListener('visibilitychange',()=>{if(document.hidden){screenRemaining=Math.max(100,screenDeadline-performance.now());clearTimeout(screenTimer);}else{scheduleScreen(screenRemaining||timeForSlide(feed[screenIndex]));void refreshCounts();void refreshScreen();}});new ResizeObserver(()=>{if(feed.length){const track=document.querySelector('.screen-track'),offset=Math.max(0,track.scrollHeight-document.querySelector('.screen-window').clientHeight);track.style.setProperty('--screen-offset','-'+offset+'px');if(offset>1)track.classList.add('moving');else track.classList.remove('moving');}}).observe($('electronic'));
+window.StoreOriginalPending.mount(async()=>{await refreshCounts();if($('dialog').open&&$('dialogBody').querySelector('.pending-original-frame'))await openPending(originalPendingKind);});
+setInterval(()=>{if(!document.hidden){void refreshCounts();void refreshScreen();}},60000);void load();
 
-
-
-
-
-
-// 同一份模块内容在电脑折叠区和手机弹窗之间移动，保留账号权限与链接。
-(()=>{
-  const phone=matchMedia('(max-width:700px)'),dialog=$('module-dialog'),body=$('module-dialog-body');
-  let active=null,fromHistory=false;
-  function close(){if(dialog.open)dialog.close();}
-  dialog.addEventListener('close',()=>{
-    if(!active)return;
-    const {module,content,summary}=active;
-    module.append(content);
-    summary.setAttribute('aria-expanded',String(module.open));
-    active=null;
-    document.body.classList.remove('home-dialog-open');
-    if(!fromHistory&&history.state?.homeModule===module.id)history.back();
-    fromHistory=false;
-    summary.focus({preventScroll:true});
-  });
-  $('module-dialog-close').addEventListener('click',close);
-  dialog.addEventListener('click',event=>{
-    if(event.target!==dialog)return;
-    const rect=dialog.getBoundingClientRect();
-    if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)close();
-  });
-  addEventListener('popstate',event=>{
-    if(active&&event.state?.homeModule!==active.module.id){fromHistory=true;close();}
-  });
-  for(const module of document.querySelectorAll('[data-module]')){
-    const summary=module.querySelector('summary'),content=module.querySelector('.module-content');
-    summary.addEventListener('click',event=>{
-      if(!phone.matches||typeof dialog.showModal!=='function')return;
-      event.preventDefault();
-      if(active)return;
-      $('module-dialog-title').textContent=summary.querySelector('.module-label').textContent;
-      active={module,content,summary};
-      body.append(content);
-      dialog.showModal();
-      body.scrollTop=0;
-      summary.setAttribute('aria-expanded','true');
-      document.body.classList.add('home-dialog-open');
-      history.pushState({...history.state,homeModule:module.id},'',location.href);
-      $('module-dialog-title').focus();
-    });
-  }
-  phone.addEventListener('change',close);
-})();
-
-
-// 待办单独打开，沿用原列表、单据链接和权限，不把工作台菜单放进窗口。
-(()=>{
- const dialog=$('pending-dialog'),body=$('pending-dialog-body'),section=$('pending'),shortcut=$('pending-shortcut');
- const placeholder=document.createComment('待办原位置');section.before(placeholder);
- let moved=false,fromHistory=false,panelState=null;
- function open(recordHistory=true){
-  if(dialog.open)return;
-  $('pending-screen-status').textContent='';$('pending-details').open=true;updatePendingSummary();
-  if(typeof dialog.showModal!=='function'){section.scrollIntoView({block:'start'});return;}
-  $('pending-dialog-title').textContent=$('pending-label').textContent;
-  body.append(section);moved=true;
-  dialog.showModal();body.scrollTop=0;
-  shortcut.setAttribute('aria-expanded','true');
-  document.body.classList.add('home-dialog-open');
-  panelState=recordHistory?crypto.randomUUID():null;
-  if(recordHistory)history.pushState({...history.state,pendingPanel:panelState},'',location.href);
-  $('pending-dialog-title').focus();
- }
- shortcut.addEventListener('click',event=>{event.preventDefault();open();});
- $('pending-dialog-close').addEventListener('click',()=>dialog.close());
- dialog.addEventListener('close',()=>{
-  if(!moved)return;
-  placeholder.after(section);moved=false;
-  $('pending-details').open=false;updatePendingSummary();
-  shortcut.setAttribute('aria-expanded','false');
-  if(!$('module-dialog').open)document.body.classList.remove('home-dialog-open');
-  if(!fromHistory&&panelState&&history.state?.pendingPanel===panelState)history.back();
-  fromHistory=false;panelState=null;
-  shortcut.focus({preventScroll:true});
- });
- dialog.addEventListener('click',event=>{
-  if(event.target!==dialog)return;
-  const rect=dialog.getBoundingClientRect();
-  if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)dialog.close();
- });
- addEventListener('popstate',event=>{
-  if(dialog.open&&event.state?.pendingPanel!==panelState){fromHistory=true;dialog.close();}
- });
- if(location.hash==='#pending')open(false);
+window.addEventListener('storage',event=>{if((event.key==='store-report-read-signal'&&me?.owner)||event.key==='workbench-updated')refreshCounts();});window.addEventListener('pageshow',event=>{if(event.persisted&&me?.owner)refreshCounts();});
 })();

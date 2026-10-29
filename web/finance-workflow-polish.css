@@ -1,0 +1,25 @@
+.finance-batch-dialog,.daily-withdrawal-dialog{width:min(1120px,calc(100vw - 20px));max-height:90vh;box-sizing:border-box;border:1px solid #a8bed8;border-radius:16px;background:#f5f9fc;color:#222;padding:20px;overflow:auto}.finance-batch-dialog::backdrop,.daily-withdrawal-dialog::backdrop{background:#142a4666}.fb-head,.fb-tools,.fb-footer{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.fb-head{justify-content:space-between}.fb-head h2{margin:0}.fb-tools{margin:16px 0}.fb-footer{position:sticky;bottom:-20px;background:#f5f9fc;padding:16px 0}.fb-row{display:grid;grid-template-columns:minmax(100px,auto) minmax(0,1fr) auto;gap:14px;padding:18px;margin:12px 0;background:#fff;border:1px solid #cfdaE6;border-radius:10px}.fb-row p{margin:6px 0}.fb-row .fb-note{white-space:pre-wrap;overflow-wrap:anywhere}.fb-choice{display:flex;gap:10px;align-items:flex-start}.fb-choice input{flex-shrink:0}.fb-money{white-space:nowrap;font-variant-numeric:tabular-nums}.fb-blocked{background:#f7f7f7}.withdrawal-evidence{margin:16px 0;padding:16px;border:1px solid #c6d6e6;border-radius:10px;background:#fff}.withdrawal-evidence section{border-top:1px solid #dde5ed;padding-top:10px;margin-top:12px}.daily-withdrawal-dialog textarea{width:100%;box-sizing:border-box}
+@media(max-width:650px){.fb-row{grid-template-columns:minmax(0,1fr) auto}.fb-choice{grid-column:1}.fb-row>div{grid-row:2;grid-column:1/-1}.fb-money{grid-row:1;grid-column:2}.finance-batch-dialog,.daily-withdrawal-dialog{padding:14px}.fb-footer{bottom:-14px}.fb-footer>button{width:100%}}
+/* Reception instructions and controls sit below the writing area. */
+@layer reception-workspace{
+ html body.calm-receptions .assistant-intake{background:transparent!important;color:#222!important;border:0!important;padding:0!important}
+ html body.calm-receptions .assistant-intake h3{color:#222!important;margin:0 0 12px!important}
+ html body.calm-receptions .voice-workspace{min-height:320px;background:#fff;border:1px solid #afc5db;border-radius:16px;padding:22px;box-sizing:border-box;max-height:65vh;overflow:auto}
+ html body.calm-receptions .voice-workspace .voice-preview{margin:0!important;background:transparent!important;color:#222!important;padding:0!important;border:0!important}
+ html body.calm-receptions .voice-workspace .voice-live-text{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+ html body.calm-receptions .assistant-intake>.voice-actions{margin:12px 0 0!important;display:flex!important;gap:10px!important;flex-wrap:wrap!important}
+ html body.calm-receptions .assistant-intake>.voice-state{color:#666!important;margin:8px 0!important;white-space:normal!important}
+ html body.calm-receptions .assistant-intake>.voice-state[data-kind=error]{color:#a12b24!important}
+ html body.calm-receptions .assistant-intake>details textarea{min-height:240px!important}
+ @media(max-width:700px){html body.calm-receptions .voice-workspace{min-height:300px;padding:18px;max-height:65vh}}
+}
+@layer home-session-inline{
+ @media(max-width:1023px),(hover:none) and (pointer:coarse){
+  html body.store-workbench.session-controls-ready .home-header .hero-top.session-controls-host{padding-top:0!important;min-height:40px!important}
+  html body.store-workbench .home-account-row{display:flex!important;align-items:flex-start;gap:8px;margin:8px 0 0;min-width:0}
+  html body.store-workbench .home-account-row>.home-account-tools{flex:1 1 0;min-width:0;margin:0!important}
+  html body.store-workbench .home-account-row>.session-controls{position:relative!important;inset:auto!important;flex:0 0 auto!important;flex-basis:auto!important;width:auto!important;max-width:none!important;margin:0!important;z-index:2!important;display:flex!important}
+  html body.store-workbench .home-account-row .session-logout{font-size:var(--read-body,16px)!important;line-height:1.5!important;min-height:var(--read-head-control,40px)!important;min-width:0!important;padding:6px 10px!important;white-space:nowrap!important;border:1px solid #afc5db!important;border-radius:12px!important;background:white!important;color:#222!important}
+  html body.store-workbench .home-account-row .session-controls-status{position:absolute;right:0;top:100%;width:min(280px,calc(100vw - 28px));background:white;padding:10px;border:1px solid #c6d6e6;border-radius:10px}
+ }
+}

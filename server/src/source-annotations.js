@@ -1,0 +1,29 @@
+'use strict';
+const c=require('./common'),{createHash}=require('crypto');
+const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
+const cents=x=>{const n=Number(x);if(!Number.isFinite(n))throw new c.HttpError(409,'原始金额不正确');return Math.round(n*100);};
+function owner(user){if(user?.roleCode!=='owner')throw new c.HttpError(403,'仅老板可确认来源标识与余款归属');}
+function active(store){return(store.sourceAnnotations||[]).filter(x=>!x.revokedAt);}
+function evidence(store,input){
+ const sale=(store.sales||[]).find(x=>x.id===input.orderId);if(!sale)throw new c.HttpError(404,'原销售不存在');
+ const returns=(store.saleReturns||[]).filter(x=>x.orderId===sale.id);if(!returns.length)throw new c.HttpError(409,'须保留完整退货或红冲原单');
+ for(const item of sale.items||[]){const qty=returns.flatMap(r=>r.items||[]).filter(x=>x.itemId===item.id).reduce((n,x)=>n+Number(x.quantity||0),0);if(qty!==Number(item.quantity))throw new c.HttpError(409,'仅支持全部退回的测试单标识，不能再次改库存');}
+ const ids=new Set([sale.id,...returns.map(x=>x.id)]),receipts=(store.receipts||[]).filter(x=>ids.has(x.sourceId));
+ const net=receipts.reduce((n,x)=>n+cents(x.amount),0),face=returns.reduce((n,x)=>n+cents(x.originalAmount??x.amount),0),refund=returns.reduce((n,x)=>n+cents(x.amount),0);
+ const retained=face-refund;if(net!==retained||retained<0)throw new c.HttpError(409,'原收退款与退货余款不一致，禁止自动平账');
+ if(cents(input.expectedRemainder)!==retained)throw new c.HttpError(409,'确认的余款与原单不一致');
+ if((store.dailyCloseouts||[]).some(x=>x.status==='已锁定'&&x.date===c.day(sale.createdAt)))throw new c.HttpError(409,'原日已锁定，须按后续日更正流程处理');
+ return {orderId:sale.id,date:c.day(sale.createdAt),test:true,remainder:retained/100,receiptIds:receipts.map(x=>x.id),returnIds:returns.map(x=>x.id),sourceHash:hash({sale,returns,receipts}),originalReceipts:receipts.map(x=>({id:x.id,sourceId:x.sourceId,amount:x.amount,account:x.account,accountOwnerId:x.accountOwnerId||null,operatorId:x.operatorId||null})),originalReceived:receipts.filter(x=>x.amount>0).reduce((n,x)=>n+cents(x.amount),0)/100,actualRefund:-receipts.filter(x=>x.amount<0).reduce((n,x)=>n+cents(x.amount),0)/100};
+}
+function preview(store,user,payload){owner(user);if(!Array.isArray(payload.entries)||!payload.entries.length||payload.entries.length>20||new Set(payload.entries.map(x=>x.orderId)).size!==payload.entries.length)throw new c.HttpError(400,'原单清单不正确');const entries=payload.entries.map(x=>evidence(store,x));return {entries,fingerprint:hash(entries),newReceiptCount:0,inventoryChange:0,remainder:entries.reduce((n,x)=>n+cents(x.remainder),0)/100};}
+function confirm(store,user,payload){owner(user);const note=String(payload.note||'').trim();if(!note||note.length>1000)throw new c.HttpError(400,'须填写确认依据');const p=preview(store,user,payload);if(payload.fingerprint!==p.fingerprint)throw new c.HttpError(409,'原单已变化，请重新核对');const prior=active(store).find(x=>x.fingerprint===p.fingerprint);if(prior)return prior;if(active(store).some(x=>x.entries.some(e=>p.entries.some(n=>n.orderId===e.orderId))))throw new c.HttpError(409,'原单已有来源标识，禁止重复确认');const row={id:c.id('SA'),createdAt:c.now(),ownerId:user.id,ownerName:user.name,note,fingerprint:p.fingerprint,entries:p.entries,events:[{type:'老板确认测试单及退货余款归属',by:user.id,at:c.now(),note}],newReceiptCount:0,inventoryChange:0};(store.sourceAnnotations||=[]).push(row);c.audit(store,user,'source-annotations:confirm',JSON.stringify({annotationId:row.id,orderIds:row.entries.map(x=>x.orderId),amount:p.remainder,note}));return row;}
+function revoke(store,user,payload){owner(user);const r=(store.sourceAnnotations||[]).find(x=>x.id===payload.id),note=String(payload.note||'').trim();if(!r||r.revokedAt||!note)throw new c.HttpError(409,'须选择有效标识并填写撤销原因');r.revokedAt=c.now();r.events.push({type:'撤销来源标识',by:user.id,at:r.revokedAt,note});c.audit(store,user,'source-annotations:revoke',JSON.stringify({annotationId:r.id,note}));return r;}
+function entries(store){return active(store).flatMap(row=>row.entries.map(e=>({...e,annotationId:row.id,ownerId:row.ownerId,ownerName:row.ownerName,note:row.note,confirmedAt:row.createdAt})));}
+function projectReceipt(store,r){const e=entries(store).find(x=>x.remainder>0&&x.receiptIds.includes(r.id));if(!e)return r;const sale=(store.sales||[]).find(x=>x.id===e.orderId),returns=(store.saleReturns||[]).filter(x=>x.orderId===e.orderId),ids=new Set([e.orderId,...returns.map(x=>x.id)]),receipts=(store.receipts||[]).filter(x=>ids.has(x.sourceId));if(hash({sale,returns,receipts})!==e.sourceHash)throw new c.HttpError(409,'退货余款原单已变化，请老板重新核对来源标识');return {...r,account:'老板支付',accountName:'老板资金',paymentAccountId:null,accountOwnerId:e.ownerId,accountOwnerName:e.ownerName,sourceAnnotationId:e.annotationId,sourceOriginalAccount:r.account,sourceOriginalAccountOwnerId:r.accountOwnerId||null,note:[r.note,'退货余款 '+e.remainder+' 元归老板；原收 '+e.originalReceived+' 元、实际退 '+e.actualRefund+' 元；原渠道 '+r.account+'；来源标识 '+e.annotationId].filter(Boolean).join('；')};}
+function decorateResponsibility(store,row){
+ const e=entries(store).find(x=>x.test&&x.orderId===row.orderId&&x.originalReceived===0&&x.actualRefund===0&&x.remainder===0);if(!e)return row;
+ const sale=(store.sales||[]).find(x=>x.id===e.orderId),returns=(store.saleReturns||[]).filter(x=>x.orderId===e.orderId),ids=new Set([e.orderId,...returns.map(x=>x.id)]),receipts=(store.receipts||[]).filter(x=>ids.has(x.sourceId));
+ if(!sale||hash({sale,returns,receipts})!==e.sourceHash||receipts.length||(row.proofs||[]).length||(row.handovers||[]).length||row.ownerConfirmedAmount||row.ledgerRegisteredAmount)return row;
+ return {...row,pendingAmount:0,cashPendingAmount:0,noncashPendingAmount:0,notPostedAmount:0,cancelledUnreceivedAmount:row.amount,sourceAnnotationId:e.annotationId,canAllocate:false,canReceive:false,statusLabel:'已红冲且未发生收退款，无待交款',note:'老板已确认测试原单；全额退回且从未发生实际收退款，撤销未收款责任，不记作老板实收；原单和红冲记录均保留。'};
+}
+module.exports={preview,confirm,revoke,entries,projectReceipt,decorateResponsibility};

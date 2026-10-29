@@ -1,7 +1,7 @@
 /* Per-visit observations: optional customer facts, explicit unknown budgets, and viewed products. */
 (()=>{
  const E=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const bands=[['','请选择预算（必选）'],['unknown','暂未了解，待补'],['none','本次咨询不涉及预算'],['under500','500元以下'],['500to999','500—999元'],['1000to1999','1000—1999元'],['2000to2999','2000—2999元'],['3000to4999','3000—4999元'],['over5000','5000元及以上'],['custom','自填金额或范围']];
+ const bands=[['unknown','暂未了解，待补'],['none','本次咨询不涉及预算'],['under500','500元以下'],['500to999','500—999元'],['1000to1999','1000—1999元'],['2000to2999','2000—2999元'],['3000to4999','3000—4999元'],['over5000','5000元及以上'],['custom','自填金额或范围']];
  const choices={gender:['未了解','男','女','顾客未说明'],ageBand:['未了解','18岁以下','18—24岁','25—34岁','35—44岁','45—54岁','55—64岁','65岁及以上'],residenceType:['未了解','镇上','村里','外地']};
  const follow=[['unknown','暂未确定，待补'],['yes','需要跟进'],['no','不需要跟进']];
  let products=[],productError='';
@@ -10,13 +10,13 @@
  const localDate=value=>value?new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(value)).replace(' ','T'):'';
  function fields(row=null){
   const p=row?.customerProfile||{};
-  return '<fieldset class="required-zone"><legend>先填需求和预算</legend><p class="operation-tip" data-page-explanation>蓝色框内填写，红色标记为必填；预算不了解请选择待补。</p><input type="hidden" name="intakeVersion" value="2">'+
+  return '<fieldset class="required-zone"><legend>接待资料（可后补）</legend><input type="hidden" name="intakeVersion" value="2">'+
    select('needPreset','快捷填写需求（可再补充）',[['','选择常见需求'],...['咨询一般业务','了解宽带办理','咨询手机、比较机型','购买手机','咨询或办理号卡套餐','购买配件','维修或售后','话费充值'].map(x=>[x,x])],'')+
-   '<label class="required-field"><span>顾客需求 <b class="required-tag">必填</b></span><textarea name="needs" rows="2" maxlength="1000" required placeholder="例如：给孩子买手机、了解宽带、比较华为与荣耀">'+E(row?.needs||'')+'</textarea></label>'+
-   select('budgetBand','预算（必选；未了解到可选待补）',bands,row?(row.budgetBand||'unknown'):'',true)+
+   '<label><span>具体接待事项（可后补）</span><textarea name="needs" rows="2" maxlength="1000" placeholder="例如：咨询宽带；手机黑屏要维修；想买一台千元手机">'+E(row?.needs||'')+'</textarea></label></fieldset><details class="intake-details"><summary>预算与跟进安排（可后补）</summary><div class="intake-content">'+
+   select('budgetBand','预算（选填）',bands,row?(row.budgetBand||'unknown'):'unknown')+
    '<div class="grid custom-budget" hidden>'+input('budgetMin','预算下限（元，可留空）',row?.budgetMin??'','type="number" min="0" step="0.01" inputmode="decimal"')+input('budgetMax','预算上限（元，可留空）',row?.budgetMax??'','type="number" min="0" step="0.01" inputmode="decimal"')+'</div>'+
-   '</fieldset><fieldset class="follow-zone"><legend>跟进安排</legend>'+select('followUpNeed','是否需要跟进',follow,row?.followUpNeed||'unknown')+
-   '<div class="follow-date" hidden>'+input('followUpAt','计划回访时间（选填）',localDate(row?.followUpAt),'type="datetime-local"')+'</div></fieldset>'+
+   select('followUpNeed','是否需要跟进',follow,row?.followUpNeed||'unknown')+
+   '<div class="follow-date" hidden>'+input('followUpAt','计划回访时间（选填）',localDate(row?.followUpAt),'type="datetime-local"')+'</div></div></details>'+
    '<details class="intake-details"><summary>看过哪些商品、什么价位（选填）</summary><div class="intake-content">'+
    '<p class="hint" data-page-explanation>可记多款，也可手工记店外机型；价位没问到就留空。</p>'+input('viewedSearch','搜索商品','', 'type="search" placeholder="名称、型号或编号"')+
    '<label>下拉选择店内商品<select name="viewedSku"><option value="">请选择商品</option></select></label>'+input('viewedName','商品或机型名称','', 'maxlength="150" placeholder="也可手工填写"')+

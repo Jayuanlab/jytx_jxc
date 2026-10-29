@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "epoch": 23,
+  "policyId": "store-rule-authority-20261028-v23",
+  "timezone": "Asia/Shanghai",
+  "rules": [
+    {
+      "topicKey": "store_accounts",
+      "version": "store-custody-v1",
+      "title": "门店资金归属",
+      "content": "门店现金、门店微信都归门店，不挂在老板个人名下。现金放在门店抽屉，保管人、核对人和资金归属分别记录。核对、签认不表示个人收到钱。",
+      "supersedes": [
+        "legacy-account-owner-as-holder"
+      ]
+    },
+    {
+      "topicKey": "cash_handover",
+      "version": "store-custody-handover-v1",
+      "title": "内部交接与实际接收",
+      "content": "只有内部交接单经指定接收人本人确认收到，才记到该人实际接收。门店抽屉交给老板时扣减门店现金；未确认、驳回或备注都不算收到。交接不重复生成经营收入或费用。",
+      "supersedes": [
+        "legacy-employee-to-owner-as-vault-deposit"
+      ]
+    },
+    {
+      "topicKey": "agency_topup",
+      "version": "agency-topup-store-exchange-v3",
+      "title": "小额门店互转与历史代充值两单",
+      "content": "新增门店现金、门店微信等额转换使用门店互转单，单笔0.01至300元，双方只选门店现金和门店微信，不填顾客、手机号、用途或外部交易单号。经办核对实际互转后确认，一张单在同一事务登记等额增减，老板只收信息、不审批；不计经营收入、费用或利润，不记老板个人实收。历史代充值分别人工开具的门店现金收款单和门店微信付款单保留，仍可手动核对关联两张真实原单；关联不再次扣款、不自动补付款单，备注不触发扣款。已存在的两张原单不得再建一笔互转重复记账。本功能不是老板账户交接、微信充值申请或移动BOSS充值；超过300元不能走小额互转单。例如顾客拿现金兑换门店微信扫码充话费，或顾客支付到门店微信换零钱，顾客只作交换中间人；实际记录两个门店账户等额增减。",
+      "supersedes": [
+        "legacy-memo-deduction",
+        "legacy-topup-operating-income-expense",
+        "agency-topup-two-documents-v1",
+        "agency-topup-two-documents-v2"
+      ]
+    },
+    {
+      "topicKey": "payment_query",
+      "version": "payment-documents-query-v1",
+      "title": "付款单据查询",
+      "content": "付款单查询按明确原业务单据显示，每张一行，列明单位、对应业务、账户和金额；点开查看分笔付款流水。未知来源保留并标明，不凭备注、金额或人名猜合。查询不生成单据或改变余额。",
+      "supersedes": [
+        "legacy-payment-flow-as-document"
+      ]
+    },
+    {
+      "topicKey": "rule_lifecycle",
+      "version": "permanent-rule-retirement-v1",
+      "title": "规则生效与永久停用",
+      "content": "同一主题的新规则生效后，旧版本永久停用，只能查询历史，不能再次批准、执行或作为智能体现行依据。恢复业务备份不恢复规则状态；独立停用账本不随代码或模型恢复。代码与现行规则校验不一致时阻止启动和写入，不回退旧规则。",
+      "supersedes": [
+        "legacy-rule-reactivation",
+        "legacy-memory-status-only"
+      ]
+    },
+    {
+      "topicKey": "owner_red_packets",
+      "version": "owner-redpacket-account-current-v1",
+      "title": "老板红包的付款账户",
+      "content": "老板本人发放红包使用老板微信，门店微信由营业员使用，两者分开。红包须关联真实业务、单据和凭据，核对相应银行及业务流水后由有权限的人确认；规则记忆和备注都不能自动付款。",
+      "supersedes": []
+    },
+    {
+      "topicKey": "statement_reconciliation",
+      "version": "statement-evidence-current-v1",
+      "title": "银行及业务流水核对",
+      "content": "同一业务范围先核对笔数和金额。汇总一致只说明汇总口径相符，不证明每笔业务真实；有差异再逐笔查明原因。完整号、尾号分别识别，尾号不能唯一定位时保留歧义，不重复生成收付款。红包相关业务仍需核对真实业务及对应凭据。",
+      "supersedes": []
+    },
+    {
+      "topicKey": "cash_reconciliation",
+      "version": "cash-and-boss-reconciliation-current-v1",
+      "title": "现金、空充与补录核对",
+      "content": "核对先明确日期、门店及口径。现金只汇总真实现金收付，微信等分笔单列；BOSS平台入账、扣减和余额另算，不再次计作现金收入。账面现金＝期初现金＋本期现金净收付－已确认交接；实点减账面才是差额。缺期初、凭据或实点时说明待核，不把口述或截图当作已入账。补录保留实际业务日期，由真实经办人确认商品、金额及原凭据，不猜型号、不造单、不重复计入营业现金。",
+      "supersedes": []
+    },
+    {
+      "topicKey": "wallet_book_balance",
+      "version": "wallet-owner-confirmed-baseline-v2",
+      "title": "门店微信账面余额递推",
+      "content": "门店微信（员工称备用金）首次结余可由老板明确核实后建立独立账面基准，记录账户、日期时点、余额、确认人、依据及当时已包含的流水。基准不是收入，不重新累加基准前流水，不改原扎账。以后按同一账户已登记真实收支和已确认内部交出自动递推；无收支也结转，不要求员工每天早上重录昨天余额。实看余额只用于核对，不能覆盖账面。基准前补录、原来源更改或删除须提示重核，不能隐去差异。原已复核、已锁定基准继续兼容且不得重复建立。系统账面不等于已直连微信，漏录仍须按真实流水补齐，正常扎账核对仍保留。",
+      "supersedes": [
+        "legacy-wallet-observation-as-opening",
+        "wallet-locked-book-v1"
+      ]
+    },
+    {
+      "topicKey": "store_wallet_scope",
+      "version": "store-wallet-name-purpose-v1-named-accounts-v2",
+      "title": "门店微信名称、用途与余额范围",
+      "content": "现行统一名称为门店微信，之前叫信号机微信，旧名称仅供历史查询和识别同一账户，不另外建立账户或重记流水。门店微信归门店，用于门店小额支付和现金兑换；顾客交现金、门店微信扫码充话费属于兑换代充值。门店微信余额递推只针对这个门店微信账户，不指老板微信、其他具体资金账户或空充BOSS余额。实际增减以该账户真实收付款及已确认内部交接为依据，实看余额只核对差额，不覆盖账面。",
+      "supersedes": [
+        "store-wallet-name-purpose-v1"
+      ]
+    },
+    {
+      "topicKey": "named_fund_accounts",
+      "version": "named-fund-accounts-v1",
+      "title": "按具体资金账户结账",
+      "content": "从2026年10月22日营业日开始执行；已处理好的更早历史账不重算、不重做。不再以聚合支付作为现行资金账户或统一核对项。门店现金、门店微信、老板银行卡及其他明确账户分别核对。门店现金存入老板银行卡只在指定老板本人确认交接到账后计入该账户，待确认单列；属于内部资金交接，不计营业收入费用。未核实的微信、云闪付、和包等渠道显示具体账户待核，不自动合并或归为老板银行卡。旧合并汇总仅作历史查询，不用于新单复核与锁账。每次变更须复查全部十类模型、入口接口、取数、权限、余额及原数据金额一致性。",
+      "supersedes": [
+        "legacy-aggregate-as-fund-account",
+        "legacy-aggregate-including-bank-deposits"
+      ],
+      "effectiveFromBusinessDate": "2026-10-22"
+    },
+    {
+      "topicKey": "store_wallet_daily_movement",
+      "version": "store-wallet-daily-movement-v2",
+      "title": "门店微信报数与账本锁定分开",
+      "content": "门店微信原始收付流水继续逐笔留存并可点开清单。简易当日扎账只记录系统余额（有已核实基准时）、现场实看余额、差额、填报人、时间及说明；没有基准时标待核，不填零。报数和差额待查都允许提交，不以逐笔勾选阻拦记录。实看不覆盖账面，不代替实际付款、到账确认或原详细锁账所需核对。",
+      "supersedes": [
+        "store-wallet-daily-movement-v1"
+      ],
+      "effectiveFromBusinessDate": "2026-10-26"
+    },
+    {
+      "topicKey": "scan_payment",
+      "version": "scan-payment-owner-account-v1",
+      "title": "扫码支付与老板账户入账",
+      "effectiveFromBusinessDate": "2026-10-22",
+      "content": "收款方式统一称扫码支付，具体渠道保留微信或支付宝，到账账户分别为明确的老板微信或老板支付宝，不能将渠道与账户混用，也不能与门店微信备用资金合并。原经办营业员收到付款消息后本人确认，按原单分笔金额只入账一次，保存本人和时间，保留核对流程；不为这次收款确认重复推送老板，原成交消息保留。现金转存老板银行卡属于内部交接，指定老板本人确认收到后计入老板银行卡。扫码到账和已确认现金转存都属于老板账户资金增加，但内部交接不重复计算营业收入。未明确归属的渠道保持待核。更早已处理历史账只查询。",
+      "supersedes": [
+        "legacy-scan-channel-as-account",
+        "legacy-scan-confirmation-repeat-owner-push"
+      ]
+    },
+    {
+      "topicKey": "closeout_detail_queries",
+      "version": "closeout-details-scan-summary-v1",
+      "title": "扫码支付汇总、对账明细与现金转存老板银行",
+      "effectiveFromBusinessDate": "2026-10-22",
+      "content": "扫码支付汇总是收款方式汇总，保留微信支付宝渠道、实际到账账户、原单、经办人、金额和红冲更正明细；不与具体资金账户重复相加，不把红冲当实际付款。所有当日对账项目必须有对应明细查询，BOSS期初、当日变动、期末分别追溯依据，未知账户不猜归属。现金转存老板银行由营业员仅填金额提交，已配置唯一在职老板时系统定向给该老板本人核对；提交不代表收到，只有指定老板本人确认实际收到后才减少门店现金、增加老板银行卡，不计新的营业收入或费用。不自动代填金额、不自动提交、不自动确认。",
+      "supersedes": []
+    },
+    {
+      "topicKey": "assistant_memory_screen",
+      "version": "memory-before-answer-screen-draft-v1",
+      "title": "回答前读取记忆与电子屏起草",
+      "content": "工作助理先按当前账号和来源版本读取有效规则记忆，再生成回答；永久停用或失效的旧规则不能带入。记忆可提供上下文，不能代替权限、单据校验或发布确认。从身份介绍切到电子屏等明确业务时重置旧话题，不把旧身份问题继承为新主题。老板要求更新电子屏并增加问候、成交鼓励、笑话和卡通元素时直接起草可核对的文案，保留修订证据和确认按钮；未确认不发布，不伪称已制作或播放动画。权限不足仍拒绝修改。",
+      "supersedes": []
+    },
+    {
+      "topicKey": "cash_checkpoint",
+      "version": "store-cash-checkpoint-v5",
+      "title": "一张简表记录早中晚与即时扎账",
+      "content": "当日扎账办理页用一张表：左列系统统计，右列现场填报；早上、即时与交接班记录现金，晚上记录现金、门店微信余额和非现金扫码收款。明细按需点开。每次提交保存独立编号、具体时间、系统快照、实数、差额、提交人身份与备注；差额可写待查，不阻挡提交。核对人按登录身份签认；值班登记仅本人或无人时允许自核并明示人数，值班登记有其他人在岗则须另一人核对。提交后进入工作台待核对与老板待审核，老板可核对完成、标记待查或标记重复，审核不更改报数或资金流水。简表不转移资金、不覆盖账本余额，也不自动宣称账本已锁定。旧正式详细核对、复核、锁账及历史原单保留。",
+      "supersedes": [
+        "legacy-shift-handover-and-owner-only-confirmation",
+        "store-cash-checkpoint-v1",
+        "store-cash-checkpoint-v2",
+        "store-cash-checkpoint-v3",
+        "store-cash-checkpoint-v4"
+      ],
+      "effectiveFromBusinessDate": "2026-10-26"
+    },
+    {
+      "topicKey": "instant_day_close",
+      "version": "instant-day-close-today-v4",
+      "title": "当日多次扎账与历史留痕",
+      "content": "简易扎账固定北京时间今天；同一时段无新增系统业务数据且无新备注时禁止重复提交，有新增业务数据或营业员填写不同的新备注时允许再次提交。每次按提交时累计流水生成系统数，历史记录不相加、不互相覆盖。历史按原营业日、编号和具体时间查询；审核结果与审核人另行留痕。已锁定原单及已核实期初不因报数自动更改；现金或微信实报不表示老板个人实际收款。",
+      "supersedes": [
+        "legacy-new-closeout-date-picker",
+        "instant-day-close-today-v1",
+        "instant-day-close-today-v2",
+        "instant-day-close-today-v3"
+      ],
+      "effectiveFromBusinessDate": "2026-10-26"
+    },
+    {
+      "topicKey": "model_consistency_repair",
+      "version": "model-consistency-repair-v1",
+      "title": "内转、今日扎账与核实期初一致性",
+      "content": "内转资金交接单支持门店现金与门店微信互转、顾客扫码换现金，操作员本人确认真实执行后记两笔等额反向流水，不计损益；顾客扫码进入扫码支付汇总和明确老板账户。现金转存老板银行仍须老板本人确认。代充值继续人工分别开收款单付款单、手动关联并填写对方号码，不凭备注扣款。新现金收款由本人确认实际收到后归门店抽屉，不自动归个人；历史暂存保留。新即时扎账固定今天，后台不能省略参数绕过；历史补正绑定原单，不能覆盖已核实期初；临时/正式类型明确保存。账户歧义和复核权限后台必须拒绝。",
+      "supersedes": [
+        "legacy-resubmit-edit-verified-opening",
+        "legacy-implicit-receipt-employee-holding",
+        "legacy-new-closeout-optional-today-flag"
+      ]
+    },
+    {
+      "topicKey": "owner_batch_review",
+      "version": "owner-batch-business-review-v1",
+      "title": "老板批量批复与本人实收分开",
+      "content": "普通业务和移动酬金登记允许老板勾选批量批复；退换货、红冲、现金交接及内部交接逐笔由老板审批。营业员收到顾客现金进入门店现金，不属于老板本人实收；营业员将现金存入老板银行卡或实际交给老板，才由老板本人核实接收。移动业务登记、月度结算单比对及实际到账各自留痕，未配置酬金保持未知，不填零。批量仍走原处理器及权限、证据版本校验；真实支付和到账不能由数字大脑猜测或凭批复生成。",
+      "supersedes": []
+    },
+    {
+      "topicKey": "store_cash_wallet_transfer",
+      "version": "store-cash-wallet-transfer-v1",
+      "title": "小额门店互转单",
+      "content": "门店现金与门店微信之间等额转换，统一使用门店互转单。只选转出、转入方向和实际金额，单笔0.01至300元，双方账户仅限门店现金与门店微信。不要填写顾客、手机号或外部交易单号。经办核对实际互转后确认，同一事务产生等额一减一增；老板只收信息、不审批，不计营业收入、费用或利润，不表示老板个人收到钱。未经经办确认不入账；已锁定营业日禁止直接登记或红冲。错误由老板在原单逐笔红冲，保留原单及双边流水。历史代充值两单及其关联保留，不自动转为互转，不重复记账；历史两单可按原流程核对关联。",
+      "supersedes": []
+    },
+    {
+      "topicKey": "owner_pending_special",
+      "version": "owner-pending-special-v1",
+      "title": "老板逐单特别结束旧扎账任务与报数报告",
+      "content": "老板可逐单选择尚未锁定的历史扎账复核任务，明确声明当前门店现金已核对无误并填写旧期初等处理原因后，特别结束所选旧任务。原提交、原始金额、差额、快照和操作历史保留，不生成现金收付款、不调整期初或库存，不把原差额改为零，不表示账本已锁定。对现金基准明确、现金账实零差额的非晚间简易报数，老板可逐单确认转为查看报告并解除本人审核提醒；店内核对责任继续保留，原核对状态和实际报数不变。未选择的单据、未来新单、其他资金和业务待办均不自动取消；已锁定账本仍按原解锁规则办理。特别处理只授权老板本人，后端复核原单版本和处理说明，工作助理只能查原单并提出建议，不能自行决定特别结束。",
+      "supersedes": [],
+      "effectiveFromBusinessDate": "2026-10-27"
+    },
+    {
+      "topicKey": "supplier_exchange",
+      "version": "supplier-exchange-paired-stock-v1",
+      "title": "供货商换货与对应出入库",
+      "content": "供货商换货使用一张关联原单，可多件、多型号，分类和商品编码沿用真实档案。申请、批准均不改库存；先交后收按实际交出出库、按实际验收分批入库，当面交换在同一事务完成两边库存。数量、串号与原成本逐行核实，重试不重复入账。未收齐新货继续追踪，收齐后按换回约定总额减换出抵价形成差价往来，实际账户核实收付后才闭合。原账面成本与供货商抵价的估值差额单列，不作销售毛利，不改旧采购与商品档案。"
+    },
+    {
+      "topicKey": "reception_suspension",
+      "version": "reception-suspended-v1",
+      "title": "接待功能暂时关闭",
+      "content": "由于近期接待质量不佳，暂时关闭客户接待、语音接待、接待跟进、协助及加微信等接待积分领取和新核定，隐藏工作台、常用、搜索、单据归类、待办及工作助理相关入口；充值不再自动创建简要接待单。现有接待记录、原录音、历史积分、工资、关联单据和真实财务库存原样保留，不视为已审核或已结案；已发生交易的退货、赠品成本及历史提成冲回仍按原规则处理。销售、充值、维修和移动业务独立照常办理。以后重新开发并安排专人接待。"
+    },
+    {
+      "topicKey": "business_change_withholding",
+      "version": "business-change-carrier-withheld-v1",
+      "title": "业务变更和包代扣税与未办闭环",
+      "content": "业务变更退换申请由老板批准后，营业员或老板按实际情况登记退款。批准不表示付款，别人代办成功后不要求营业员重复退款。移动结算总额按2.5%由移动直接代扣，和包真实净到账为结算总额减代扣税；账上可保留和包结算收入与同账户负向代扣两行，税款只记一次，不扣门店现金或微信、不再登记门店缴税费用。已记录税前和包收入但尚未登记税款的旧单，由老板明确核实真实净到账与移动结算凭据后追加代扣及更正事件，保留原收入、原退款与旧扎账快照。已单独缴税的历史记录保持原解释，不能再次代扣。实际退款、和包净到账、代扣凭据和老板垫付结算分别核实；批准后经办员工持续看到自己应办或待老板办理的跟进，老板按本人权限办理，全部核清才结束本单待办。工作助理只读查询本单状态和差额线索，不能代替实付、到账或实点确认。",
+      "supersedes": [
+        "business-change-hebao-2.5%-20261027"
+      ],
+      "effectiveFromBusinessDate": "2026-10-27"
+    },
+    {
+      "topicKey": "owner_closeout_entry",
+      "version": "owner-actual-count-entry-v1",
+      "title": "老板代录重新扎账",
+      "content": "老板可以在当日扎账报告点击重新扎账／代录报数，选择实际清点报数人，确认已核实本次实际数字后提交新扎账单。记录实际报数人、老板代录人及时间，不冒用员工身份、不自动填实点数；不覆盖原扎账、差额和审核历史。老板代录后由店内人员核对，不允许老板同时自核；营业员不得代其他人报数。重新扎账只保存新快照和实点数字，不生成付款、收款或调整余额。",
+      "effectiveFromBusinessDate": "2026-10-27"
+    },
+    {
+      "topicKey": "carrier_product_commission",
+      "version": "carrier-product-commission-20261028-v1",
+      "title": "新业务具体产品预计酬金和返还计划",
+      "content": "仅对本版本启用后新录入、明确选中具体产品及档位的移动新业务生效，既有原单及计划不重算。基础酬金金额按老板提供的《新业务线下主售产品清单-10月20日更新(2).xlsx》主表逐产品保存来源、版本和原始酬金栏；顾客资费不是酬金。主表明确列为每期金额乘4的22项产品，自办理次月起连续4个月返还；年包系列7项产品在办理次月一次性返清全部基础酬金。AI耳机畅听包年约版按原清单明确的5元乘4期计算，不与年包系列混同。预计总酬金和逐期预计月份随新单固化，移动结算单确认及实际到账按原流程分别登记，预计不表示已结算或已到账，也不直接作为营业员工资提成或销售毛利。清单未列明、未选中具体产品或规则缺失时保持未知，不填零，不按相似业务名猜金额。退订扣回、外部结算差异仍按真实结算凭据核对。",
+      "supersedes": []
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 'use strict';
 const $ = id => document.getElementById(id);
 const E = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-let data = {items:[], categories:[], canManage:false, manageItems:[]};
+let data = {items:[], categories:[], canManage:false, canSubmit:false, manageItems:[]}, vectorStates=new Map(), pendingPreview=null, currentView='browse', indexStatusAvailable=true, showAll=false;
 async function api(path, options={}) {
   const response = await fetch(path, {credentials:'same-origin', ...options});
   let result;
@@ -18,6 +18,7 @@ function dateText(value) { const match=String(value || '').match(/^(\d{4}-\d{2}-
 function today() { const d=new Date(); return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-'); }
 function fileName(value) { return String(value || '').replace(/\\/g,'/').split('/').filter(Boolean).at(-1) || '来源文件'; }
 function policyState(row) {
+  if(row.submissionStatus==='pending')return 'needs_review';
   if (!['store_policy','store_training','store_exam'].includes(row.sourceTier)) return 'general';
   if (row.policyStatus === 'needs_review') return 'needs_review';
   if (row.policyStatus === 'historical' || dateText(row.validTo) && dateText(row.validTo)<today()) return 'historical';
@@ -27,12 +28,13 @@ function policyState(row) {
 function policyRank(row) { return ({current:0,general:1,needs_review:2,future:2,historical:3})[policyState(row)]; }
 function sourceLabel(row) { return ['store_policy','store_training','store_exam'].includes(row.sourceTier) ? (row.sourceLabel || ({store_policy:'店内现行资料',store_training:'店内话术资料',store_exam:'店内考核题库'})[row.sourceTier]) : (row.builtIn ? '内置学习资料' : '店内学习资料'); }
 function policyBadge(row) {
-  const state=policyState(row), labels={current:sourceLabel(row)+' · 优先',general:sourceLabel(row),needs_review:'待核实资料',historical:'历史资料',future:'尚未生效'};
+  const state=policyState(row), labels={current:sourceLabel(row)+' · 优先',general:sourceLabel(row),needs_review:row.submissionStatus==='pending'?'待审核资料':'待核实资料',historical:'历史资料',future:'尚未生效'};
   return '<span class="source-badge '+state+'">'+E(labels[state])+'</span>';
 }
+function vectorBadge(row){if(!row.uploadSha256&&!row.migrationBatch)return '';if(!indexStatusAvailable)return '<span class="vector-badge pending">状态待刷新</span>';const indexed=vectorStates.get(row.id)==='vectorized';return '<span class="vector-badge '+(indexed?'vectorized':'pending')+'">'+(indexed?'已向量化 · 小猫咪可用':'未向量化 · 小猫咪不可用')+'</span>';}
 function policyNotice(row) {
   const state=policyState(row);
-  let text=state==='needs_review' ? '资料条件或版本尚待核实，先查看来源并核对后再办理。' : state==='historical' ? '历史资料用于学习和追溯，办理业务请查现行资料。' : state==='future' ? '尚未到生效日期，办理业务请查当前规则。' : '';
+  let text=row.submissionStatus==='pending'&&row.policyStatus==='current'?'正文已核对，等待切片审核和向量化；小猫咪暂不使用。':state==='needs_review' ? '资料条件或版本尚待核实，先查看来源并核对后再办理。' : state==='historical' ? '历史资料用于学习和追溯，办理业务请查现行资料。' : state==='future' ? '尚未到生效日期，办理业务请查当前规则。' : '';
   if (row.conflictSummary) text += (text ? ' ' : '') + row.conflictSummary;
   if (Array.isArray(row.reviewIssues) && row.reviewIssues.length) text += (text ? ' ' : '') + row.reviewIssues.map(issue=>[issue.title,issue.detail].filter(Boolean).join('：')).join('；');
   return text ? '<p class="policy-notice '+state+'">'+E(text)+'</p>' : '';
@@ -59,39 +61,51 @@ function tableContent(row) {
   }).join('');
 }
 function articleContent(row) {
-  return '<article id="'+E(row.id)+'"><div class="article-tags">'+policyBadge(row)+'<span class="tag">'+E(row.category)+'</span></div><h2>'+E(row.title)+'</h2>'+policyNotice(row)+(row.sourceRevisionNote?'<p class="revision-note">'+E(row.sourceRevisionNote)+'</p>':'')+'<p class="summary">'+E(row.summary)+'</p>'+(row.applicableScope?'<p class="source-meta">适用范围：'+E(row.applicableScope)+'</p>':'')+'<details class="article-body"><summary>看正文、操作步骤与例子</summary><div class="steps">'+String(row.body||'').split('\n').filter(Boolean).map(text=>'<p>'+E(text)+'</p>').join('')+tableContent(row)+'</div></details>'+provenance(row)+'<p class="version">'+E(sourceLabel(row))+' · 第 '+E(row.version||1)+' 版'+(row.updatedByName?' · '+E(row.updatedByName)+' 修改':'')+'</p><div class="article-footer"><a href="/learning">写学习单</a><a href="/assistant">向助理提问</a>'+(data.canManage?'<button type="button" data-edit="'+E(row.id)+'">修改</button>':'')+'</div></article>';
+  return '<article id="'+E(row.id)+'"><div class="article-tags">'+policyBadge(row)+vectorBadge(row)+'<span class="tag">'+E(row.category)+'</span></div><h2>'+E(row.title)+'</h2>'+policyNotice(row)+(row.sourceRevisionNote?'<p class="revision-note">'+E(row.sourceRevisionNote)+'</p>':'')+'<p class="summary">'+E(String(row.summary||'').replace(/#{1,6}\s+/g,'').replace(/\s+/g,' '))+'</p>'+(row.applicableScope?'<p class="source-meta">适用范围：'+E(row.applicableScope)+'</p>':'')+'<details class="article-body"><summary>查看正文和出处</summary><div class="steps">'+String(row.body||'').split('\n').filter(Boolean).map(text=>'<p>'+E(text)+'</p>').join('')+tableContent(row)+'</div></details>'+provenance(row)+'<p class="version">'+E(sourceLabel(row))+' · 第 '+E(row.version||1)+' 版'+(row.updatedByName?' · '+E(row.updatedByName)+' 修改':'')+'</p>'+(data.canManage&&(data.manageItems||[]).some(item=>item.id===row.id)?'<div class="article-footer"><button type="button" data-edit="'+E(row.id)+'">编辑资料</button><button type="button" data-toggle="'+E(row.id)+'">'+(row.enabled===false?'恢复启用':'停用资料')+'</button></div>':'')+'</article>';
 }
 function render() {
   const q=$('search').value.trim().toLocaleLowerCase('zh-CN'), category=$('category').value, filter=$('source-filter').value;
   const items=data.items.filter(row=>{
-    const state=policyState(row);
-    if (filter==='current' && state!=='current' || filter==='general' && state!=='general' || filter==='review' && ['current','general'].includes(state)) return false;
+    const indexed=vectorStates.get(row.id)==='vectorized';
+    const tracked=row.uploadSha256||row.migrationBatch;
+    if(filter==='vectorized'&&(!tracked||!indexed)||filter==='pending'&&(!tracked||indexed)||filter==='library'&&tracked)return false;
     return (!category || row.category===category) && (!q || [row.title,row.category,row.summary,row.body,row.applicableScope,...(row.tags||[]),...(row.customerQuestions||[]),...(row.matchKeywords||[]).flat(),...(row.sourceFiles||[]).map(file=>fileName(typeof file==='string'?file:file.name))].join(' ').toLocaleLowerCase('zh-CN').includes(q));
-  }).sort((a,b)=>policyRank(a)-policyRank(b));
-  $('articles').innerHTML=items.map(articleContent).join('') || '<section class="tools"><h2>暂时没有匹配资料</h2><p>试试换一个关键词，或选择全部资料和全部分类。</p></section>';
+  }).sort((a,b)=>{const rank=row=>row.uploadSha256?0:row.id.startsWith('active-rule-')?1:2;return rank(a)-rank(b)||policyRank(a)-policyRank(b);});
+  const limited=!q&&!category&&!filter&&!showAll&&items.length>8,shown=limited?items.slice(0,8):items;
+  $('articles').innerHTML=shown.map(articleContent).join('')+(limited?'<div class="load-more"><button type="button" id="show-all">查看其余 '+(items.length-shown.length)+' 篇资料</button></div>':'') || '<section class="empty-state"><h2>没有找到资料</h2><p>换一个业务词，或把分类和使用状态改回“全部”。</p></section>';
   const current=items.filter(row=>policyState(row)==='current').length;
-  status('显示 '+items.length+' 篇资料'+(current?'，其中店内现行资料 '+current+' 篇':''));
+  status('找到 '+items.length+' 篇资料'+(limited?'，先显示 '+shown.length+' 篇':'')+(current?'；店内现行资料 '+current+' 篇':''));
   openHash();
 }
+function showView(view){if(!['browse','upload','review'].includes(view)||view==='upload'&&!data.canSubmit||view==='review'&&!data.canManage)view='browse';currentView=view;$('browse-view').hidden=view!=='browse';$('upload-section').hidden=view!=='upload';$('review-view').hidden=view!=='review';for(const button of document.querySelectorAll('[data-view]')){button.setAttribute('aria-current',button.dataset.view===view?'page':'false');}if(view==='review')renderManager();}
 function openHash() {
   let id;try{id=decodeURIComponent(location.hash.slice(1));}catch{return;}
   if(!id)return;
-  const article=document.getElementById(id);if(!article)return;
+  let article=document.getElementById(id);
+  if(!article&&data.items.some(row=>row.id===id)){
+    $('search').value='';$('category').value='';$('source-filter').value='';showAll=true;showView('browse');render();return;
+  }
+  if(!article)return;
+  if(currentView!=='browse')showView('browse');
   const detail=article.querySelector('details.article-body');if(detail)detail.open=true;
   article.scrollIntoView({block:'start'});
 }
 function renderManager() {
-  $('admin').hidden=!data.canManage;$('upload-section').hidden=!data.canManage;if(!data.canManage)return;
-  $('managed').innerHTML=(data.manageItems||[]).slice().sort((a,b)=>policyRank(a)-policyRank(b)).map(row=>'<div class="manage-row"><div><strong>'+E(row.title)+'</strong><br>'+policyBadge(row)+'<small> '+E(row.category)+' · '+(row.enabled===false?'已停用':'使用中')+' · 第 '+E(row.version||1)+' 版</small></div><div class="manage-actions"><button type="button" data-edit="'+E(row.id)+'">编辑</button><button type="button" data-toggle="'+E(row.id)+'">'+(row.enabled===false?'恢复启用':'停用')+'</button></div></div>').join('');
+  const pending=(data.manageItems||[]).filter(row=>row.uploadSha256&&row.enabled!==false&&vectorStates.get(row.id)!=='vectorized').sort((a,b)=>String(b.importedAt||'').localeCompare(String(a.importedAt||'')));
+  const disabled=(data.manageItems||[]).filter(row=>row.enabled===false);
+  $('review-count').textContent=pending.length?'('+pending.length+')':'';
+  $('managed').innerHTML=(pending.map(row=>'<article class="review-item"><div class="review-copy"><div class="article-tags">'+vectorBadge(row)+policyBadge(row)+'</div><h3>'+E(row.title)+'</h3><p>'+E(String(row.summary||'').replace(/#{1,6}\s+/g,'').replace(/\s+/g,' '))+'</p><small>提交人：'+E(row.uploadedByName||row.updatedByName||'未记录')+' · 第 '+E(row.version||1)+' 版</small></div><div class="review-actions"><button type="button" data-edit="'+E(row.id)+'">核对正文'+(row.policyStatus==='current'?'':'并标记现行')+'</button><button type="button" data-chunk="'+E(row.id)+'"'+(row.policyStatus==='current'?'':' disabled title="先核对正文并标记现行"')+'>预览切片并向量化</button></div></article>').join('')||'<div class="empty-state"><h3>没有待审核资料</h3><p>员工上传的新资料会出现在这里。已向量化资料可到“查资料”中查看。</p></div>')+(disabled.length?'<details class="disabled-list"><summary>已停用资料（'+disabled.length+'）</summary>'+disabled.map(row=>'<div class="disabled-row"><span>'+E(row.title)+'</span><button type="button" data-toggle="'+E(row.id)+'">恢复启用</button></div>').join('')+'</details>':'');
 }
 async function load() {
   try {
     data=await api('/api/assistant/knowledge');data.items ||= [];data.categories ||= [];
+    try{const indexed=await api('/api/assistant/knowledge/index-status');vectorStates=new Map(indexed.rows.map(row=>[row.id,row.vectorState]));indexStatusAvailable=true;}catch{vectorStates=new Map();indexStatusAvailable=false;}
     const previous=$('category').value;
     $('category').innerHTML='<option value="">全部分类</option>'+data.categories.map(category=>'<option>'+E(category)+'</option>').join('');
     if(data.categories.includes(previous))$('category').value=previous;
     $('category-list').innerHTML=data.categories.map(category=>'<option value="'+E(category)+'"></option>').join('');
-    render();renderManager();
+    document.querySelector('[data-view="upload"]').hidden=!data.canSubmit;document.querySelector('[data-view="review"]').hidden=!data.canManage;
+    render();renderManager();showView(currentView);
   }catch(error){status(error.message,true);}
 }
 function edit(id) {
@@ -111,10 +125,14 @@ function edit(id) {
 $('search').addEventListener('input',render);
 $('category').addEventListener('change',render);
 $('source-filter').addEventListener('change',render);
+$('search').addEventListener('keydown',event=>{if(event.key==='Escape'){event.currentTarget.value='';render();}});
+document.querySelectorAll('[data-view]').forEach(button=>button.addEventListener('click',()=>showView(button.dataset.view)));
 $('new-article').addEventListener('click',()=>edit());
 $('cancel').addEventListener('click',()=>$('edit-dialog').close());
 window.addEventListener('hashchange',openHash);
 document.addEventListener('click',async event=>{
+  if(event.target.closest('#show-all')){showAll=true;render();return;}
+  const chunkButton=event.target.closest('button[data-chunk]');if(chunkButton){try{const result=await api('/api/assistant/knowledge/chunk-preview?id='+encodeURIComponent(chunkButton.dataset.chunk));pendingPreview=result;$('chunk-notice').textContent=result.notice;$('chunk-list').innerHTML=result.parts.map((part,i)=>'<details><summary>第 '+(i+1)+' 片 · '+E(part.kind)+' · 原文 '+E(part.sourceBlockId)+(part.row?' 第 '+E(part.row)+' 行':'')+'</summary><pre>'+E(part.text)+'</pre></details>').join('');$('chunk-status').textContent=result.policyStatus==='current'?'请逐片核对事实、隐私与对客适用范围。':'请先在“编辑”中核对正文，标记店内现行并保存，然后重新预览切片。';$('vectorize-confirm').disabled=result.policyStatus!=='current';$('chunk-dialog').showModal();}catch(error){status(error.message,true);}return;}
   const editButton=event.target.closest('button[data-edit]');if(editButton){edit(editButton.dataset.edit);return;}
   const toggleButton=event.target.closest('button[data-toggle]');if(!toggleButton)return;
   const row=(data.manageItems||[]).find(item=>item.id===toggleButton.dataset.toggle);if(!row)return;
@@ -124,6 +142,8 @@ document.addEventListener('click',async event=>{
   try {await post(activate?'/api/assistant/knowledge/save':'/api/assistant/knowledge/remove',activate?{...row,enabled:true}:{id:row.id});await load();status(activate?'文章已恢复启用':'文章已停用，记录仍保留');}
   catch(error){status(error.message,true);}finally{toggleButton.disabled=false;}
 });
+$('chunk-close').addEventListener('click',()=>$('chunk-dialog').close());
+$('vectorize-confirm').addEventListener('click',async()=>{if(!pendingPreview)return;const button=$('vectorize-confirm');button.disabled=true;$('chunk-status').textContent='正在生成向量，请保持页面打开…';try{const result=await post('/api/assistant/knowledge/vectorize',{id:pendingPreview.id,version:pendingPreview.version});$('chunk-dialog').close();pendingPreview=null;await load();status('向量化完成：'+result.chunkCount+' 片，小猫咪可使用。');}catch(error){$('chunk-status').textContent='向量化未完成：'+error.message+'。资料仍显示未向量化，可重新预览并重试。';button.disabled=false;}});
 $('edit-form').addEventListener('submit',async event=>{
   event.preventDefault();const form=event.currentTarget, button=form.querySelector('button[type=submit]');button.disabled=true;
   try {
@@ -161,7 +181,6 @@ async function uploadRequest(path,file,settings={}){
  for(const [key,value]of Object.entries(settings))body.append(key,value);
  return api(path,{method:'POST',headers:{'Idempotency-Key':crypto.randomUUID()},body});
 }
-$('go-upload').addEventListener('click',()=>$('upload-section').scrollIntoView({block:'start'}));
 $('upload-file').addEventListener('change',()=>{clearUpload();uploadStatus($('upload-file').files.length?'已选择文件。':'');});
 $('upload-form').addEventListener('submit',async event=>{
  event.preventDefault();if(uploadBusy)return;
@@ -173,7 +192,7 @@ $('upload-form').addEventListener('submit',async event=>{
   const result=await uploadRequest('/api/assistant/knowledge/upload-preview',file);
   if(result.duplicate){
    uploadStatus('这份文件已经上传过，不会重复保存。');
-   const link=document.createElement('a');link.textContent='查看已上传资料';link.href='#'+encodeURIComponent(result.articleIds[0]);$('upload-status').append(document.createElement('br'),link);return;
+   if(result.articleIds?.length){const link=document.createElement('a');link.textContent='查看已上传资料';link.href='#'+encodeURIComponent(result.articleIds[0]);$('upload-status').append(document.createElement('br'),link);}return;
   }
   uploadFile=file;$('upload-title').value=result.title;$('upload-category').value='学习资料';
   $('upload-title').disabled=false;$('upload-category').disabled=false;
@@ -193,10 +212,10 @@ $('upload-confirm').addEventListener('click',async()=>{
  uploading(true);uploadStatus('正在上传保存，请稍等…');
  try{
   const result=await uploadRequest('/api/assistant/knowledge/upload',uploadFile,{title,category});
-  clearUpload();$('upload-file').value='';$('search').value='';$('source-filter').value='';$('category').value='';
-  await load();
-  uploadStatus(result.duplicate?'这份文件已经上传过，资料仍保留。':'上传成功，共保存 '+result.articleIds.length+' 篇学习资料，原文件已保留。');
-  const link=document.createElement('a');link.textContent='查看这次上传的资料';link.href='#'+encodeURIComponent(result.articleIds[0]);$('upload-status').append(document.createElement('br'),link);
+  clearUpload();$('upload-file').value='';$('search').value='';$('source-filter').value='pending';$('category').value='';
+  await load();showView('browse');
+  uploadStatus(result.duplicate?'这份文件已经上传过，资料仍保留。':'上传成功，共保存 '+result.articleIds.length+' 篇未向量化资料，等待老板核对。');
+  if(result.articleIds?.length){const link=document.createElement('a');link.textContent='查看这次上传的资料';link.href='#'+encodeURIComponent(result.articleIds[0]);$('upload-status').append(document.createElement('br'),link);}
  }catch(error){uploadStatus('上传未成功：'+error.message+'。文件仍保留在当前页面，可重试。',true);}finally{uploading(false);}
 });
 

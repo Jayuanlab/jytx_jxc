@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#12384d">
+  <title>工作助理</title>
+  <link rel="stylesheet" href="/pi-work.css?v=20261024-phone-specs-r1">
+  <script defer src="/pi-work.js?v=20261024-phone-specs-r1"></script>
+</head>
+<body>
+  <div class="workspace">
+    <header class="topbar">
+      <a class="back" href="/m" aria-label="返回工作台">← <span>工作台</span></a>
+      <div class="brand"><span class="brand-mark" aria-hidden="true">π</span><div><strong>工作助理</strong><small>由 pi-agent 处理对话</small></div></div>
+      <span id="identity" class="identity">确认身份中…</span>
+    </header>
+    <main class="layout">
+      <section class="conversation" aria-label="与工作助理对话">
+        <div id="messages" class="messages" role="log" aria-live="polite">
+          <div class="welcome">
+            <span class="welcome-rule" aria-hidden="true"></span>
+            <h1>今天要处理什么工作？</h1>
+            <p>查询门店记录、准备业务草稿，或练习接待说法。金额和操作结果以系统单据为准。</p>
+            <div class="suggestions" id="suggestions">
+              <button type="button" data-question="今天销售情况怎么样">查今天销售</button>
+              <button type="button" data-question="接待顾客时怎么先问需求">练接待话术</button>
+              <button type="button" data-question="我还有哪些待办">查我的待办</button>
+            </div>
+          </div>
+        </div>
+        <form id="compose" class="composer">
+          <div class="composer-head"><label class="composer-label" for="question">告诉工作助理</label><button id="keyboard-input" type="button" aria-pressed="false">键盘输入</button><button id="new-topic-mobile" type="button">新对话</button><button id="voice-input" type="button" aria-pressed="false">语音输入</button></div>
+          <div class="compose-row"><textarea id="question" rows="2" maxlength="1000" placeholder="输入工作问题，Enter 发送，Shift+Enter 换行" required></textarea><button id="send" type="submit">发送</button></div>
+          <p id="voice-status" class="voice-status" role="status" aria-live="polite" hidden></p>
+          <p id="status" role="status">按你的账号权限查询；业务操作需要你在系统中确认。</p>
+        </form>
+      </section>
+      <aside class="rail" aria-label="工作功能">
+        <div class="rail-heading"><h2>工作功能</h2><button id="new-topic" type="button">新对话</button></div>
+        <p class="rail-intro">从对话开始，或直接打开需要的功能。</p>
+        <nav class="quick-links" aria-label="常用入口">
+          <a href="/app?tab=sales">销售开单</a><a href="/receptions">接待记录</a><a href="/knowledge">业务知识</a><a href="/learning">学习与复盘</a>
+          <a href="/assistant-memory">规则记忆</a><a href="/assistant-tools">考勤与管理工具</a>
+        </nav>
+        <details id="capabilities"><summary>查看本岗位可用功能</summary><div id="capability-list" class="capability-list">正在读取…</div></details>
+        <div class="rail-footer"><a href="/kitty">小猫咪</a><a href="/companion">个人助理</a></div>
+      </aside>
+    </main>
+  </div>
+</body>
+</html>
+
+

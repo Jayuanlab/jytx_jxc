@@ -481,3 +481,106 @@ html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel:not([hidde
 .attendance-location-record{padding:8px 12px;border-left:4px solid #b9cdea;border-radius:7px;margin:8px 0}
 .attendance-location-record .attendance-note{color:inherit}
 .fieldwork-checkpoint{border-top:2px solid #bccce2;padding:12px 0;margin-top:12px}
+
+
+/* Keep the conversation at full height; work tools open over it. */
+html body.assistant-chat-page.wechat-chat main{max-width:1500px}
+html body.assistant-chat-page.wechat-chat .chat-thread{padding-inline:clamp(12px,2vw,26px)}
+html body.assistant-chat-page.wechat-chat #result{max-width:calc(100% - 16px);width:100%}
+html body.assistant-chat-page.wechat-chat .chat-history-bubble{max-width:calc(100% - 16px)}
+html body.assistant-chat-page.wechat-chat .chat-history-bubble.self{max-width:88%}
+html body.assistant-chat-page.wechat-chat #work-dock:has(#work-more-panel:not([hidden])){max-height:none;overflow:visible}
+html body.assistant-chat-page.wechat-chat #work-more-panel:not([hidden]){box-sizing:border-box;position:fixed;inset:var(--chat-top,0px) 0 auto auto;width:min(100vw,560px);height:var(--chat-height,100dvh);max-height:none;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;z-index:120;margin:0;padding:16px 18px 32px;background:#f8fbff;border-left:1px solid #b5c7dd;box-shadow:-12px 0 30px #142c5030}
+html body.assistant-chat-page.wechat-chat #work-more-panel .work-more-heading{position:sticky;top:-16px;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;margin:-16px -18px 12px;padding:12px 18px;background:#e8f1fb;border-bottom:1px solid #b5c7dd}
+html body.assistant-chat-page.wechat-chat #work-more-panel .work-more-heading strong{font-size:25px;color:#173f69}
+html body.assistant-chat-page.wechat-chat #work-more-close{min-height:48px;padding:8px 14px;font-size:23px!important;font-weight:750;background:#fff;color:#174f95;border:2px solid #7ca8d8;border-radius:10px}
+html body.assistant-chat-page.wechat-chat .chat-toolbar{flex-wrap:nowrap!important;overflow-x:auto;overscroll-behavior-inline:contain;gap:8px;margin-top:8px;padding-bottom:3px}
+html body.assistant-chat-page.wechat-chat .chat-toolbar button{flex:none;white-space:nowrap}
+html body.assistant-chat-page.wechat-chat .chat-toolbar #attendance-spot-summary:not([hidden]){flex:0 0 min(80vw,400px);font-size:20px!important}
+@media(max-width:700px){
+ html body.assistant-chat-page.wechat-chat #work-more-panel:not([hidden]){width:100vw;border-left:0;box-shadow:none}
+ html body.assistant-chat-page.wechat-chat .chat-thread{padding-inline:10px}
+ html body.assistant-chat-page.wechat-chat #result{max-width:100%}
+ html body.assistant-chat-page.wechat-chat .chat-history-bubble{max-width:100%}
+}
+
+html body.assistant-chat-page.wechat-chat #work-more-panel .chat-toolbar{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;overflow:visible;align-items:stretch;margin:12px 0}
+html body.assistant-chat-page.wechat-chat #work-more-panel .chat-toolbar button{box-sizing:border-box;display:block;flex:none!important;width:100%!important;min-width:0!important;max-width:100%!important;min-height:52px!important;height:auto!important;margin:0!important;padding:8px!important;font-size:22px!important;line-height:1.25!important;white-space:normal!important}
+html body.assistant-chat-page.wechat-chat #work-more-panel .chat-toolbar #voice-start{grid-column:1/-1;flex-basis:auto!important}
+html body.assistant-chat-page.wechat-chat #work-more-panel .chat-toolbar #attendance-spot-summary:not([hidden]){grid-column:1/-1;flex-basis:auto!important}
+
+
+html body.assistant-chat-page.wechat-chat #attendance-panel .attendance-primary-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0 14px}
+html body.assistant-chat-page.wechat-chat #attendance-panel .attendance-primary-actions button{box-sizing:border-box;width:100%;min-width:0;max-width:none;min-height:58px;margin:0}
+html body.assistant-chat-page.wechat-chat #attendance-panel .attendance-help{margin:12px 0;padding:0 10px;border:1px solid #cad8e8;border-radius:9px;background:#f4f8fc}
+html body.assistant-chat-page.wechat-chat #attendance-panel .attendance-help summary{cursor:pointer;padding:11px 2px;font-size:22px;color:#244f81}
+
+/* v77 CSP compliant attendance feedback */
+html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel .attendance-primary-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel .attendance-primary-actions button{min-height:72px!important;padding:14px 12px!important;font-size:26px!important;font-weight:800!important;border-width:2px!important;border-radius:12px!important;filter:none!important;text-shadow:none!important;line-height:1.35!important;white-space:normal!important}html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel #checkin{background:#087549!important;color:white!important;border-color:#055738!important}html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel #checkout{background:#984014!important;color:white!important;border-color:#72320e!important}html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel #fieldwork-start,html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel #fieldwork-checkpoint-shortcut{background:#1758ae!important;color:white!important;border-color:#124783!important}html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel .attendance-primary-actions button:disabled{background:#e5ebf0!important;color:#465460!important;border-color:#b8c6d0!important;opacity:1!important}#attendance-status:not(:empty){padding:16px;border:2px solid #b4c6d6;border-radius:12px;background:#f1f7fc;font-weight:650;font-size:22px;line-height:1.5}#attendance-feedback-toast-v76{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%);width:min(650px,calc(100vw - 28px));z-index:100000;background:#fff;border:3px solid #13754a;border-radius:16px;box-shadow:0 14px 42px #19323f44;padding:20px 24px;color:#163b2a;max-height:45vh;overflow:auto}#attendance-feedback-toast-v76[hidden]{display:none!important}#attendance-feedback-toast-v76 strong{display:block;font-size:28px;font-weight:850}#attendance-feedback-toast-v76 p{font-size:22px;margin:10px 0;overflow-wrap:anywhere}#attendance-feedback-toast-v76 button{font:inherit;font-weight:750;font-size:21px;min-height:50px;border-radius:10px;border:2px solid currentColor;background:#fff;padding:8px 22px;color:inherit}#attendance-feedback-toast-v76[data-tone="pending"]{border-color:#1758ae;color:#173d70}#attendance-feedback-toast-v76[data-tone="error"]{border-color:#af3329;color:#8b2922}#attendance-feedback-toast-v76[data-tone="info"]{border-color:#577384;color:#304f61}
+html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel button{font-weight:800!important;opacity:1!important;color:#173f69!important;background:#edf4fc!important;border:2px solid #386b9b!important}
+html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel #checkin{background:#087549!important;color:#fff!important}html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel #checkout{background:#984014!important;color:#fff!important}
+
+#attendance-panel .attendance-button-label{display:block;font-size:28px;font-weight:800}#attendance-panel .attendance-button-time{display:block;font-size:18px;font-weight:600;margin-top:4px}#attendance-panel .attendance-button-time:empty{display:none}
+
+html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel #checkin[data-punch-state="idle"]{background:#1758ae!important;color:#fff!important;border-color:#124783!important}html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel #checkin[data-punch-state="recorded"]{background:#087549!important;color:#fff!important;border-color:#055738!important}html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel #checkout[data-punch-state="idle"]{background:#984014!important;color:#fff!important;border-color:#72320e!important}html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel #checkout[data-punch-state="recorded"]{background:#e5ebf0!important;color:#364958!important;border-color:#aebdc9!important}
+
+html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel #fieldwork-start[data-punch-state="idle"],html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel #fieldwork-checkpoint-shortcut[data-punch-state="idle"]{background:#1758ae!important;color:#fff!important}html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel #fieldwork-start[data-punch-state="recorded"],html body.assistant-chat-page.wechat-chat #work-dock #work-more-panel #attendance-panel #fieldwork-checkpoint-shortcut[data-punch-state="recorded"]{background:#087549!important;color:#fff!important}
+/* Dedicated attendance entry: one current action before history and settings. */
+html.attendance-focused-page #attendance-panel .attendance-today-state{
+ margin:12px 0 14px;padding:14px 16px;border-left:5px solid #2367bb;
+ border-radius:9px;background:#edf4fb;color:#173b63;font-size:26px!important;
+ font-weight:750;line-height:1.45;
+}
+html.attendance-focused-page #attendance-panel .attendance-today-state[data-state="working"]{
+ border-left-color:#087549;background:#eaf6ef;color:#165b3c;
+}
+html.attendance-focused-page #attendance-panel .attendance-today-state[data-state="finished"]{
+ border-left-color:#82572c;background:#f8f2ea;color:#684221;
+}
+html.attendance-focused-page #attendance-panel .attendance-primary-actions{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
+}
+html.attendance-focused-page #attendance-panel .attendance-primary-actions :is(#checkin,#checkout,#attendance-back-today){
+ grid-column:1/-1;min-height:72px!important;font-size:30px!important;
+}
+html.attendance-focused-page #attendance-panel .attendance-primary-actions :is(#fieldwork-start,#fieldwork-checkpoint-shortcut){
+ min-height:56px!important;
+}
+html.attendance-focused-page #attendance-panel #attendance-back-today{
+ background:#1758ae!important;color:#fff!important;border-color:#124783!important;
+}
+html.attendance-focused-page #attendance-panel :is(#attendance-date-details,#attendance-record-details){
+ margin:14px 0;border:1px solid #b7c9dc;border-radius:10px;background:#fff;
+}
+html.attendance-focused-page #attendance-panel :is(#attendance-date-details,#attendance-record-details)>summary{
+ min-height:52px;padding:12px 14px;color:#174b87;font-size:25px!important;font-weight:750;cursor:pointer;
+}
+html.attendance-focused-page #attendance-panel :is(#attendance-date-details,#attendance-record-details)[open]>summary{
+ border-bottom:1px solid #d1dce8;
+}
+html.attendance-focused-page #attendance-panel #attendance-date-details>:not(summary),
+html.attendance-focused-page #attendance-panel #attendance-record-details>:not(summary){
+ margin:10px 14px;
+}
+@media(max-width:700px){
+ html.attendance-focused-page #attendance-panel .attendance-today-state{font-size:26px!important}
+ html.attendance-focused-page #attendance-panel .attendance-primary-actions :is(#checkin,#checkout,#attendance-back-today){font-size:28px!important}
+}
+#staff-roster-panel{margin:16px 0 22px;padding:18px;border:2px solid #cbd9e7;border-radius:14px;background:#f8fbff;color:#18324b}
+#staff-roster-panel h3{margin:0 0 8px;font-size:1.25em}
+#staff-roster-panel p{margin:7px 0;line-height:1.45}
+#staff-roster-panel .staff-roster-date,#staff-roster-panel .staff-roster-note{color:#52667a}
+#staff-roster-panel .staff-roster-current{margin:12px 0;padding:10px 14px;border-left:5px solid #1d62c8;background:#eaf3ff;border-radius:7px;font-weight:650}
+#staff-roster-panel .staff-roster-row{display:flex;flex-wrap:wrap;gap:7px 12px;padding:12px 0;border-top:1px solid #d5e0ea}
+#staff-roster-panel .staff-roster-row strong{flex-basis:100%}
+#staff-roster-panel .staff-roster-row span{padding:3px 9px;border-radius:999px;background:#e7f4ed;color:#12633c;font-size:.9em}
+#staff-roster-panel .staff-roster-live{font-weight:600}
+#staff-roster-panel .staff-roster-editor{margin-top:14px;border-top:1px solid #cbd9e7;padding-top:12px}
+#staff-roster-panel .staff-roster-editor summary{cursor:pointer;color:#1455b5;font-weight:700}
+#staff-roster-panel #staff-roster-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+#staff-roster-panel #staff-roster-form label{display:flex;flex-direction:column;gap:5px;font-weight:600}
+#staff-roster-panel #staff-roster-form :is(input,select,button){min-height:44px;font:inherit}
+#staff-roster-panel #staff-roster-form input[type=checkbox]{min-height:24px;align-self:flex-start}
+#staff-roster-panel #staff-roster-form button,#staff-roster-panel .staff-roster-feedback{grid-column:1/-1}
+#staff-roster-panel .staff-roster-success{color:#12633c;font-weight:700}
+@media(max-width:700px){#staff-roster-panel #staff-roster-form{grid-template-columns:1fr}#staff-roster-panel{padding:14px}}

@@ -1,29 +1,33 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><script defer src="/page-help.js?v=20261010-clean-layout"></script>
+<head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>聚友通信工作台</title>
-<link rel="stylesheet" href="/login.css?v=20261012-workbench-branding">
-<script src="/login.js?v=20261012-login-audit" defer></script>
-<link rel="stylesheet" href="/page-help.css?v=20261010-clean-layout"></head>
+<link rel="stylesheet" href="/login.css?v=20261027-attendance-entry">
+<link rel="stylesheet" href="/login-refresh.css?v=20261027-attendance-entry">
+<script src="/login.js?v=20261027-attendance-entry" defer></script>
+</head>
 <body class="account-page">
 <main id="account-main">
-<header class="workbench-header"><div class="mark" aria-hidden="true">聚</div><div><h1>聚友通信工作台</h1></div></header>
+<header class="workbench-header"><div class="brand"><div class="mark" aria-hidden="true">聚</div><strong>聚友通信城</strong></div></header>
+<div class="entry-panel">
 <p id="status-message" class="message" role="alert"></p><button id="retry-status" class="status-retry" type="button">刷新登录状态</button>
-<section class="card session-card" id="session-panel" hidden><p id="signed-in"></p><div class="links"><a href="/m">进入工作台</a><button type="button" id="logout">切换账号</button></div></section>
+<section class="card session-card" id="session-panel" hidden><p id="signed-in"></p><div class="links"><a href="/attendance">查看值班与考勤</a><a id="session-return" href="/m">进入工作台</a><button type="button" id="logout">退出登录</button></div></section>
 <section class="card" id="login-panel">
-<h2>账号登录 <button type="button" class="page-help-button" data-help-target="login-account-help">? 帮助</button></h2>
+<h2>本人账号登录</h2>
 <form id="login-form">
 <label>登录账号<input name="username" autocomplete="username" required maxlength="32" placeholder="输入登录账号"></label>
 <label>密码<div class="password-field"><input id="login-password" data-password-field name="password" type="password" autocomplete="current-password" required maxlength="128" placeholder="输入密码"><button type="button" data-password-toggle="login-password" aria-pressed="false" aria-label="显示或隐藏登录密码">显示</button></div></label>
-<p class="hint">账号和密码分别填写。忘记密码请找管理员重新设置。</p>
-<button type="submit">进入工作台</button>
+
+<button type="submit">登录</button>
 </form>
+
 <p id="login-message" class="message" role="alert"></p>
 
 </section>
+</div>
 <section class="card" id="admin-panel" hidden>
-<h2>员工账号管理 <button type="button" class="page-help-button" data-help-target="login-admin-help">? 帮助</button></h2><div class="admin-tools"><a href="/app?tab=staff">员工名单</a><button id="refresh-staff" type="button">刷新名单</button></div><p class="hint">未开通的员工可直接创建账号；已有账号重置后，原密码会失效。新密码只显示一次，请私下交给员工。</p>
+<h2>员工账号管理</h2><div class="admin-tools"><a href="/app?tab=staff">员工名单</a><button id="refresh-staff" type="button">刷新名单</button></div>
 <form id="admin-form">
 <label>员工<select name="userId" required></select></label>
 <label>员工登录账号<input name="username" required maxlength="32" placeholder="可用员工姓名或自定名称"></label>
@@ -34,7 +38,7 @@
 <div id="issued" hidden><p>请把以下账号和密码私下交给员工：</p><p>账号：<strong id="issued-username"></strong></p><p>密码：<strong id="issued-password"></strong></p><div class="issued-actions"><button type="button" id="copy-issued">复制账号和密码</button><button type="button" id="hide-issued">收起密码</button></div></div>
 </section>
 <section class="card" id="account-panel" hidden>
-<h2>修改我的账号和密码 <button type="button" class="page-help-button" data-help-target="login-self-help">? 帮助</button></h2><p class="hint">密码至少10位；修改已有密码须填写原密码。</p>
+<h2>修改我的账号和密码</h2>
 <form id="self-form">
 <label>登录账号<input name="username" autocomplete="username" required maxlength="32"></label>
 <label id="old-password-label" hidden>原密码<div class="password-field"><input id="self-currentPassword" data-password-field name="currentPassword" type="password" autocomplete="current-password" maxlength="128"><button type="button" data-password-toggle="self-currentPassword" aria-pressed="false" aria-label="显示或隐藏原密码">显示</button></div></label>
@@ -46,5 +50,5 @@
 <div class="links"><a href="/m">返回工作台</a></div>
 </section>
 
-<template id="login-account-help" data-page-help-template="账号登录"><p>填写自己的登录账号和密码。账号由管理员分配；开单、收货、审核都会自动记录本人。忘记密码请找管理员重新设置。</p></template><template id="login-self-help" data-page-help-template="设置自己的登录账号"><p>首次设置后即可在手机浏览器直接登录。密码至少10位；已有密码时，修改须填写原密码。</p></template><template id="login-admin-help" data-page-help-template="管理员工账号"><p>老板为员工创建或重置账号。系统生成新密码，只在此处显示一次，请私下交给员工。重置后旧密码和该员工现有登录会失效。</p></template></main>
+</main>
 </body></html>

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>新办卡组合办理 · 移动业务</title><link rel="stylesheet" href="/mobile-card-bundles.css?v=20261028-v1"><script defer src="/mobile-card-bundles.js?v=20261028-v1"></script></head>
+<body><main class="page"><header><a href="/m">‹ 返回工作台</a><h1>新办卡组合办理</h1><p>移动业务 · 巴渝卡坐扣模式</p></header>
+<div id="load-state" role="status">正在读取门店业务与账户…</div>
+<div id="workspace" hidden><div class="columns"><div>
+<section class="card"><h2>办理信息</h2><form id="bundle-form"><div class="fields">
+<label>办理日期<input type="date" name="serviceDate" required></label>
+<label>资费档次<select name="tier" id="tier"><option value="19">19元档</option><option value="29">29元档</option><option value="39">39元档</option><option value="59">59元档</option></select></label>
+<label>新办号码<input type="tel" name="openedNumber" inputmode="numeric" maxlength="11" pattern="1[3-9][0-9]{9}" autocomplete="off" required placeholder="11位新办手机号"></label>
+<label>移动业务编号<input name="externalOrderNo" maxlength="80" autocomplete="off" required placeholder="业务办成后填写"></label>
+<label>号卡卡号／ICCID（如有）<input name="cardSerial" maxlength="100" autocomplete="off" placeholder="有实体卡号时登记"></label>
+<label>经办营业员／红包领取人<select name="employeeId" id="employee" required></select></label>
+</div><h3>逐项确认办成</h3><ul class="items"><li><label><input type="checkbox" data-completed-line="new_card">新办巴渝卡 <b>1张</b></label></li><li><label><input type="checkbox" data-completed-line="commitment_package">承诺套餐 <b>1笔</b></label></li><li><label><input type="checkbox" data-completed-line="huibayu_one">惠巴渝1元档 <b>1笔</b></label></li><li><label><input type="checkbox" data-completed-line="terminal_coupon">终端优惠券 <b>1笔</b></label></li></ul>
+<p class="hint">当前账套尚无号卡商品档案。本单记录办理事实和卡号，不自动扣减库存。</p>
+</section>
+<section class="card"><h2>顾客付款</h2><div class="fields"><label>实际收款码或现金账户<select name="paymentAccountId" id="account" form="bundle-form" required></select></label><label>收款流水／现金收讫说明<input name="receiptReference" form="bundle-form" maxlength="100" minlength="4" required placeholder="至少4字，须可核对"></label></div><label class="confirm"><input type="checkbox" id="confirmed" required form="bundle-form">我已核对业务办成和顾客付款凭据，确认登记本次实收</label><p class="hint">扫码付款按顾客实际使用的收款码选账户；现金选门店现金。登记后待老板对账，不代表账户持有人已核实到账。</p><button id="submit" type="submit" form="bundle-form">登记业务、实收并申请红包</button><p id="result" role="status"></p></section>
+</div><aside><section class="card amount"><h2>本单金额</h2><span>移动业务 · 顾客实收</span><strong id="customer-pay">¥70.00</strong><div class="line"><span>套餐月费档次</span><b id="selected-tier">19元档</b></div><div class="line"><span>营业员红包申请</span><b id="red-packet">¥20.00</b></div></section><section class="card"><h2>本页统计口径</h2><p>一张组合单只记一笔顾客实收。承诺套餐、惠巴渝和终端券计业务件数，不各记一笔收入。移动公司后续酬金与营业员报酬分开核对。</p></section></aside></div>
+<section class="card"><div class="section-head"><h2>移动业务统计</h2><button type="button" id="refresh">刷新</button></div><div class="scroll"><table><thead><tr><th>资费档次</th><th>办成单数</th><th>顾客实收</th><th>红包申请</th><th>已发红包</th></tr></thead><tbody id="summary"></tbody></table></div><p class="hint">已红冲或收款流水不完整的单据从实收统计中剔除，并保留原单供核查。</p></section>
+<section class="card"><h2>组合办理单</h2><div id="records"></div></section>
+</div></main></body></html>

@@ -3,19 +3,19 @@
 const {AsyncLocalStorage}=require('node:async_hooks'),{createHash}=require('node:crypto');
 const storage=new AsyncLocalStorage();
 const DEFINITIONS=Object.freeze({
- receptions:'JD',purchases:'JH',sales:'XS',receipts:row=>Number(row.amount)<0?'FK':'SK',
+ storeCashWalletTransfers:'HZ',receptions:'JD',purchases:'JH',sales:'XS',receipts:row=>Number(row.amount)<0?'FK':'SK',
  saleReturnRequests:row=>row.kind==='exchange'?'HS':'TS',saleReturns:'TH',saleExchanges:'HH',
- purchaseReturnRequests:'CS',purchaseReturns:'CT',redReversals:'HC',stockTransfers:'DB',
+ supplierExchanges:'GH',purchaseReturnRequests:'CS',purchaseReturns:'CT',redReversals:'HC',stockTransfers:'DB',
  stocktakes:'PD',closeouts:'JB',expenses:row=>row.redOf?'FH':'FY',otherIncome:row=>row.redOf?'SH':'SR',
  procurementPlans:'CG',supplierCash:'WL',supplierSettlements:'WJ',supplierAdjustments:'TJ',
- dailyCloseouts:'RJ',cashHandovers:'JJ',fundTransfers:'ZZ',workJournals:'GZ',
- conversionClaims:'ZH',assistCommissionAllocations:'XC',cardBusinesses:'KB',carrierServices:'YW',
+ mobileCoinClaims:'YJ',dailyCloseouts:'RJ',cashHandovers:'JJ',fundTransfers:'ZZ',workJournals:'GZ',
+ conversionClaims:'ZH',assistCommissionAllocations:'XC',cardBusinesses:'KB',carrierServices:'YW',mobileCardBundles:'BY',
  govSubsidyClaims:'GB',payrollStatements:'GZJ',payrollAdjustments:'GZT',productPriceChanges:'SJ',
  usedPhoneAssessments:'ES',dutyAssignments:'QJ',learningRecords:'XX',airRechargeEvents:'KC',cardEvents:'KE',giftApprovals:'ZS',giftOrders:'ZP',receptionAssists:'XZ',supplierEntries:'WE'
 });
 const ID_FIELDS=new Set(['id','orderId','sourceId','purchaseId','receptionId','returnId','newOrderId','requestId','originalReceiptId','expenseId','settlementId','planId','referenceId','closeoutId','transferId','journalId','sourceOrderId','originalStatementId','giftId','assistId','resolved','sourceReceptionId','targetReceptionId','businessId']);
 const TEXT_FIELDS=new Set(['message','answer','reply','label','summary','title','detail','basis','reason','usageNote']);
-const aliasPattern=/\b(?:GZJ|GZT|JD|JH|XS|FK|SK|HS|TS|TH|HH|CS|CT|HC|DB|PD|JB|FH|FY|SH|SR|CG|WL|WJ|TJ|RJ|JJ|ZZ|GZ|ZH|XC|KB|YW|GB|SJ|ES|QJ|XX|KC|KE|ZS|ZP|XZ|WE)-\d{6}-\d{3,}\b/gi;
+const aliasPattern=/\b(?:GH|HZ|YJ|GZJ|GZT|JD|JH|XS|FK|SK|HS|TS|TH|HH|CS|CT|HC|DB|PD|JB|FH|FY|SH|SR|CG|WL|WJ|TJ|RJ|JJ|ZZ|GZ|ZH|XC|KB|YW|BY|GB|SJ|ES|QJ|XX|KC|KE|ZS|ZP|XZ|WE)-\d{6}-\d{3,}(?:-\d{2,})?\b/gi;
 function fail(message){const {HttpError}=require('./http');throw new HttpError(409,message);}
 function run(work){return storage.run({rows:[]},work);}
 function remember(store){const scope=storage.getStore();if(scope)scope.rows=store.documentNumbers||[];}
@@ -32,6 +32,18 @@ function existingHuman(collection,row){
  if(collection==='workJournals'&&/^GZ\d{11,}$/.test(String(row.displayNo||'')))return row.displayNo;
  return '';
 }
+function saleReceiptNo(store,row,index){
+ if(row.kind!=='sale'||Number(row.amount)<=0)return '';
+ const sale=(store.sales||[]).find(x=>x.id===row.sourceId);if(!sale)return '';
+ const saleNo=index.bySource.get(key('sales',sale.id))?.displayNo||sale.displayNo||existingHuman('sales',sale);
+ const match=/^(?:SO|XS)-(\d{6,8})-(\d{3,})$/i.exec(String(saleNo||''));if(!match)return '';
+ const base='SK-'+match[1]+'-'+match[2],parts=(store.receipts||[]).filter(x=>x.kind==='sale'&&x.sourceId===sale.id&&Number(x.amount)>0),position=parts.findIndex(x=>x.id===row.id)+1;
+ if(!position)return '';
+ if(position===1&&!index.byAlias.has(base.toUpperCase()))return base;
+ let serial=position===1?1:position,number;
+ do{number=base+'-'+String(serial++).padStart(2,'0');}while(index.byAlias.has(number.toUpperCase()));
+ return number;
+}
 function indexes(store){
  const bySource=new Map(),byAlias=new Map();
  for(const row of store.documentNumbers||[]){
@@ -45,7 +57,7 @@ function assign(store,collection,row,index=indexes(store)){
  if(!row||typeof row.id!=='string'||!row.id)fail('单据缺少稳定编号');
  const sourceKey=key(collection,row.id),old=index.bySource.get(sourceKey);if(old)return old.displayNo;
  const human=existingHuman(collection,row),code=prefix(collection,row),day=dateKey(row);
- let displayNo=human;
+ let displayNo=human||(collection==='receipts'?saleReceiptNo(store,row,index):'');
  if(!displayNo){
   let sequence=0;
   if(!Number.isSafeInteger(sequence)||sequence<0)fail('单据短号计数资料不正确');
@@ -58,7 +70,10 @@ function assign(store,collection,row,index=indexes(store)){
 }
 function rowsFor(store,name){return name==='giftOrders'?(store.sales||[]).flatMap(order=>(order.giftOrders||[]).map(row=>row.createdAt?row:{...row,createdAt:order.createdAt,dateOrigin:'parent-sale-createdAt'})):name==='receptionAssists'?(store.receptions||[]).flatMap(row=>row.assists||[]):store[name]||[];}
 function capture(store){indexes(store);return {...Object.fromEntries(Object.keys(DEFINITIONS).map(name=>[name,new Set(rowsFor(store,name).map(row=>row.id))])),registry:structuredClone(store.documentNumbers||[])};}
+const restoredStores=new WeakSet();
+function markRestored(store){indexes(store);restoredStores.add(store);}
 function commitNew(store,before){
+ if(restoredStores.delete(store)){const index=indexes(store);for(const name of Object.keys(DEFINITIONS))for(const row of rowsFor(store,name))assign(store,name,row,index);remember(store);return;}
  const current=indexes(store);
  for(const entry of before.registry||[]){const found=current.bySource.get(entry.id);if(found&&JSON.stringify(found)!==JSON.stringify(entry))fail('单据短号登记只能追加，不可更改历史');if(!found){store.documentNumbers ||= [];store.documentNumbers.push(structuredClone(entry));}}
  const index=indexes(store);
@@ -109,7 +124,8 @@ function project(payload,store){
  return visit(payload,'');
 }
 
-const HREFS={receptions:'/receptions',purchases:'/app?tab=purchase',sales:'/app?tab=orders',saleReturnRequests:'/app?tab=returns',saleReturns:'/app?tab=returns',saleExchanges:'/app?tab=returns',purchaseReturnRequests:'/app?tab=purchase',purchaseReturns:'/app?tab=purchase',redReversals:'/app?tab=red',stockTransfers:'/app?tab=inventory',stocktakes:'/stocktake',expenses:'/app?tab=payments',otherIncome:'/app?tab=receipts',procurementPlans:'/app?tab=purchase',supplierCash:'/app?tab=suppliers',supplierSettlements:'/app?tab=suppliers',supplierAdjustments:'/app?tab=suppliers',supplierEntries:'/app?tab=suppliers',dailyCloseouts:'/daily-close',closeouts:'/close',cashHandovers:'/cash-handover',fundTransfers:'/app?tab=finance',workJournals:'/work-journal',conversionClaims:'/receptions',assistCommissionAllocations:'/receptions',cardBusinesses:'/app?tab=cards',carrierServices:'/carrier',govSubsidyClaims:'/subsidy',payrollStatements:'/app?tab=payroll',payrollAdjustments:'/app?tab=payroll',productPriceChanges:'/app?tab=products',learningRecords:'/learning',airRechargeEvents:'/daily-close',cardEvents:'/app?tab=cards',giftApprovals:'/gift-approvals',giftOrders:'/app?tab=orders',receptionAssists:'/receptions'};
+const HREFS={supplierExchanges:'/supplier-exchanges',storeCashWalletTransfers:'/store-transfer',mobileCoinClaims:'/mobile-coin-claims',receptions:'/receptions',purchases:'/app?tab=purchase',sales:'/app?tab=orders',saleReturnRequests:'/app?tab=returns',saleReturns:'/app?tab=returns',saleExchanges:'/app?tab=returns',purchaseReturnRequests:'/app?tab=purchase',purchaseReturns:'/app?tab=purchase',redReversals:'/app?tab=red',stockTransfers:'/app?tab=inventory',stocktakes:'/stocktake',expenses:'/app?tab=payments',otherIncome:'/app?tab=receipts',procurementPlans:'/app?tab=purchase',supplierCash:'/app?tab=suppliers',supplierSettlements:'/app?tab=suppliers',supplierAdjustments:'/app?tab=suppliers',supplierEntries:'/app?tab=suppliers',dailyCloseouts:'/daily-close',closeouts:'/close',cashHandovers:'/cash-handover',fundTransfers:'/app?tab=finance',workJournals:'/work-journal',conversionClaims:'/receptions',assistCommissionAllocations:'/receptions',cardBusinesses:'/app?tab=cards',carrierServices:'/carrier',govSubsidyClaims:'/subsidy',payrollStatements:'/app?tab=payroll',payrollAdjustments:'/app?tab=payroll',productPriceChanges:'/app?tab=products',learningRecords:'/learning',airRechargeEvents:'/daily-close',cardEvents:'/app?tab=cards',giftApprovals:'/gift-approvals',giftOrders:'/app?tab=orders',receptionAssists:'/receptions'};
+HREFS.mobileCardBundles='/mobile-card-bundles';
 function readable(store,user,name,row){
  const c=require('./common'),actual=c.userById(store,user.id),caps=c.capabilities(actual);
  if(actual.assistantCustomerOnly||actual.roleCode==='customer-assistant')return false;
@@ -117,7 +133,9 @@ function readable(store,user,name,row){
  switch(name){
   case 'receptions':return has(require('./receptions').list(store,actual).rows);
   case 'receptionAssists':return require('./receptions').list(store,actual).rows.some(parent=>(parent.assists||[]).some(assist=>assist.id===row.id));
+  case 'mobileCoinClaims':return require('./mobile-coin-claims').visible(row,actual);
   case 'sales':return has(require('./erp').orders(store,actual));
+  case 'supplierExchanges':return has(require('./supplier-exchanges').list(store,actual,new URLSearchParams()).rows);
   case 'purchases':return has(require('./suppliers').purchaseRows(store,actual));
   case 'receipts':case 'expenses':case 'otherIncome':return has(require('./erp').finance(store,actual)[name]);
   case 'saleReturnRequests':return has(require('./sale-return-requests').list(store,actual));
@@ -132,6 +150,7 @@ function readable(store,user,name,row){
   }
   case 'dailyCloseouts':return has(require('./daily-close').list(store,actual));
   case 'closeouts':return has(require('./closeouts').closeouts(store,actual));
+  case 'storeCashWalletTransfers':return has(require('./store-transfer').list(store,actual).rows);
   case 'cashHandovers':return has(require('./cash-handovers').list(store,actual));
   case 'fundTransfers':return has(require('./funds-network').listTransfers(store,actual));
   case 'workJournals':return has(require('./work-journal').list(store,actual));
@@ -139,6 +158,7 @@ function readable(store,user,name,row){
   case 'assistCommissionAllocations':return actual.roleCode==='owner';
   case 'cardBusinesses':return has(require('./erp').cards(store,actual).rows);
   case 'carrierServices':return has(require('./carrier-rentals').list(store,actual));
+  case 'mobileCardBundles':return has(require('./mobile-card-bundles').list(store,actual).rows);
   case 'govSubsidyClaims':return has(require('./gov-subsidy').claims(store,actual));
   case 'payrollStatements':case 'payrollAdjustments':{const data=require('./payroll').getPayroll(store,actual,row.month,row.employeeId);return has(name==='payrollStatements'?data.rows:data.adjustments);}
   case 'productPriceChanges':return has(require('./product-pricing').list(store,actual));
@@ -159,7 +179,7 @@ function lookup(store,user,value){
  let allowed=false;try{allowed=readable(structuredClone(store),user,entry.collection,row);}catch(error){if(![400,403,404].includes(error.statusCode))throw error;}
  if(!allowed)return missing();
  const queryId=entry.collection==='receptionAssists'?(store.receptions||[]).find(parent=>(parent.assists||[]).some(assist=>assist.id===row.id))?.id||row.id:entry.collection==='giftOrders'?(store.sales||[]).find(order=>(order.giftOrders||[]).some(gift=>gift.id===row.id))?.id||row.id:row.id;
- const href=entry.collection==='receipts'?'/app?tab='+(Number(row.amount)<0?'payments':'receipts'):HREFS[entry.collection]||'/search',join=href.includes('?')?'&':'?',parameter=['receptions','receptionAssists'].includes(entry.collection)?'highlight':'q';
+ const href=entry.collection==='receipts'?'/app?tab='+(Number(row.amount)<0?'payments':'receipts'):HREFS[entry.collection]||'/search',join=href.includes('?')?'&':'?',parameter=entry.collection==='supplierExchanges'?'id':['receptions','receptionAssists'].includes(entry.collection)?'highlight':'q';
  return {id:row.id,displayNo:entry.displayNo,collection:entry.collection,kind:prefix(entry.collection,row),createdAt:entry.originalDate,href:href+join+parameter+'='+encodeURIComponent(queryId)};
 }
 function questionLookup(store,user,question){
@@ -168,4 +188,4 @@ function questionLookup(store,user,question){
  let doc;try{doc=lookup(store,user,matches[0]);}catch(error){if(error.statusCode!==404)throw error;return {answer:'未找到可查询的单据，请核对号码或当前门店。',sources:[],metrics:{kind:'document-query',matchedCount:0}};}return {answer:'找到单据 '+doc.displayNo+'，点“查看单据”核对明细。',sources:[{label:'查看单据',id:doc.id,displayNo:doc.displayNo,href:doc.href}],metrics:{kind:'document-query',matchedCount:1,collection:doc.collection}};
 }
 
-module.exports={lookup,questionLookup,rowsFor,DEFINITIONS,run,remember,capture,commitNew,previewBackfill,backfill,resolve,queryParams,input,project};
+module.exports={markRestored,lookup,questionLookup,rowsFor,DEFINITIONS,run,remember,capture,commitNew,previewBackfill,backfill,resolve,queryParams,input,project};

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#1b5663">
+  <title>我的财务 · 聚友通信城</title>
+  <link rel="stylesheet" href="/my-finance.css?v=20261028-v2">
+  <script src="/my-finance.js?v=20261028-v2" defer></script>
+</head>
+<body>
+<main class="mf-page">
+  <header class="mf-header">
+    <a class="mf-back" href="/m">返回工作台</a>
+    <h1>我的财务</h1>
+  </header>
+
+  <section class="mf-identity" aria-label="本人财务范围">
+    <div>
+      <p id="mf-person" class="mf-person">正在读取本人资料…</p>
+      <p class="mf-scope">先看本人待处理账务，已完成记录在“查流水”查看</p>
+      <p id="mf-start-note" class="mf-start-note">默认只看2026-10-28起的账；此前记录全部留在历史。</p>
+    </div>
+    <div class="mf-identity-actions">
+      <p id="mf-asof" class="mf-asof"></p>
+      <button id="mf-refresh" class="mf-button mf-button-quiet" type="button">刷新</button>
+    </div>
+  </section>
+
+  <div id="mf-message" class="mf-message" role="status" aria-live="polite">正在读取本人财务，请稍候…</div>
+  <div id="mf-error" class="mf-error" role="alert" hidden>
+    <p id="mf-error-text"></p>
+    <div class="mf-error-actions">
+      <button id="mf-retry" class="mf-button" type="button">重新读取</button>
+      <a id="mf-login" href="/login?next=%2Fmy-finance" hidden>重新登录</a>
+      <a href="/m">返回工作台</a>
+    </div>
+  </div>
+
+  <div id="mf-content" hidden>
+    <section class="mf-dashboard" aria-labelledby="mf-dashboard-title">
+      <h2 id="mf-dashboard-title" class="mf-dashboard-title">本人收付与待付</h2>
+      <nav id="mf-scopes" class="mf-views" aria-label="统计范围">
+        <button type="button" data-scope="day" aria-pressed="true">当日</button>
+        <button type="button" data-scope="all" aria-pressed="false">全部累计</button>
+      </nav>
+      <form id="mf-period-filter" class="mf-dashboard-filter">
+        <div class="mf-date-range">
+          <label>开始日期<input id="mf-from" name="from" type="date" required></label>
+          <label>结束日期<input id="mf-to" name="to" type="date" required></label>
+          <button id="mf-today" class="mf-button mf-button-quiet" type="button">回到今天</button>
+          <button id="mf-period-query-button" class="mf-button mf-button-primary" type="submit">查询日期</button>
+        </div>
+        <p id="mf-filter-error" class="mf-field-error" role="alert" hidden></p>
+      </form>
+      <p id="mf-period-label" class="mf-dashboard-period"></p>
+      <div id="mf-dashboard-cards" class="mf-dashboard-grid"></div>
+      <p class="mf-dashboard-note">付款、非现金收款和红包按原单登记统计；交来现金只计本人已确认收到的金额。</p>
+      <p id="mf-scope-note" class="mf-dashboard-note">当日只统计所选日期的收付登记；全部累计包含历史。未核实不表示未付款或未收款。</p>
+    </section>
+    <nav id="mf-views" class="mf-views" aria-label="本人财务视图">
+      <button type="button" data-view="pending" aria-pressed="true">待处理</button>
+      <button type="button" data-view="history" aria-pressed="false">查流水</button>
+    </nav>
+    <details id="mf-warnings" class="mf-warnings" hidden>
+      <summary id="mf-warnings-title">查看核对提示与凭据</summary>
+      <ul id="mf-warning-list"></ul>
+    </details>
+    <section id="mf-open-section" class="mf-open-section" aria-labelledby="mf-open-title">
+      <div class="mf-section-heading">
+        <div>
+          <h2 id="mf-open-title">尚未处理／未平衡</h2>
+          <p id="mf-open-scope-note">当日视图只跟进2026-10-28起未处理项目；全部历史请切换全部累计。</p>
+        </div>
+      </div>
+      <div id="mf-open-summary" class="mf-open-summary"></div>
+      <div class="mf-open-tools">
+        <nav id="mf-open-categories" class="mf-open-categories" aria-label="待处理类别">
+          <button type="button" data-open-category="all" aria-pressed="true">全部未处理</button>
+          <button type="button" data-open-category="responsibility" aria-pressed="false">本人挂账</button>
+          <button type="button" data-open-category="confirmation" aria-pressed="false">待确认</button>
+          <button type="button" data-open-category="redPackets" aria-pressed="false">红包待办</button>
+        </nav>
+        <div class="mf-open-range"><label>查看范围<select id="mf-open-period"><option value="all">10月28日起未处理</option><option value="today">今日发生</option></select></label></div>
+        <form id="mf-open-search" class="mf-search-row">
+          <label>查找未处理项目<input id="mf-open-query" type="search" maxlength="160" placeholder="单号、账户、经办人或凭据"></label>
+          <button id="mf-open-query-button" class="mf-button mf-button-primary" type="submit">查询</button>
+        </form>
+      </div>
+      <div class="mf-results-heading"><h3 id="mf-open-label">全部未处理</h3><p id="mf-open-count"></p></div>
+      <p class="mf-section-note mf-open-note">同一笔钱可能关联挂账和交接，请按原单核对。</p>
+      <div id="mf-open-list" class="mf-record-list mf-open-list"></div>
+    </section>
+
+    <section id="mf-history-section" class="mf-history-section" aria-labelledby="mf-period-title" hidden>
+      <div class="mf-section-heading">
+        <div>
+          <h2 id="mf-period-title">查流水</h2>
+          <p>已登记收付、经手门店款和内部交接分别查看。</p>
+        </div>
+      </div>
+
+      <form id="mf-filter" class="mf-filter">
+        <div class="mf-search-row">
+          <label>查找记录<input id="mf-query" name="q" type="search" maxlength="160" placeholder="单号、账户、经办人或凭据"></label>
+          <button id="mf-query-button" class="mf-button mf-button-primary" type="submit">查询明细</button>
+        </div>
+      </form>
+
+      <p class="mf-period-summary-note">期间汇总不随明细搜索改变。<a id="mf-earlier-history" href="/my-finance?scope=all&view=history">切换全部累计，查询历史流水</a></p>
+      <div id="mf-period-summary" class="mf-period-summary"></div>
+
+      <nav id="mf-categories" class="mf-categories" aria-label="明细类别">
+        <button type="button" data-category="all" aria-pressed="true">全部 <span data-count="all"></span></button>
+        <button type="button" data-category="flows" aria-pressed="false">本人收支登记 <span data-count="flows"></span></button>
+        <button type="button" data-category="custody" aria-pressed="false">经手门店款 <span data-count="custody"></span></button>
+        <button type="button" data-category="transfers" aria-pressed="false">内部交接 <span data-count="transfers"></span></button>
+        <button type="button" data-category="redPackets" aria-pressed="false">红包 <span data-count="redPackets"></span></button>
+      </nav>
+
+      <div class="mf-results-heading">
+        <h3 id="mf-results-title" tabindex="-1">全部明细</h3>
+        <p id="mf-result-count"></p>
+      </div>
+      <p id="mf-category-note" class="mf-section-note"></p>
+      <div id="mf-records" class="mf-record-list" aria-live="polite"></div>
+      <nav id="mf-pages" class="mf-pages" aria-label="明细分页"></nav>
+    </section>
+
+  </div>
+</main>
+</body>
+</html>

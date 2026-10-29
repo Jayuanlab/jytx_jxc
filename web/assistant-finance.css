@@ -1,0 +1,24 @@
+*{box-sizing:border-box}body{margin:0;background:#eef6fa;color:#1b3b50;font:16px/1.6 system-ui,"Microsoft YaHei",sans-serif}header,main{max-width:1000px;margin:auto;padding:16px}header{display:flex;align-items:center;justify-content:space-between;gap:12px}h1{font-size:24px;margin:0}h2{font-size:20px;margin:0 0 12px}h3{font-size:17px;margin:0 0 8px}a{color:#216d9d}button{background:#287fae;color:white;border:0;border-radius:12px;padding:10px 16px;font:inherit;cursor:pointer}button:disabled{opacity:.55;cursor:wait}.toolbar{display:flex;align-items:end;gap:12px}.card{background:#fff;border-radius:20px;padding:20px;margin:14px 0;overflow-wrap:anywhere}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.cards .card{margin:0}.amount{font-size:28px;font-weight:700;color:#1d6996}dl{display:grid;grid-template-columns:1fr auto;gap:6px 12px;margin:10px 0}dd{margin:0}label{display:block;margin:8px 0}input,textarea,select{display:block;width:100%;max-width:500px;border:1px solid #b9cfdb;border-radius:10px;padding:10px;font:inherit;background:white;color:inherit}textarea{min-height:90px}.rows{width:100%;border-collapse:collapse;font-size:14px}.rows th,.rows td{text-align:left;padding:8px;border-bottom:1px solid #dfebf1}.scroll{overflow:auto}.warn{color:#9b4f00}.ok{color:#23654b}.sub{font-size:14px;color:#507084}details>summary{cursor:pointer;font-weight:700}.record{padding:10px 0;border-bottom:1px solid #e4edf2}[hidden]{display:none!important}@media(max-width:500px){header{flex-wrap:wrap}h1{font-size:22px}.card{padding:16px}.amount{font-size:25px}.cards{gap:10px}}@media print{body{background:white}button,form,#owner,#count-form,.toolbar{display:none!important}header,main{padding:0}.card{break-inside:avoid;border:1px solid #ddd}details{display:block}.scroll{overflow:visible}.rows{font-size:11px}}
+
+/* Keep this report readable under the existing mobile large-text defaults. */
+html body#assistant-finance-root.assistant-finance-page{font-size:16px!important;line-height:1.6!important}
+html body#assistant-finance-root.assistant-finance-page :is(p,label,dt,dd,summary,td,th){font-size:16px!important;line-height:1.5!important}
+html body#assistant-finance-root.assistant-finance-page :is(button,input,textarea,select){font-size:16px!important;line-height:1.5!important;min-height:42px!important}
+html body#assistant-finance-root.assistant-finance-page h1{font-size:22px!important;line-height:1.4!important}
+html body#assistant-finance-root.assistant-finance-page h2{font-size:20px!important;line-height:1.4!important}
+html body#assistant-finance-root.assistant-finance-page .amount{font-size:26px!important;line-height:1.5!important}
+html body#assistant-finance-root.assistant-finance-page header{display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:8px!important}
+html body#assistant-finance-root.assistant-finance-page header :is(a,button){font-size:14px!important;min-height:36px!important;white-space:nowrap}
+html body#assistant-finance-root.assistant-finance-page header .assistant-entry-home-slot{display:none!important}
+html body#assistant-finance-root.assistant-finance-page header .assistant-brand-actions{display:contents!important}
+html body#assistant-finance-root.assistant-finance-page .toolbar{display:flex!important;align-items:end!important;gap:10px!important}
+html body#assistant-finance-root.assistant-finance-page .toolbar label{flex:1;min-width:0;margin:0}
+html body#assistant-finance-root.assistant-finance-page .toolbar button{white-space:nowrap!important;flex:none}
+html body#assistant-finance-root.assistant-finance-page .toolbar input{width:100%!important;min-width:0!important}
+html body#assistant-finance-root.assistant-finance-page .sub{font-size:14px!important}
+
+@media(max-width:540px){html body#assistant-finance-root.assistant-finance-page .cards{grid-template-columns:1fr!important}html body#assistant-finance-root.assistant-finance-page .toolbar input{font-size:16px!important}}
+.action-feedback{min-height:1.5em;margin:8px 0 0;color:#23654b;line-height:1.5}
+.action-feedback.error{color:#a13333}
+html body#assistant-finance-root.assistant-finance-page :is(button,input,textarea,select){min-height:44px!important}
+html body#assistant-finance-root.assistant-finance-page header :is(a,button),html body#assistant-finance-root.assistant-finance-page details>summary{display:flex;align-items:center;min-height:44px!important}

@@ -196,8 +196,6 @@ async function testPlanReceiptFlow() {
   });
   const supplierDetail = load("supplier-detail", { id: supplier.id });
   await supplierDetail.reload();
-  await api.post("/api/procurement-plans/payment-review", {id:cancelled.id,decision:"approve",approvedAmount:2000,reason:"测试核实订货批准付款"});
-  await supplierDetail.reload();
   supplierDetail.edit(tap("kind", "payment"));
   supplierDetail.dueSelection({
     detail: { value: [supplierDetail.data.targets[0].id] },

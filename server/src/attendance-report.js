@@ -76,7 +76,7 @@ function report(store, user, month = c.month(), {at = c.now()} = {}) {
   const inMonth = date => validDate(date) && date.startsWith(month + '-');
   function dayFor(userId, date, name) {
     const key = userId + '/' + date;
-    if (!days.has(key)) days.set(key, {date, userId, name: nameFor(userId, name), status: 'normal', closedWorkSeconds: 0, fieldworkSeconds: 0, isWorking: false, workingCount: 0, missingCheckoutCount: 0, locationPendingCount: 0, spotCheckUnansweredCount: 0, spotCheckOverdueCount: 0, late: null, early: null, absence: null, issues: [], locations: [], attendanceIds: [], _closed: [], _fieldwork: [], _unverified: [], _attended: false});
+    if (!days.has(key)) days.set(key, {date, userId, name: nameFor(userId, name), status: 'normal', closedWorkSeconds: 0, fieldworkSeconds: 0, isWorking: false, workingCount: 0, missingCheckoutCount: 0, locationPendingCount: 0, spotCheckUnansweredCount: 0, spotCheckOverdueCount: 0, late: null, early: null, absence: null, issues: [], locations: [], punches: [], attendanceIds: [], _closed: [], _fieldwork: [], _unverified: [], _attended: false});
     return days.get(key);
   }
   function issue(userId, date, name, code, message, recommendation, extra = {}) {
@@ -115,7 +115,7 @@ function report(store, user, month = c.month(), {at = c.now()} = {}) {
     else ids.set(row.id, row);
     const shift = {row, start, end, date, closed: !!row.checkOutAt && Number.isFinite(start) && Number.isFinite(end) && end >= start && end <= now}; shifts.push(shift);
     if (inMonth(date)) {
-      const day = dayFor(row.userId, date, row.name); includeRow(day, row);
+      const day = dayFor(row.userId, date, row.name); includeRow(day, row); if (!day.punches.some(punch => punch.attendanceId === row.id)) day.punches.push({attendanceId: row.id, checkInAt: row.checkInAt || null, checkOutAt: row.checkOutAt || null, checkOutSource: row.checkOutSource || null, autoCheckout: row.autoCheckout || null});
       if (Number.isFinite(start) && start <= now) day._attended = true;
       if (!Number.isFinite(start) || start > now) issue(row.userId, date, row.name, 'invalid-checkin-time', '签到时间无效或晚于报告时间', '核对原签到时间，不补算工作时长', {attendanceId: row.id});
       if (validDate(row.date) && row.date !== date) issue(row.userId, date, row.name, 'attendance-date-mismatch', '签到日期与实际签到时间不一致', '按原始时间核对记录；月报不改原签到日期', {attendanceId: row.id, sourceDate: row.date});
@@ -209,6 +209,6 @@ function report(store, user, month = c.month(), {at = c.now()} = {}) {
   return {period: {month, startDate: period.startDate, endDate: period.endDate}, asOf: at, privileged, summary, employees, days: publicDays, issues: allIssues,
     analysis: {summary: summary.attendedDays ? `本月记录 ${summary.attendedDays} 人天；闭合工作记录 ${durationText(summary.closedWorkSeconds)}（其中待核 ${durationText(summary.unverifiedClosedWorkSeconds)}），已包含闭合外勤 ${durationText(summary.fieldworkSeconds)}；${summary.needsReviewDays} 个员工日期有待核对事项。` : '本月暂无有效签到或闭合工作片段，不能判定出勤或缺勤。', recommendations},
     settings: {scheduleConfigured: false, continuousShiftReviewHours: 24, coordinateSystem: 'WGS84', locationPolicy: {...LOCATION_POLICY}, usesHistoricalLocationSettings: true},
-    limitations: ['未设置有效排班、休息日和宽限规则，迟到、早退、旷工均不作判定；无签到记录不等于缺勤。', '出勤天数是有签到或闭合跨日工作片段的不同日期；总览是员工人天之和。', '连续超过24小时或相互重叠的班次单列待核时长，阈值仅作筛查线索，不代表核薪结论。', '只统计已闭合班次；今日进行中或历史未签退均不估计工时。未签退归签到所在月。', '外勤只计有结束时间且在闭合关联班次内的区间，重叠按并集合并，已包含在工作总时长中。', '定位按当时设置快照和精度范围判定，手机定位不证明实际到店，也不防定位伪造；外勤不要求在门店。', '补定位只说明后来的位置，不覆盖或证明首次签到位置；人工核对单独标示，不改自动证据。', '本报告为确定性事实统计，不调用模型、不生成评分、不自动修改工资或经营数据。']};
+    limitations: ['当日值班仅说明岗位和时段；休息日与宽限规则尚未纳入考勤报告，迟到、早退、旷工均不作判定；无签到记录不等于缺勤。', '出勤天数是有签到或闭合跨日工作片段的不同日期；总览是员工人天之和。', '连续超过24小时或相互重叠的班次单列待核时长，阈值仅作筛查线索，不代表核薪结论。', '只统计已闭合班次；今日进行中或历史未签退均不估计工时。未签退归签到所在月。', '外勤只计有结束时间且在闭合关联班次内的区间，重叠按并集合并，已包含在工作总时长中。', '定位按当时设置快照和精度范围判定，手机定位不证明实际到店，也不防定位伪造；外勤不要求在门店。', '补定位只说明后来的位置，不覆盖或证明首次签到位置；人工核对单独标示，不改自动证据。', '本报告为确定性事实统计，不调用模型、不生成评分、不自动修改工资或经营数据。']};
 }
 module.exports = {report, classifyLocation, merge, periodFor};

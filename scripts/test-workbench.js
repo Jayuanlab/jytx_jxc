@@ -23,7 +23,7 @@ const store={
 };
 const boss=summary(store,owner),employee=summary(store,staff);
 assert.equal(boss.pendingCount,14);
-assert.deepEqual(boss.reviews,{assistantFeedback:0,assistantReports:0,dutyReview:0,usedPhoneReview:0,workJournal:0,reception:1,assist:1,wechat:1,conversion:1,learning:1,closeout:1,closeoutRevision:1,dailyClose:1,dailyReview:1,cashHandover:1,fundTransfer:1,fundTransferDispute:1,cashDispute:1,procurement:1,procurementPaymentReview:0,expenseRed:0,productPrice:0,salePayments:0,salePaymentDisputes:0,serialStocktake:0,giftApprovals:0});
+assert.deepEqual(boss.reviews,{reception:1,assist:1,wechat:1,conversion:1,learning:1,closeout:1,closeoutRevision:1,dailyClose:1,dailyReview:1,cashHandover:1,fundTransfer:1,fundTransferDispute:1,cashDispute:1,procurement:1});
 assert.equal(employee.pendingCount,5);
 assert.deepEqual(employee.reviews,{});
 assert.equal(employee.followups,1);

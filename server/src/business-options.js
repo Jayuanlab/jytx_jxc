@@ -3,7 +3,6 @@ const c = require('./common');
 const own = (object,key) => Object.prototype.hasOwnProperty.call(object,key);
 const SUB_NAMES = {new:'新开卡',replace:'补卡',topup:'话费充值',fusion:'融合宽带',other:'其他',up:'套餐升档',down:'套餐降档',device:'设备绑合约',unknown:'未分类／未设置细类'};
 const GROUPS = {receptionSource:'接待来源',receptionPurpose:'接待来意'};
-const CARD_PORT_IN = {id:'portIn',name:'携号转网开卡',baseSubType:'new',custom:false,builtin:true};
 function bad(message) { throw new c.HttpError(400,message); }
 function actor(store,user) {
   const actual = c.userById(store,user?.id);
@@ -20,13 +19,9 @@ function text(value,label,max) {
 }
 const key = value => value.normalize('NFKC').replace(/\s+/g,' ').trim().toLowerCase();
 function custom(store) { return store.businessOptions || []; }
-function nameOverride(store,kind,id,parentId) {
-  return custom(store).find(row=>row.kind==='nameOverride'&&row.optionKind===kind&&row.optionId===id&&(row.parentId||null)===(parentId||null));
-}
-function displayName(store,kind,id,parentId,fallback) { return nameOverride(store,kind,id,parentId)?.name || fallback; }
 function typeFor(store,id) {
   const {types} = bases();
-  if (own(types,id)) return {id,name:displayName(store,'type',id,null,types[id]),baseType:id,custom:false,builtin:true};
+  if (own(types,id)) return {id,name:types[id],baseType:id,custom:false};
   const row = custom(store).find(item=>item.kind==='type'&&item.id===id);
   if (!row || !(own(types,row.baseType)||row.baseType==='other')) bad('业务类型不存在，请重新选择');
   return {id:row.id,name:row.name,baseType:row.baseType,custom:true};
@@ -34,15 +29,7 @@ function typeFor(store,id) {
 function canonicalSubTypes(baseType) { return bases().subTypes[baseType] || ['unknown']; }
 function subName(baseType,id) { return id==='other' ? (baseType==='broadband'?'其他宽带':'其他套餐变更') : SUB_NAMES[id]; }
 function subTypes(store,type) {
-  const customRows=custom(store).filter(row=>row.kind==='subType'&&row.parentId===type.id).map(row=>({id:row.id,name:row.name,baseSubType:row.baseSubType,custom:true}));
-  const defaults=canonicalSubTypes(type.baseType).map(id=>({id,name:displayName(store,'subType',id,type.id,subName(type.baseType,id)),baseSubType:id,custom:false,builtin:true}));
-  if(type.baseType==='card') {
-    const port={...CARD_PORT_IN,name:displayName(store,'subType',CARD_PORT_IN.id,type.id,CARD_PORT_IN.name)};
-    // A pre-existing custom option with this name remains usable under its original ID.
-    // GET never seeds or rewrites the directory or historical business records.
-    if(!customRows.some(row=>key(row.name)===key(port.name))) defaults.splice(Math.min(2,defaults.length),0,port);
-  }
-  return [...defaults,...customRows];
+  return [...canonicalSubTypes(type.baseType).map(id=>({id,name:subName(type.baseType,id),baseSubType:id,custom:false})),...custom(store).filter(row=>row.kind==='subType'&&row.parentId===type.id).map(row=>({id:row.id,name:row.name,baseSubType:row.baseSubType,custom:true}))];
 }
 function list(store,user) {
   const actual=actor(store,user), {types,subTypes:subBases}=bases();
@@ -50,44 +37,16 @@ function list(store,user) {
   const baseTypes=[...Object.entries(types).map(([id,name])=>({id,name})),{id:'other',name:'其他业务（仅分月酬金）'}];
   const baseSubTypes=Object.fromEntries([...Object.keys(subBases),'other'].map(type=>[type,canonicalSubTypes(type).map(id=>({id,name:subName(type,id)}))]));
   const groups=Object.fromEntries(Object.keys(GROUPS).map(kind=>[kind,custom(store).filter(row=>row.kind===kind).map(({id,name})=>({id,name}))]));
-  const canCreate=c.capabilities(actual).sell===true;
-  return {types:rows.map(row=>({...row,subTypes:subTypes(store,row)})),baseTypes,baseSubTypes,groups,canCreate,canEdit:canCreate,canCreateReception:canCreate};
+  return {types:rows.map(row=>({...row,subTypes:subTypes(store,row)})),baseTypes,baseSubTypes,groups,canCreate:c.capabilities(actual).catalogAdd===true,canCreateReception:c.capabilities(actual).catalogAdd===true};
 }
 function validatePayload(payload) {
   if (!payload || typeof payload!=='object' || Array.isArray(payload)) bad('新增业务选项须为对象');
   if (!['type','subType',...Object.keys(GROUPS)].includes(payload.kind)) bad('仅可新增业务类型、细类、接待来源或来意');
   const allowed = payload.kind==='type'?['kind','name','baseType']:payload.kind==='subType'?['kind','name','parentId','baseSubType']:['kind','name'];
-  if (Object.keys(payload).some(field=>!allowed.includes(field))) bad('新增选项不能修改、停用或变更已有选项');
-}
-function rename(store,user,payload) {
-  const actual=actor(store,user);c.permit(actual,'sell');
-  if(!payload||typeof payload!=='object'||Array.isArray(payload)||!['type','subType'].includes(payload.kind)) bad('仅可修改业务类型或细类的名称');
-  const allowed=payload.kind==='type'?['action','kind','id','name','expectedName']:['action','kind','id','parentId','name','expectedName'];
-  if(Object.keys(payload).some(field=>!allowed.includes(field))) bad('只能修改名称，不能变更所属类型、统计分类或停用删除');
-  const kind=payload.kind,id=text(payload.id,'选项编号',100),name=text(payload.name,'选项名称',60),expectedName=text(payload.expectedName,'原名称',60);
-  const parent=kind==='subType'?typeFor(store,text(payload.parentId,'所属业务类型',100)):null;
-  const rows=kind==='type'?list(store,actual).types:subTypes(store,parent),option=rows.find(row=>row.id===id);
-  if(!option) throw new c.HttpError(404,'选项不存在或不属于当前类型，请刷新后重新选择');
-  if(option.name!==expectedName) throw new c.HttpError(409,'选项名称已被修改，请刷新后再改名；当前表单内容仍保留');
-  if(rows.some(row=>row.id!==id&&key(row.name)===key(name))) throw new c.HttpError(409,kind==='type'?'业务类型名称已存在，请使用其他名称':'该业务类型下细类名称已存在，请使用其他名称');
-  if(name!==option.name) {
-    const at=c.now(),oldName=option.name;
-    let row=option.custom?custom(store).find(item=>item.kind===kind&&item.id===id&&(kind!=='subType'||item.parentId===parent.id)):nameOverride(store,kind,id,parent?.id);
-    if(!row) {
-      row={id:c.id('BN'),kind:'nameOverride',optionKind:kind,optionId:id,parentId:parent?.id||null,baseType:parent?.baseType||option.baseType,baseSubType:kind==='subType'?option.baseSubType:null,createdAt:at,creatorId:actual.id,creator:actual.name};
-      store.businessOptions ||= [];store.businessOptions.push(row);
-    }
-    row.name=name;row.updatedAt=at;row.updatedBy=actual.id;row.updatedByName=actual.name;
-    row.nameEvents ||= [];row.nameEvents.push({oldName,name,at,by:actual.id,byName:actual.name});
-    c.audit(store,actual,'business-option:rename',JSON.stringify({kind,id,parentId:parent?.id||null,oldName,name}));
-    // Rename only directory names; recorded business snapshots and core categories stay unchanged.
-  }
-  const options=list(store,actual),updated=kind==='type'?options.types.find(row=>row.id===id):options.types.find(row=>row.id===parent.id).subTypes.find(row=>row.id===id);
-  return {option:updated,options};
+  if (Object.keys(payload).some(field=>!allowed.includes(field))) bad('此接口只支持新增，不能修改、停用或变更已有选项');
 }
 function create(store,user,payload) {
-  if(payload?.action==='rename') return rename(store,user,payload);
-  const actual=actor(store,user);c.permit(actual,'sell');validatePayload(payload);
+  const actual=actor(store,user);c.permit(actual,'catalogAdd');validatePayload(payload);
   const kind=payload.kind,name=text(payload.name,'选项名称',own(GROUPS,kind)?40:60);
   let parent=null,baseType=null,baseSubType=null;
   if (kind==='type') {
@@ -115,6 +74,6 @@ function resolve(store,payload) {
   const subId=payload.subType==null||payload.subType===''?'unknown':text(payload.subType,'业务细类',100);
   const sub=subTypes(store,type).find(row=>row.id===subId);
   if (!sub || !canonicalSubTypes(type.baseType).includes(sub.baseSubType)) bad('业务细类不属于所选业务类型，请重新选择');
-  return {type:type.baseType,typeName:type.name,subType:sub.baseSubType,subTypeName:sub.name,businessTypeId:type.id,businessSubTypeId:sub.id,businessOptionSnapshot:{typeId:type.id,typeName:type.name,baseType:type.baseType,subTypeId:sub.id,subTypeName:sub.name,baseSubType:sub.baseSubType}};
+  return {type:type.baseType,typeName:type.name,subType:sub.baseSubType,...(type.custom||sub.custom?{subTypeName:sub.name,businessTypeId:type.id,businessSubTypeId:sub.id,businessOptionSnapshot:{typeId:type.id,typeName:type.name,baseType:type.baseType,subTypeId:sub.id,subTypeName:sub.name,baseSubType:sub.baseSubType}}:{})};
 }
 module.exports={list,create,resolve};

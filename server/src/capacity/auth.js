@@ -51,7 +51,7 @@ async function get(token){
  return context.run({tenantId:row.tenant_id,branchId:row.branch_id},()=>pg.scoped(async(client,scope)=>{
   const user=(await client.query("SELECT u.data FROM erp_shared_records u JOIN erp_tenants t ON t.id=u.tenant_id AND t.status='active' WHERE u.tenant_id=$1 AND u.collection='users' AND u.record_key=$2",[scope.tenantId,row.user_id])).rows[0]?.data;
   if(!user||user.status!=='active'||(user.roleCode!=='owner'&&!(user.branchIds||[]).includes(scope.branchId)))return null;
-  return {tenantId:scope.tenantId,branchId:scope.branchId,userId:user.id,user,expiresAt:Number(row.expires_at)};
+  const cutoffs=(await client.query('SELECT data FROM erp_metadata WHERE tenant_id=$1 AND branch_id=$2 AND key=$3',[scope.tenantId,scope.branchId,'attendanceSessionCutoffs'])).rows[0]?.data;if(require('../attendance-session-cutoff').revoked(row,cutoffs))return null;return {tenantId:scope.tenantId,branchId:scope.branchId,userId:user.id,user,issuedAt:Number(row.expires_at)-28800000,expiresAt:Number(row.expires_at)};
  })).catch(error=>{if(error.statusCode===403)return null;throw error;});
 }
 async function revoke(token){if(token)await pg.connection().query('DELETE FROM erp_sessions WHERE token_hash=$1',[digest(token)]);}
@@ -68,7 +68,8 @@ async function switchBranch(token,branchId,user){
 }
 function token(req){return String(req.headers.authorization||'').replace(/^Bearer /,'')||String(req.headers.cookie||'').split(';').map(x=>x.trim()).find(x=>x.startsWith('erp_session='))?.slice(12)||'';}
 async function request(req,work){
- if(!new URL(req.url,'http://localhost').pathname.startsWith('/api/'))return context.run(context.current(),work);
+ const path=new URL(req.url,'http://localhost').pathname;
+ if(!path.startsWith('/api/')&&path!=='/m')return context.run(context.current(),work);
  const session=await get(token(req));req.erpSession=session;
  return context.run({...(session||context.current()),path:new URL(req.url,'http://localhost').pathname,userId:session?.userId},work);
 }

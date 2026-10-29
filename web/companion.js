@@ -23,6 +23,24 @@ if(companionEmbedded)document.documentElement.classList.add('companion-embedded'
 const $=id=>document.getElementById(id);let data=null,suggestion='',busy=false,pending=null,newsFilter='all';
 const chatUI=ChatWindow.mount({input:$('chat-input'),thread:$('messages'),toggle:$('chat-more-toggle'),panel:$('chat-more-panel'),dock:$('companion-dock')});
 const el=(tag,text='',className='')=>{const n=document.createElement(tag);n.textContent=text;if(className)n.className=className;return n;};
+// Standalone chat keeps navigation reachable without reserving screen height for it.
+{ // Apply the compact chat shell to embedded and standalone entry points.
+ const header=document.querySelector('.companion-header'),nav=document.querySelector('.companion-primary-nav');
+ if(!companionEmbedded&&!window.matchMedia('(max-width:700px)').matches){const home=el('a','‹ 返回首页');home.id='companion-return-home';home.href='/m';home.setAttribute('aria-label','返回进销存首页');header.prepend(home);header.style.gridTemplateColumns='auto auto minmax(0,1fr) auto';}
+ const featureButton=el('button','功能');featureButton.type='button';featureButton.id='companion-home';
+ featureButton.setAttribute('aria-controls','companion-feature-nav');featureButton.setAttribute('aria-expanded','false');
+ $('companion-home').replaceWith(featureButton);nav.id='companion-feature-nav';
+ const closeFeatures=()=>{document.body.classList.remove('features-open');featureButton.setAttribute('aria-expanded','false');};
+ const placeFeatures=()=>nav.style.setProperty('--companion-nav-top',Math.ceil(header.getBoundingClientRect().bottom)+'px');
+ featureButton.onclick=()=>{const open=!document.body.classList.contains('features-open');document.body.classList.toggle('features-open',open);featureButton.setAttribute('aria-expanded',String(open));if(open){placeFeatures();$('feature-select').focus();}};
+ document.addEventListener('pointerdown',event=>{if(document.body.classList.contains('features-open')&&!nav.contains(event.target)&&!featureButton.contains(event.target))closeFeatures();});
+ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&document.body.classList.contains('features-open')){closeFeatures();featureButton.focus();}});
+ window.addEventListener('resize',placeFeatures);if(window.ResizeObserver)new ResizeObserver(placeFeatures).observe(header);
+ placeFeatures();
+ // Emergency, speech and secondary chat tools remain available behind the existing plus button.
+ const toolbar=document.querySelector('#companion-dock .chat-toolbar');if(toolbar)$('chat-more-panel').prepend(toolbar);
+}
+if(companionEmbedded&&window.parent!==window){const returnButton=el('button','返回工作台');returnButton.type='button';returnButton.id='companion-close-embedded';returnButton.onclick=()=>{chatUI.menu(false);window.parent.postMessage({type:'assistant:request-close'},location.origin);};$('chat-more-panel').prepend(returnButton);}
 const reader=CompanionSpeech.create({onState:state=>{const b=$('auto-read');b.disabled=!state.available;b.textContent=state.available?'自动朗读：'+(state.enabled?'开':'关'):'朗读暂不可用';b.setAttribute('aria-pressed',String(state.enabled));$('stop-reading').hidden=!state.speaking;},onError:message=>$('reading-status').textContent=message});
 $('auto-read').onclick=()=>{reader.setEnabled(!reader.state().enabled);$('reading-status').textContent='';reader.prime();};
 const requests=CompanionRequests.create(),dirtyForms=new Set();let loadSequence=0;
@@ -38,6 +56,7 @@ function tab(name){
  for(const n of document.querySelectorAll('.companion-tab'))n.hidden=n.id!=='tab-'+panel;
  if(panel==='library')window.PersonalLibrary.choose(name);if(name==='usage')$('usage-reload').click();
  document.body.classList.toggle('chatting',name==='chat');
+ document.body.classList.remove('features-open');$('companion-home').setAttribute('aria-expanded','false');
  $('chat-back').hidden=name==='chat';$('companion-home').hidden=name!=='chat';
  $('companion-title').textContent=name==='chat'?'我的个人助理':choice.textContent;
  chatUI.menu(false);if(name==='chat'){chatUI.resizeInput();chatUI.scroll();}else window.scrollTo({top:0});
@@ -125,8 +144,9 @@ $('help').onclick=()=>$('help-dialog').showModal();$('close-help').onclick=()=>$
 const onPhone=window.matchMedia('(max-width:700px)').matches;
 let large=false;
 try{
+ const sharedSize=localStorage.getItem('store-task-large-text-v1');
  const ownSize=localStorage.getItem('companion-large');
- large=ownSize===null?(onPhone&&localStorage.getItem('store-mobile-text-size')==='double'):ownSize==='1';
+ large=onPhone&&sharedSize!==null?sharedSize==='1':ownSize===null?(onPhone&&localStorage.getItem('store-mobile-text-size')==='double'):ownSize==='1';
 }catch{}
 function textSize(value=large,save=false){
  large=value;document.body.classList.toggle('bigger',large);
@@ -137,12 +157,13 @@ function textSize(value=large,save=false){
  chatUI.resizeInput();
  if(save)try{
   localStorage.setItem('companion-large',large?'1':'0');
-  if(onPhone)localStorage.setItem('store-mobile-text-size',large?'double':'large');
+  if(onPhone){localStorage.setItem('store-mobile-text-size',large?'double':'large');localStorage.setItem('store-task-large-text-v1',large?'1':'0');window.dispatchEvent(new CustomEvent('store:font-change',{detail:{large}}));}
  }catch{}
 }
 $('text-size').onclick=()=>textSize(!large,true);
 window.addEventListener('storage',e=>{
  if(e.key==='companion-large')textSize(e.newValue==='1');
+ else if(onPhone&&e.key==='store-task-large-text-v1')textSize(e.newValue==='1');
  else if(onPhone&&e.key==='store-mobile-text-size'&&['double','large'].includes(e.newValue))textSize(e.newValue==='double',true);
 });
 window.addEventListener('message',e=>{

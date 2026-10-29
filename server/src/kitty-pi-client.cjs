@@ -1,0 +1,8 @@
+'use strict';
+const roles=require('./assistant-roles'),c=require('./common');
+async function ask(store,user,payload,scope){if(!roles.catalog(user).customer||user.status!=='active')throw new c.HttpError(403,'当前账号不能使用小猫咪接待');if(!scope?.tenantId||!scope?.branchId)throw new c.HttpError(403,'请先选择门店');const token=process.env.PI_INTERNAL_TOKEN;if(!token)throw new c.HttpError(503,'小猫咪服务暂未连接');
+const sessionId=typeof payload.sessionId==='string'?payload.sessionId:payload.context?.userId===user.id&&payload.context?.mode==='customer'?payload.context.kittySessionId:null;
+let reply;try{const r=await fetch('http://127.0.0.1:'+(process.env.KITTY_PORT||3676)+(payload.readAloud===true?'/speech':payload.speechCancel===true?'/speech-cancel':payload.reset===true?'/reset':'/ask'),{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+token},body:JSON.stringify({question:payload.question,sessionId,speechId:payload.speechId,actorId:user.id,scope:{tenantId:scope.tenantId,branchId:scope.branchId}}),signal:AbortSignal.timeout(105000)});reply=await r.json();if(!r.ok)throw new c.HttpError(r.status===429?429:503,reply.error||'小猫咪查询暂不可用');}catch(e){if(e.statusCode)throw e;throw new c.HttpError(503,'小猫咪查询暂未连通，请稍后再试');}
+if(payload.readAloud===true||payload.speechCancel===true)return {...reply,mode:'customer'};
+if(payload.reset===true)return {reset:true,mode:'customer'};return {...reply,mode:'customer',scope:'顾客咨询',asOf:new Date().toISOString(),context:{mode:'customer',userId:user.id,kittySessionId:reply.sessionId,at:Date.now()},metrics:{kind:'customer-pi',replyStyle:'sichuan',provider:'opencode-go',model:'qwen3.8-flash',databaseReadOnly:reply.diagnostics?.databaseReadOnly}};}
+module.exports={ask};

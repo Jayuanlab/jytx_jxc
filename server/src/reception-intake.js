@@ -9,7 +9,7 @@ const budgetBands = {
  '500to999': [500,999.99], '1000to1999': [1000,1999.99],
  '2000to2999': [2000,2999.99], '3000to4999': [3000,4999.99], over5000: [5000,null], custom: [null,null],
 };
-const fields = ['needs','budgetBand','budgetMin','budgetMax','followUpNeed','followUpAt','viewedProducts','customerProfile','supplementPending','intakeVersion','mobileAppLoggedIn'];
+const fields = ['needs','budgetBand','budgetMin','budgetMax','followUpNeed','followUpAt','viewedProducts','customerProfile','supplementPending','intakeVersion','mobileAppLoggedIn','companionCount','visitorCount','effectiveVisitorCount'];
 function mobileAppLogin(value){if(value==null)return null;if(typeof value!=='boolean')throw new c.HttpError(400,'移动APP登录请选择是或否');return value;}
 const text = (value,max=1000) => String(value ?? '').trim().slice(0,max);
 function followDate(value){
@@ -31,12 +31,9 @@ function viewed(store,value){
 }
 function build(store,payload,previous=null){
  const deferred=payload.deferDetails===true||payload.deferDetails==='true';
- const strict=Number(payload.intakeVersion)===2&&!deferred;
- const needs=payload.needs===undefined?text(previous?.needs||payload.purpose):text(payload.needs);
- if(strict&&!needs)throw new c.HttpError(400,'请记录顾客需求；忙时可选择先保存并转销售');
- const band=payload.budgetBand===undefined?(previous?.budgetBand||'unknown'):text(payload.budgetBand,30);
+ const needs=payload.needs===undefined?text(previous?.needs):text(payload.needs);
+ const band=payload.budgetBand===undefined?(previous?.budgetBand||'unknown'):(text(payload.budgetBand,30)||'unknown');
  if(!Object.hasOwn(budgetBands,band))throw new c.HttpError(400,'请选择预算范围，未了解到可选暂未了解');
- if(strict&&payload.budgetBand===undefined&&!previous)throw new c.HttpError(400,'请选择预算范围，未了解到可选暂未了解');
  let [min,max]=budgetBands[band];
  if(band==='custom'){
   const read=(key)=>payload[key]===undefined?previous?.[key]:payload[key];
@@ -54,9 +51,9 @@ function build(store,payload,previous=null){
  const follow=payload.followUpNeed===undefined?(previous?.followUpNeed||'unknown'):text(payload.followUpNeed,20);
  if(!['yes','no','unknown'].includes(follow))throw new c.HttpError(400,'请选择是否需要跟进');
  const followUpAt=follow==='no'?'':payload.followUpAt===undefined?(previous?.followUpAt||''):followDate(payload.followUpAt);
- return {intakeVersion:2,needs:needs||(deferred?text(payload.purpose):''),budgetBand:band,budgetMin:min,budgetMax:max,
+ return {intakeVersion:2,needs,budgetBand:band,budgetMin:min,budgetMax:max,
   customerProfile:profile,viewedProducts:payload.viewedProducts===undefined?(previous?.viewedProducts||[]):viewed(store,payload.viewedProducts),
-  followUpNeed:follow,followUpAt,supplementPending:deferred||!needs||band==='unknown'||follow==='unknown',
+  followUpNeed:follow,followUpAt,supplementPending:deferred||!needs||follow==='unknown'||(follow==='yes'&&!followUpAt),
   mobileAppLoggedIn:payload.mobileAppLoggedIn===undefined?(typeof previous?.mobileAppLoggedIn==='boolean'?previous.mobileAppLoggedIn:null):mobileAppLogin(payload.mobileAppLoggedIn)};
 }
 function apply(row,patch,user){
@@ -64,3 +61,4 @@ function apply(row,patch,user){
  Object.assign(row,patch);row.intakeUpdatedAt=c.now();row.intakeUpdatedBy=user.id;return changes;
 }
 module.exports={build,apply,fields,mobileAppLogin};
+

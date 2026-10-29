@@ -10,6 +10,17 @@
 .check-row{display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid #edf1f7}.check-row input{width:22px;min-height:22px}
 #action-dialog{border:0;border-radius:14px;max-width:560px;width:calc(100% - 28px);padding:20px;box-shadow:0 18px 60px #1c2e4d44}
 #action-dialog::backdrop{background:#13274580}#action-dialog textarea{min-height:100px}
+.lock-evidence{max-height:42vh;overflow:auto;padding:12px;border:1px solid #ccd7e4;border-radius:10px;background:#f7f9fc;margin:12px 0}.lock-evidence h3{margin:0 0 8px}.lock-evidence ul{padding-left:1.4em}.lock-evidence li{margin:6px 0}#action-dialog{max-height:calc(100dvh - 48px);overflow:auto}
 #summary details,.close-record details{border-top:1px solid #e7edf6;margin-top:12px;padding-top:10px}
 #summary summary,.close-record summary{cursor:pointer;color:#2256ba;font-weight:700}
 #summary small{color:#5e6d83}
+.closeout-focus #daily-summary-panel,.closeout-focus #daily-metrics-panel,.closeout-focus #air-panel{display:none!important}
+.closeout-original{margin-top:14px;padding-top:12px;border-top:2px solid #dce5f0}.closeout-original h4{margin:16px 0 8px}.closeout-original dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.closeout-original dl div{padding:9px;background:#f4f7fc;border-radius:8px}.closeout-original dt{color:#52637c}.closeout-original dd{margin:4px 0 0;font-weight:700}.closeout-original table{width:100%;border-collapse:collapse}.closeout-original th,.closeout-original td{padding:7px;border-bottom:1px solid #e6ebf2;text-align:left}.closeout-original .table-wrap{overflow:auto}
+.closeout-focus .close-record{max-width:980px;margin-inline:auto}.closeout-focus .closeout-original{border:0;padding:0}.closeout-check-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.closeout-check-card{background:#eef6fa;border:1px solid #d9e9f2;border-radius:16px;padding:18px}.closeout-check-card h4{margin:0 0 10px}.closeout-check-card dl{display:block;margin:0}.closeout-check-card dl div{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid #d9e9f2}.closeout-check-card dt{color:#52637c}.closeout-check-card dd{margin:0;font-weight:700;color:#1d6996;text-align:right}.closeout-focus .closeout-original>details{border:1px solid #d9e9f2;border-radius:12px;padding:12px 16px;margin-top:18px}.closeout-focus .closeout-original>details>.closeout-original{margin-top:14px}
+@media(max-width:680px){.closeout-check-cards{grid-template-columns:1fr}}
+@media print{.closeout-focus header,.closeout-focus .todo-focus,.closeout-focus .record-actions,.closeout-focus .closeout-original details{display:none!important}.closeout-focus .close-record{border:0;box-shadow:none;break-inside:avoid}.closeout-check-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.closeout-check-card{padding:10px}}
+
+/* Do not paint retired/default modules while the selected task is initializing. */
+html.daily-initializing main{display:none!important}
+.daily-entry-loading{padding:24px;min-height:120px;color:#425770;font-size:18px}
+.daily-entry-loading[hidden]{display:none!important}

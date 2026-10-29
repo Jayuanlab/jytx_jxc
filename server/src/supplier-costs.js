@@ -1,3 +1,4 @@
+const fifo=require("./fifo-costs");
 const { createHash } = require("crypto");
 const c = require("./common");
 const inventoryDetails = require("./inventory-details");
@@ -10,10 +11,12 @@ function trace(stock) {
       : [];
   return stock.costSources;
 }
-function receive(stock, sourceId, quantity) {
+function receive(stock, sourceId, quantity, unitPrice, store) {
+  if(store && fifo.receive(store,stock,sourceId,quantity,unitPrice))return;
   trace(stock).push({ sourceId, quantity });
 }
-function take(stock, quantity) {
+function take(stock, quantity, sourceId) {
+  if(fifo.enabled(stock))return fifo.take(stock,quantity,sourceId);
   const sources = trace(stock);
   const result = sources.map((s) => ({
     sourceId: s.sourceId,
@@ -25,7 +28,8 @@ function take(stock, quantity) {
   stock.costSources = sources.filter((s) => s.quantity > 1e-9);
   return result;
 }
-function restore(stock, sources, fraction, quantity) {
+function restore(stock, sources, fraction, quantity, value) {
+  if(fifo.restore(stock,sources,quantity,value))return;
   const existing = trace(stock);
   for (const source of sources || []) {
     const qty = precision(source.quantity * fraction);
@@ -51,10 +55,8 @@ function restoreSaleCost(
   previousReturned,
   returnId,
 ) {
-  const delta = c.round(
-    (currentSaleDelta(store, order.id, item.id) * qty) /
-      (item.quantity - previousReturned),
-  );
+  const exact=fifo.returnDelta(store,order,item,previousReturned,qty);
+  const delta = exact===null?c.round((currentSaleDelta(store, order.id, item.id)*qty)/(item.quantity-previousReturned)):exact;
   if (delta)
     store.costAdjustments.push({
       id: c.id("CA"),
@@ -74,6 +76,7 @@ function lineFor(store, payload) {
   );
   const line = order?.items.find((i) => i.id === payload.itemId);
   if (!line) throw new c.HttpError(404, "原采购明细不存在或不属于此供应商");
+  if((store.serialSourceCorrections||[]).some(r=>r.purchaseId===order.id&&r.accounting))throw new c.HttpError(409,'该采购已有单台供货商和款项归属更正，整批调价或采购退货须先逐台核对当前归属');
   if ((store.stockTransfers || []).some(t => t.status === "completed" && t.sourceSkuId === line.skuId && ((t.sourceCostSources || []).some(s => s.sourceId === line.id && s.quantity > 1e-9) || (t.serials || []).some(s => s.purchaseId === order.id && (s.purchaseItemId === line.id || (line.serials || []).includes(s.no))))))
     throw new c.HttpError(409, "该采购批次已调拨到其他仓；调价、更正成本或采购退货须同时核对原仓和目标仓，暂不能自动仅改原仓");
   const product = store.products.find((p) => p.skuId === line.skuId);
@@ -123,7 +126,8 @@ function saleExposures(store, line, serialNo) {
   for (const order of store.sales)
     for (const item of order.items) {
       const add = (part, materialIndex, factor) => {
-        const quantity = serialNo
+        const exact=!serialNo?fifo.exposures(part,line.id,materialIndex==null?(item.returnedQuantity||0):0):null;
+        const quantity = exact?exact.quantity:serialNo
           ? part.serialNo === serialNo
             ? factor
             : 0
@@ -136,6 +140,7 @@ function saleExposures(store, line, serialNo) {
             orderId: order.id,
             itemId: item.id,
             materialIndex,
+            ...(exact?{fifoRanges:exact.fifoRanges}:{}),
             quantity,
             name: item.name,
           });
@@ -233,7 +238,7 @@ function preview(store, user, payload) {
       .filter((s) => s.sourceId === line.id)
       .reduce((n, s) => n + s.quantity, 0);
     if (
-      payload.scope === "inventory" &&
+      payload.scope === "inventory" && !fifo.enabled(stock) &&
       Math.abs(quantity - stock.quantity) > 1e-7
     )
       throw new c.HttpError(
@@ -269,16 +274,17 @@ function preview(store, user, payload) {
     quantitySum += target.quantity;
     const cumulative = c.round(quantitySum * unitDelta);
     target.costDelta = c.round(cumulative - allocated);
+    if(target.fifoRanges)target.fifoUnitDeltaCents=fifo.cents(unitDelta);
     allocated = cumulative;
     if (target.destination === "sale") {
       const item = store.sales
         .find((o) => o.id === target.orderId)
         .items.find((i) => i.id === target.itemId);
       target.currentCost = c.round(
-        item.cost *
+        (fifo.layered(item.costSources)?fifo.total(fifo.slice(item.costSources,item.returnedQuantity||0,item.quantity-(item.returnedQuantity||0))):item.cost *
           (item.stockManaged
             ? (item.quantity - (item.returnedQuantity || 0)) / item.quantity
-            : 1) +
+            : 1)) +
           currentSaleDelta(store, target.orderId, target.itemId),
       );
     }
@@ -346,6 +352,7 @@ function confirm(store, user, payload) {
     note: row.note,
     ...suppliers.stamp(user),
   }).id;
+  fifo.adjustSource(stock,row.itemId,row.inventoryDelta);
   stock.stockValue = c.round(
     (stock.stockValue ?? stock.quantity * stock.costPrice) + row.inventoryDelta,
   );
@@ -405,6 +412,7 @@ function ensureReturnDatesOpen(store, payload) {
 }
 function previewReturn(store, user, payload) {
   permitReturnDraft(user);
+  if(payload.sourceType==='opening')return require("./opening-purchase-returns").preview(store,user,payload);
   const row = applyReturnPurchase(
     structuredClone(store),
     user,
@@ -436,6 +444,7 @@ function returnPurchase(store, user, payload) {
   ensureReturnDatesOpen(store, payload);
   if (previewReturn(store, user, payload).previewToken !== payload.previewToken)
     throw new c.HttpError(409, "退货数量或成本已变化，请重新预览");
+  if(payload.sourceType==='opening')return require("./opening-purchase-returns").apply(store,user,payload);
   return applyReturnPurchase(store, user, payload);
 }
 // This mutation is private: employee previews only ever receive a cloned store.
@@ -500,10 +509,11 @@ function applyReturnPurchase(store, user, payload) {
     });
   } else {
     row.cost =
-      quantity === stock.quantity
+      fifo.enabled(stock)?0:quantity === stock.quantity
         ? c.round(stock.stockValue ?? stock.quantity * stock.costPrice)
         : c.round(stock.costPrice * quantity);
-    row.costSources = take(stock, quantity);
+    row.costSources = take(stock, quantity,line.id);
+    if(fifo.enabled(stock))row.cost=fifo.total(row.costSources);
   }
   stock.stockValue = c.round(
     (stock.stockValue ?? stock.quantity * stock.costPrice) - row.cost,

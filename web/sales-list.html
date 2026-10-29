@@ -5,39 +5,48 @@
 <meta name="theme-color" content="#155eef"><title>销售清单 · 聚友通信城</title>
 <link rel="stylesheet" href="/mobile-nav.css?v=20261010-clean-layout">
 <link rel="stylesheet" href="/page-help.css?v=20261010-clean-layout">
-<link rel="stylesheet" href="/sales-list.css?v=20261011-horizontal-filter">
+<link rel="stylesheet" href="/sales-list.css?v=20261019-gifts-r1">
 <script src="/page-help.js?v=20261010-clean-layout" defer></script>
 <script src="/mobile-nav.js?v=20261010-clean-layout" defer></script>
-<script src="/sales-list.js?v=20261010-sales-profit" defer></script>
+<script src="/sales-list.js?v=20261020-compact-amount" defer></script>
 </head>
 <body class="sales-list-page">
 <main class="sales-wrap">
 <header class="sales-heading"><a href="/m" aria-label="返回工作台">‹</a><h1>销售清单</h1><button type="button" class="page-help-button" data-help-target="sales-list-help">? 帮助</button></header>
 <template id="sales-list-help" data-page-help-template="销售清单使用说明">
-<p>按日期时间、仓库、营业员、商品、供货商查询；搜索框也可输入商品、串号后四位、姓名或单号。清空时间后可查全部日期。</p>
-<p>清单逐条显示销售商品；点“查看原单”查看原销售单，并按权限办理退换货。库存盘点从工作台单独进入；商品调价在库存查询中操作。</p>
+<p>清单按日期一起显示实物销售、维修服务单和移动业务登记。销售与维修按开单时间筛选；移动业务按业务日期筛选，移动业务没有准确的业务时刻。</p>
+<p>商品销售／维修与移动业务分别分页，全部明细直接显示、不折叠；移动业务不占用商品销售明细的分页名额。筛选“移动业务”时直接查询移动业务。</p>
+<p>仓库、商品、供货商筛选只适用于销售和维修单；营业员和关键词可查询三类记录。点原单可分别进入销售单、维修销售单或移动业务台账。</p>
 <p>毛利按原单实际出库成本计算，扣减退货、红冲和赠品成本，并包含供应商确认的成本调整。成本缺失时显示“—”；毛利按权限显示。</p>
-<p>净销量、净销售额扣掉所选原销售单截至查询时的累计退货和红冲。时间按原单开单时间筛选，与退款当天的资金流水不同。汇总包含所有查询结果，不限于当前页。赠品不计入销售金额。</p>
+<p>电脑在“赠品”列、手机在每笔单的“本单赠品”处可查看赠品名称、数量、仓库和状态，点开可看明细。赠品成本只按实际出库成本扣减；维修赠料已包含在耗材成本中。这里展示整单赠品，多条销售明细可能展示同一份赠品记录，汇总金额不会重复计算。待审批或已驳回的申请单独标明状态。</p>
+<p>销售收入合计＝实物销售额＋维修服务收入，已扣原单截至查询时的累计退货和红冲。移动充值面额、预计酬金单列，不能当成当天销售收入或已收现金；关联的移动业务和空充流水只展示一次。汇总包含全部查询结果，不限于当前页。</p>
+<p>经核实改归维修的原实物销售单显示为“维修 · 原单实物出库”。原销售、库存、收款和成本记录保留，业务归类只调整实物销售与维修收入的分项展示；待核定提成仍须单独核定。</p>
 <p>供货商按原采购来源识别。手机逐台对应原入库单；多家供货的配件按原出库记录分摊，数量可能带小数。来源缺失时显示“来源待补”。</p>
 <p>营业员只查看授权范围内的销售记录。切换门店后查询当前门店。</p>
 </template>
+<h2 class="ui-section-label">查询条件</h2>
 <form id="sales-filter" class="sales-filter">
 <div class="sales-shortcuts" aria-label="选择日期"><button type="button" data-period="today">今日</button><button type="button" data-period="yesterday">昨日</button><button type="button" data-period="week">近7天</button><button type="button" data-period="month">本月</button><button type="button" data-period="all">全部日期</button></div>
 <div class="sales-dates"><label><span class="sales-date-name">开始<span class="sales-date-suffix">时间</span></span><input name="from" type="datetime-local" step="60" aria-label="开始时间"></label><label><span class="sales-date-name">结束<span class="sales-date-suffix">时间</span></span><input name="to" type="datetime-local" step="60" aria-label="结束时间"></label></div>
-<div class="sales-filter-grid">
+<details class="ui-advanced-filters"><summary>更多筛选：状态、业务、仓库、分类等</summary><div class="sales-filter-grid">
+<label>单据状态<select name="saleState"><option value="">全部状态</option><option value="returns_red">退货／红冲</option><option value="returned">退货（含部分）</option><option value="red">已红冲</option><option value="normal">正常销售</option></select></label>
+<label>业务类型<select name="kind"><option value="">全部业务</option><option value="sale">实物销售</option><option value="repair">维修服务</option><option value="mobile">移动业务</option></select></label>
 <label>仓库<select name="warehouse"><option value="">全部仓库</option></select></label>
 <label>营业员<select name="salesperson"><option value="">全部营业员</option></select></label>
-<label>商品<select name="product"><option value="">全部商品</option></select></label>
+<label>一级分类<select name="category"><option value="">全部分类</option></select></label><label>品牌／二级分类<select name="brand"><option value="">全部品牌／二级分类</option></select></label>
 <label>供货商<select name="supplier"><option value="">全部供货商</option></select></label>
-</div>
-<label class="sales-search">商品 / 串号 / 单号<input name="q" type="search" maxlength="160" autocomplete="off" placeholder="名称、串号后4位、姓名或单号"></label>
+</div></details>
+<label class="sales-search">商品 / 赠品 / 串号 / 单号<input name="q" type="search" maxlength="160" autocomplete="off" placeholder="商品或赠品名称、串号、姓名或单号"></label>
 <div class="sales-filter-actions"><button type="submit" class="primary">查询</button><button type="button" id="sales-reset">清空筛选</button><a href="/app?tab=inventory">库存查询 ↗</a></div>
 </form>
+<h2 class="ui-section-label ui-results-label">查询结果</h2>
+<p id="sales-scope-note" class="sales-status"></p>
 <p id="sales-status" class="sales-status" role="status" aria-live="polite">正在加载销售清单…</p>
 <section id="sales-summary" class="sales-summary" aria-label="全部查询结果汇总" hidden></section>
-<nav class="sales-result-tabs" aria-label="销售清单视图"><button type="button" id="sales-lines-tab" aria-pressed="true">销售明细</button><button type="button" id="sales-suppliers-tab" aria-pressed="false">供货商销量</button></nav>
+<nav class="sales-result-tabs" aria-label="销售清单视图"><button type="button" id="sales-lines-tab" aria-pressed="true">全部业务明细</button><button type="button" id="sales-suppliers-tab" aria-pressed="false">供货商销量</button></nav>
 <section id="sales-lines" class="sales-lines" aria-label="销售商品明细"></section>
 <nav id="sales-pager" class="sales-pager" aria-label="销售清单分页"></nav>
+<section id="sales-mobile-section" class="sales-mobile-section" hidden><h2 id="sales-mobile-heading">移动业务明细</h2><div id="sales-mobile-lines"></div><nav id="sales-mobile-pager" class="sales-pager" aria-label="移动业务独立分页"></nav></section>
 <section id="sales-suppliers" class="sales-suppliers" aria-label="供货商销售排名" hidden></section>
 </main>
 </body>

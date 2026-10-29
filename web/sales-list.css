@@ -84,3 +84,23 @@
  html body.sales-list-page #sales-filter .sales-dates input{font-size:20px!important}
  .sales-list-page .sales-heading h1{text-wrap:balance}
 }
+
+.sales-mobile-business{border-color:#a8c7eb;background:#f8fbff}
+.sales-mobile-toggle{width:100%;text-align:left;background:#e9f2ff!important;border:1px solid #a8c7eb!important;color:#174a91!important;font-weight:750!important;min-height:54px}
+.sales-mobile-toggle::before{content:'▸';display:inline-block;margin-right:10px;transition:transform .15s ease}
+.sales-mobile-toggle[aria-expanded=true]::before{transform:rotate(90deg)}
+.sales-mobile-card-toggle{grid-column:1/-1}
+html body.sales-list-page main .sales-desktop-table .sales-mobile-fold td{padding:8px 12px;background:#f8fbff}
+.sales-business-facts{display:flex;flex-wrap:wrap;gap:9px 24px;margin:12px 0;padding:14px 0;border-top:1px solid #dce9f8;border-bottom:1px solid #dce9f8;color:#204775;font-weight:700}
+.sales-business-amount{min-width:200px;white-space:normal!important;line-height:1.5}
+@media(max-width:700px){html:is(.mobile-text-large,.mobile-text-double) .sales-list-page .sales-business-facts{font-size:var(--sales-text)!important;line-height:1.5}}
+@media(min-width:701px){html body.sales-list-page[data-sales-view=lines] .sales-summary{display:grid!important}.sales-summary{grid-template-columns:repeat(auto-fit,minmax(185px,1fr))!important}}
+.sales-gifts{border:1px solid #bfd6c8;background:#f4faf6;border-radius:9px;padding:10px;white-space:normal;overflow-wrap:anywhere}
+.sales-gifts summary{cursor:pointer;color:#255a3d;line-height:1.5}.sales-gifts summary b,.sales-gifts summary span{display:block}.sales-gifts summary b{margin-bottom:5px}
+.sales-gift-content{margin-top:12px}.sales-gift-item{padding:10px 0;border-top:1px solid #d9e6de;display:grid;gap:5px}.sales-gift-item span{color:#506758}.sales-gift-cost,.sales-gift-margin{font-weight:700;color:#255a3d;line-height:1.6}
+.sales-line-gifts{margin-top:16px}.sales-gift-content>small{display:block;color:#5d7064;line-height:1.5}.sales-gift-content p{line-height:1.6;margin:10px 0}
+@media(min-width:701px){html body.sales-list-page main .sales-table-gifts{min-width:240px;max-width:300px;white-space:normal}html body.sales-list-page main .sales-table-gifts :is(summary,p,span,strong,b){font-size:18px!important;line-height:1.5}}
+@media(max-width:700px){.sales-gifts :is(summary,strong,span,p,small),.sales-gift-margin{font-size:var(--sales-text,22px)!important;line-height:1.6}.sales-gifts{padding:12px}.sales-gift-item code{overflow-wrap:anywhere;white-space:normal}}
+
+/* Independent mobile business history cannot consume retail sale page slots. */
+.sales-mobile-section{margin-top:20px;border:1px solid #c8d7eb;border-radius:12px;background:white;padding:14px}.sales-mobile-section>details>summary{font-weight:700;cursor:pointer;color:#2459a4;min-height:44px;display:flex;align-items:center}.sales-mobile-section[hidden]{display:none!important}.sales-mobile-section .sales-desktop-table tfoot{display:none}#sales-filter .sales-shortcuts{flex-wrap:wrap}

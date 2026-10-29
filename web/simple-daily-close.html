@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>当日扎账单</title><link rel="stylesheet" href="/simple-daily-close.css?v=20261029-misclick-r1"><script src="/simple-daily-close.js?v=20261029-misclick-r1" defer></script></head>
+<body><main>
+  <header><a href="/m">‹ 返回工作台</a><h1 id="page-title">当日扎账单</h1></header>
+  <p class="date" id="date"></p>
+  <button type="button" id="owner-entry" hidden>重新扎账／代录报数</button>
+  <section id="rolling" class="rolling" hidden></section>
+  <section id="entry" hidden><nav class="modes" aria-label="清点时段"><button type="button" data-stage="morning">早上</button><button type="button" data-stage="instant">即时</button><button type="button" data-stage="handover">交接班</button><button type="button" data-stage="evening">晚上</button></nav>
+  <h2 id="stage-title">晚上正式扎账</h2>
+  <form id="close-form"><div id="owner-report-fields" hidden><label>实际清点报数人<select id="actual-counter" name="actualCounterId"><option value="">请选择</option></select></label><label><input type="checkbox" name="actualCountConfirmed"> 已核实本次实际清点数字</label></div><div class="table-wrap"><table><thead><tr><th>项目</th><th>系统统计</th><th>实际清点</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p class="difference" id="difference"></p>
+    <label for="note">差额说明</label><textarea name="note" id="note" maxlength="500" placeholder="可写“待查”；请说明各项差异"></textarea>
+    <button class="submit" type="submit">提交扎账单</button><p id="entry-feedback" class="action-feedback" role="status"></p><p id="submit-hint" class="hint"></p>
+  </form></section><p id="status" role="status"></p>
+  <section class="records" id="review"><h2 id="records-title">扎账记录与核对</h2><p id="action-result" class="action-feedback" role="status"></p><div id="records"></div><a href="/simple-daily-close">查看今天 ›</a> · <a href="/daily-close?view=history">查询历史扎账单 ›</a></section>
+</main></body></html>

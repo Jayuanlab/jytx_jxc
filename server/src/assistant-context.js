@@ -7,9 +7,10 @@ const answeredKinds=value=>Array.isArray(value)?[...new Set(value.filter(x=>['id
 const brands = ['华为','荣耀','OPPO','vivo','苹果','iPhone','小米','红米','三星','一加','realme','魅族','中兴','努比亚'];
 const detailOnly = /^(?:请|再|给我|帮我|说|讲|看|看看|一下|点|一点|详细|详细点|明细|展开|具体|列出来|说说|讲讲|吧|呢|的|些|清楚|更|多|一|[，,。!！?？\s])+$/;
 function resolve(question, context, user) {
-  const valid = context && context.userId === user.id && typeof context.question === 'string' && context.question.length <= 240 && Number.isFinite(context.at) && Date.now() - context.at >= 0 && Date.now() - context.at < 30 * 60 * 1000;
+  const valid = require('./assistant-continuity').valid(context,user)&&!require('./assistant-continuity').independent(question,context);
   if (!valid) return { question, inherited: false };
   const previous = context.question;
+  if (/^(?:\d{4}|\d{15,18})$/.test(question.trim()) && /(?:查|看|核对).*(?:串号|串码).*(?:销售|卖|售出|库存|状态)|(?:串号|串码).*(?:销售|卖|售出|库存|状态)/.test(previous)) return {question:"查串号"+question.trim()+"有没有销售",inherited:true};
   const token=saleInput.serialToken(context.serialToken||context.serialNo||context.recordSubject||previous,true)||saleInput.serialToken(context.serialToken||context.serialNo||'');
   const explicit=saleInput.analyze(question).serialToken||saleInput.serialToken(question,true);
   if(token&&!explicit&&(saleInput.statusQuery(question)||/^(?:再|继续|帮我)?(?:开|记|填)(?:这台|这一台|它)(?:手机)?(?:的)?(?:销售)?单[。！!？?\s]*$/.test(question)))return {question:('串号 '+token+'，'+question).slice(0,240),inherited:true};
@@ -47,11 +48,12 @@ function resolve(question, context, user) {
     for (const b of brands) q = q.replace(new RegExp(b,'gi'), '');
     return { question: `${brand} ${q}`.slice(0,240), inherited: true };
   }
-  return { question, inherited: false };
+  return require('./assistant-continuity').fallback(question,context,user);
 }
 function create(question, user, response={}) {
   const context={question:question.slice(0,240),userId:user.id,at:Date.now()};
   const hint=response.conversationHint;
+  if(hint?.topic==='screen')context.screen={id:typeof hint.id==='string'?hint.id:null,revision:Number.isSafeInteger(hint.revision)?hint.revision:null,draftContent:typeof hint.draftContent==='string'?hint.draftContent.slice(0,500):''};
   const serial=saleInput.analyze(question).serialToken||saleInput.serialToken(question,true);
   if(serial)context.serialToken=serial;
   if(hint?.topic==='serial-status'&&typeof hint.serialNo==='string')context.serialToken=hint.serialNo;
@@ -73,3 +75,4 @@ function followups(question, response) {
   return rows;
 }
 module.exports = { resolve, create, followups };
+

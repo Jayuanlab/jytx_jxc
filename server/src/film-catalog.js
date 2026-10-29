@@ -4,7 +4,7 @@ const c=require('./common');
 const erp=require('./erp');
 const warehouses=require('./warehouses');
 const details=require('./inventory-details');
-const FAMILIES=Object.freeze([{id:'mfs',name:'膜法师资料系列',prefix:'MFS'},{id:'ey',name:'EY资料系列',prefix:'EY'}]);
+const FAMILIES=Object.freeze([{id:'mfs',name:'膜法师资料系列',prefix:'MFS'},{id:'ey',name:'EY资料系列',prefix:'EY'},{id:'mc',name:'麦橙资料系列',prefix:'MC'},{id:'yzs',name:'一座山资料系列',prefix:'B'}]);
 const SERVICE_CODE='FILM-SERVICE';
 const canonical=value=>Array.isArray(value)?value.map(canonical):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonical(value[key])])):value;
 const digest=value=>createHash('sha256').update(JSON.stringify(canonical(value))).digest('hex');
@@ -17,7 +17,7 @@ function currentUser(store,user,owner=false){
  if(owner?actual.roleCode!=='owner':!['sell','purchase','stocktake','manageProducts'].some(key=>caps[key]))fail(403,owner?'膜资料批量导入须由老板本人确认':'当前岗位没有膜库存查询权限');
  return actual;
 }
-function family(id){const row=FAMILIES.find(value=>value.id===id);if(!row)fail(400,'请选择膜法师资料系列或EY资料系列');return row;}
+function family(id){const row=FAMILIES.find(value=>value.id===id);if(!row)fail(400,'请选择膜法师、EY、麦橙或一座山资料系列');return row;}
 function string(value,label,max=300,optional=false){if(optional&&(value==null||value===''))return '';if(typeof value!=='string'||!value.trim()||value.length>max)fail(400,label+'不正确');return value.trim();}
 function locator(value,source){
  if(value==null)return null;
@@ -25,6 +25,7 @@ function locator(value,source){
  return {file:source.file,sha256:source.sha256,sheet:value.sheet,cell:value.cell,...(Number.isSafeInteger(value.row)?{row:value.row}:{}),...(Number.isSafeInteger(value.column)?{column:value.column}:{}),...(value.mergedRange?{mergedRange:String(value.mergedRange)}:{})};
 }
 function prepareCatalog(catalog){
+ if(['maicheng-v1','yizuoshan-v1'].includes(catalog?.kind))return require('./film-maicheng').prepareCatalog(catalog);
  if(!catalog||typeof catalog!=='object'||Array.isArray(catalog)||!Array.isArray(catalog.sources)||catalog.sources.length!==2||!Array.isArray(catalog.rows)||!catalog.rows.length||catalog.rows.length>2000)fail(400,'膜通用表资料格式不正确');
  const sources=catalog.sources.map(source=>{if(!source||typeof source!=='object'||Array.isArray(source))fail(400,'膜资料来源不正确');return {id:string(source.id,'来源编号',100),file:string(source.file,'来源文件名',200),sha256:string(source.sha256,'来源摘要',64)};});
  if(new Set(sources.map(source=>source.id)).size!==sources.length||sources.some(source=>!/^\w[\w-]*$/.test(source.id)||!/^[a-f0-9]{64}$/.test(source.sha256)))fail(400,'膜资料来源编号或摘要不正确');
@@ -101,7 +102,7 @@ function applyCatalog(store,user,catalog){
   if(row.action==='replay')continue;
   let product;
   if(row.action==='create'){
-   const saved=erp.saveProduct(stage,owner,{name:row.name,externalCode:row.externalCode,type:'配件',subType:'维修材料',thirdType:'手机膜',unit:'张',kind:'physical',trackSerial:false,warehouseId:'wh-b',salePrice:0});
+   const saved=erp.saveProduct(stage,owner,{name:row.name,externalCode:row.externalCode,type:'配件',subType:['mc','yzs'].includes(row.repairFilm.family)?'保护膜':'维修材料',thirdType:['mc','yzs'].includes(row.repairFilm.family)?row.repairFilm.series:'手机膜',unit:'张',kind:'physical',trackSerial:false,salePrice:0},{internal:true,initialWarehouseId:'wh-b'});
    product=stage.products.find(value=>value.skuId===saved.skuId);created++;
    product.importSource={source:'film-catalog',sourceDigest:prepared.sourceDigest,priceNeedsConfirmation:true,priceSource:'pending',inventoryQuantityProvided:false,quantityMeaning:'未录入实物库存',unitDefaultConvention:true,classificationSource:'system-convention',warehouseSource:'owner-approved-system-convention'};
   }else{product=stage.products.find(value=>value.skuId===row.existing.skuId);updated++;}
@@ -112,7 +113,7 @@ function applyCatalog(store,user,catalog){
  }
  let service=plan.service?stage.products.find(row=>row.skuId===plan.service.skuId):null;
  if(!service){
-  const saved=erp.saveProduct(stage,owner,{name:'手机贴膜服务',externalCode:SERVICE_CODE,type:'维修',subType:'维修服务',thirdType:'贴膜',unit:'次',kind:'service',warehouseId:'wh-other',salePrice:0});
+  const saved=erp.saveProduct(stage,owner,{name:'手机贴膜服务',externalCode:SERVICE_CODE,type:'维修',subType:'维修服务',thirdType:'贴膜',unit:'次',kind:'service',salePrice:0},{internal:true});
   service=stage.products.find(row=>row.skuId===saved.skuId);service.repairFilmService=true;service.importSource={source:'film-catalog-service',priceNeedsConfirmation:true,priceSource:'pending',requiresActualCharge:true,zeroChargeNeedsReason:true,unitDefaultConvention:true,classificationSource:'system-convention'};
  }
  c.audit(stage,owner,'film:catalog-import','膜资料 '+prepared.sourceDigest+' · 新建 '+created+' · 来源更新 '+updated+'；数量0仅代表未入库，售价和进价待核');
@@ -124,8 +125,8 @@ function warehouseFilter(query,required=false){const id=readQuery(query,'warehou
 function filmProducts(store){return (store.products||[]).filter(row=>row.active!==false&&row.stockManaged!==false&&!details.tracked(row)&&getFilm(store,row));}
 function view(store,product){
  const film=getFilm(store,product),inventory=(store.inventory||[]).filter(row=>row.skuId===product.skuId&&row.warehouseId===product.warehouseId);
- if(inventory.length!==1)fail(409,'膜商品库位记录缺失或重复，请先核对');
- const stock=inventory[0];if(!Number.isSafeInteger(stock.quantity)||stock.quantity<0)fail(409,'膜库存数量不正确');
+ if(inventory.length>1||!inventory.length&&((store.inventory||[]).some(row=>row.skuId===product.skuId)||(store.movements||[]).some(row=>row.skuId===product.skuId)))fail(409,'膜商品库位记录缺失或重复，请先核对');
+ const stock=inventory[0]||{quantity:0};if(!Number.isSafeInteger(stock.quantity)||stock.quantity<0)fail(409,'膜库存数量不正确');
  return {skuId:product.skuId,code:product.externalCode,name:product.name,unit:product.unit||'张',warehouseId:product.warehouseId,warehouseName:warehouses.byId(product.warehouseId)?.name||product.warehouseId,quantity:stock.quantity,saleQuantity:stock.quantity,inventoryRecorded:stock.quantity>0||(store.movements||[]).some(row=>row.skuId===product.skuId),quantityMeaning:stock.quantity?'系统已登记库存':'未录入或已用完；请核对实物',priceNeedsConfirmation:product.importSource?.priceNeedsConfirmation===true||(!product.importSource&&rootProduct(store,product).importSource?.priceNeedsConfirmation===true),salePrice:product.salePrice,qrCode:'JY1:'+product.skuId,film:structuredClone({...film,history:undefined}),unitDefaultConvention:rootProduct(store,product).importSource?.unitDefaultConvention===true};
 }
 function serviceView(store){const row=findService(store);return row&&row.active!==false?{skuId:row.skuId,code:row.externalCode,name:row.name,stockManaged:false,priceNeedsConfirmation:row.importSource?.priceNeedsConfirmation===true,requiresActualCharge:true,zeroChargeNeedsReason:true}:null;}

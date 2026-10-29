@@ -17,12 +17,14 @@ async function api(path, options = {}) {
 }
 function status(message, error = false) { $('status').textContent = message; $('status').classList.toggle('error', error); }
 function money(value) { return '¥' + Number(value || 0).toFixed(2); }
-async function resolveCode(code) {
+async function resolveCode(code,skuId="",warehouseId="") {
   status('正在查询…');
   try {
-    current = await api('/api/qr/resolve?code=' + encodeURIComponent(code));
+    const response=await api('/api/qr/resolve?'+new URLSearchParams({code,...(skuId?{skuId,warehouseId}:{})}));
+    if(!response.skuId){current=null;$('code').value=code;const rows=response.candidates||[];$('result').replaceChildren();const note=document.createElement('p');note.textContent=response.message+'；共 '+rows.length+' 个商品/仓库。请选择准确型号和实际出库仓库。';const host=document.createElement('div');host.className='sale-code-candidates';const search=document.createElement('input');search.type='search';search.placeholder='筛选型号、JY编号或仓库';search.setAttribute('aria-label','筛选条码候选商品');const list=document.createElement('div');host.append(search,list);$('result').append(note,host);const draw=()=>{list.replaceChildren();const terms=search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);for(const row of rows){if(!terms.every(term=>[row.name,row.code,row.warehouseName].join(' ').toLowerCase().includes(term)))continue;const b=document.createElement('button');b.type='button';b.disabled=!row.available;b.textContent=row.name+' · '+row.code+' · '+row.warehouseName+' · 原厂码 '+(row.sourceBarcode||'未提供')+' · '+(row.available?'可售 '+row.saleQuantity:row.reason);b.onclick=()=>resolveCode(code,row.skuId,row.warehouseId);list.append(b);}};search.oninput=draw;draw();const cartHost=document.createElement('div');cartHost.id='cart';$('result').append(cartHost);renderCart();status(response.message,!rows.some(row=>row.available));return;}
+    current=response;
     $('code').value = code;
-    $('result').innerHTML = `<div class="product-result"><h3>${escapeHtml(current.name)}</h3><p>商品编号：${escapeHtml(current.code)}</p><p>销售仓可用：${escapeHtml(current.saleQuantity)} ${escapeHtml(current.unit)} · 预设售价：${money(current.salePrice)}</p><p>${current.warehouses.map((w) => escapeHtml(w.name) + ' ' + escapeHtml(w.quantity)).join(' · ')}</p><div class="scan-row"><input id="qty" type="number" min="1" step="1" value="1" aria-label="销售数量"><button type="button" id="add">加入本单</button></div></div><div class="cart" id="cart"></div>`;
+    $('result').innerHTML = `<div class="product-result"><h3>${escapeHtml(current.name)}</h3><p>商品编号：${escapeHtml(current.code)}</p><p>原厂条码：${escapeHtml(current.sourceBarcode||"未提供")} · 实际出库：${escapeHtml(current.warehouseName)}</p><p>本仓可用：${escapeHtml(current.saleQuantity)} ${escapeHtml(current.unit)} · 预设售价：${money(current.salePrice)}</p><p>${current.warehouses.map((w) => escapeHtml(w.name) + ' ' + escapeHtml(w.quantity)).join(' · ')}</p><div class="scan-row"><input id="qty" type="number" min="1" step="1" value="1" aria-label="销售数量"><button type="button" id="add">加入本单</button></div></div><div class="cart" id="cart"></div>`;
     $('add').addEventListener('click', addItem);
     renderCart();
     status('商品已识别，请核对数量后加入本单。');
@@ -33,40 +35,41 @@ async function resolveCode(code) {
 }
 function addItem() {
   const quantity = Number($('qty').value);
-  const already = cart.filter((item) => item.skuId === current.skuId).reduce((n, item) => n + item.quantity, 0);
+  const already = cart.filter((item) => item.skuId === current.skuId && item.warehouseId === current.warehouseId).reduce((n, item) => n + item.quantity, 0);
   if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity + already > current.saleQuantity) return status('数量超过销售仓可用库存', true);
-  const existing = cart.find((item) => item.skuId === current.skuId);
+  const existing = cart.find((item) => item.skuId === current.skuId && item.warehouseId === current.warehouseId);
   if (existing) existing.quantity += quantity;
-  else cart.push({skuId:current.skuId, name:current.name, quantity, salePrice:Number(current.salePrice)});
+  else cart.push({skuId:current.skuId,warehouseId:current.warehouseId,warehouseName:current.warehouseName,sourceBarcode:current.sourceBarcode,name:current.name, quantity, salePrice:Number(current.salePrice)});
   renderCart(); status('已加入本单；可以继续扫码。');
 }
 function renderCart() {
   const target = $('cart'); if (!target) return;
   if (!cart.length) { qrPaymentController?.destroy();qrPaymentController=null;qrPaymentDraft=[];target.innerHTML = ''; return; }
   if(qrPaymentController){qrPaymentDraft=qrPaymentController.getParts();qrPaymentController.destroy();qrPaymentController=null;}
-  target.innerHTML = `<h3>本单商品</h3><table><thead><tr><th>商品</th><th>数量</th><th>单价</th><th></th></tr></thead><tbody>${cart.map((item,index)=>`<tr><td>${escapeHtml(item.name)}</td><td>${escapeHtml(item.quantity)}</td><td><input class="price" data-index="${index}" type="number" min="0" step="0.01" value="${item.salePrice.toFixed(2)}" aria-label="实际售价"></td><td><button type="button" class="remove" data-index="${index}">移除</button></td></tr>`).join('')}</tbody></table><div class="cart-summary"><strong id="total"></strong><section id="qr-payment-splits" aria-label="按账户分笔收款"></section><p><a href="/payment-accounts">收付款账户设置</a> · 微信、和包商户等可分笔收款；保存后仍须实际持有人核对。</p><button type="button" id="checkout">保存销售单</button></div>`;
+  target.innerHTML = `<h3>本单商品</h3><table><thead><tr><th>商品</th><th>数量</th><th>单价</th><th></th></tr></thead><tbody>${cart.map((item,index)=>`<tr><td>${escapeHtml(item.name)}<small>${escapeHtml(item.warehouseName)} · 原厂码 ${escapeHtml(item.sourceBarcode||"未提供")}</small></td><td>${escapeHtml(item.quantity)}</td><td><input class="price" data-index="${index}" type="number" min="0" step="0.01" value="${item.salePrice.toFixed(2)}" aria-label="实际售价"></td><td><button type="button" class="remove" data-index="${index}">移除</button></td></tr>`).join('')}</tbody></table><div class="cart-summary"><strong id="total"></strong><section id="qr-payment-splits" aria-label="按账户分笔收款"></section><p><a href="/payment-accounts">收付款账户设置</a> · 微信、和包商户等可分笔收款；保存后仍须实际持有人核对。</p><button type="button" id="checkout">保存销售单</button></div>`;
   if(!window.PaymentSplits||!paymentAccounts){$('checkout').disabled=true;status('收款账户尚未加载，请刷新后再开单',true);return;}
-  qrPaymentController=window.PaymentSplits.mount({container:$('qr-payment-splits'),accounts:paymentAccounts,totalCents:qrTotalCents,initialParts:qrPaymentDraft.length?qrPaymentDraft:undefined,legacy:{account:'微信'},people:people.filter(person=>person.status==='active'&&person.capabilities?.financeReceive),mode:'sale',requireReference:false,onChange:()=>{if(qrPaymentController)qrPaymentDraft=qrPaymentController.getParts()}});
+  qrPaymentController=window.PaymentSplits.mount({container:$('qr-payment-splits'),accounts:paymentAccounts,totalCents:qrTotalCents,initialParts:qrPaymentDraft.length?qrPaymentDraft:undefined,legacy:{account:'微信'},people:people.filter(person=>person.status==='active'&&person.capabilities?.financeReceive),mode:'sale',requireReference:false,onChange:()=>{if(qrPaymentController){qrPaymentDraft=qrPaymentController.getParts();syncQRPaymentSubmit();}}});
   target.querySelectorAll('.price').forEach((input) => input.addEventListener('change', () => { const value=Number(input.value);if(!/^\d+(?:\.\d{1,2})?$/.test(input.value)||!Number.isFinite(value)||value<0) { input.value = cart[Number(input.dataset.index)].salePrice.toFixed(2); return status('售价须为非负金额，最多两位小数',true); } cart[Number(input.dataset.index)].salePrice = value; updateTotal(); }));
   target.querySelectorAll('.remove').forEach((button) => button.addEventListener('click', () => { cart.splice(Number(button.dataset.index),1); renderCart(); }));
   $('checkout').addEventListener('click', checkout); updateTotal();
 }
 function qrCents(value){const text=String(value??'').trim();if(!/^\d+(?:\.\d{1,2})?$/.test(text))throw new Error('售价与金额最多填写两位小数');const [whole,fraction='']=text.split('.'),cents=Number(whole)*100+Number(fraction.padEnd(2,'0'));if(!Number.isSafeInteger(cents))throw new Error('金额超出范围');return cents;}
 function qrTotalCents(){return cart.reduce((sum,item)=>{const next=sum+qrCents(item.salePrice)*item.quantity;if(!Number.isSafeInteger(next))throw new Error('金额超出范围');return next;},0);}
-function updateTotal(){try{$('total').textContent='应收合计 '+money(qrTotalCents()/100);qrPaymentController?.refresh();}catch(error){status(error.message,true);}}
-async function loadQRPayments(){if(!window.PaymentSplits){if(!qrPaymentAssets)qrPaymentAssets=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='/payment-splits.js';script.onload=()=>window.PaymentSplits?resolve():reject(new Error('收款组件未加载'));script.onerror=()=>{qrPaymentAssets=null;script.remove();reject(new Error('分笔收款读取失败，请刷新'));};document.head.append(script);});await qrPaymentAssets;}await window.PaymentSplits.ready();paymentAccounts=await api('/api/payment-accounts');}
+function syncQRPaymentSubmit(){const button=$('checkout');if(button)button.disabled=!cart.length||!qrPaymentController?.validate().ok||button.dataset.paymentBusy==='1';}
+function updateTotal(){try{$('total').textContent='应收合计 '+money(qrTotalCents()/100);qrPaymentController?.refresh();syncQRPaymentSubmit();}catch(error){status(error.message,true);}}
+async function loadQRPayments(){if(!window.PaymentSplits){if(!qrPaymentAssets)qrPaymentAssets=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='/payment-splits.js?v=20261018-v125';script.onload=()=>window.PaymentSplits?resolve():reject(new Error('收款组件未加载'));script.onerror=()=>{qrPaymentAssets=null;script.remove();reject(new Error('分笔收款读取失败，请刷新'));};document.head.append(script);});await qrPaymentAssets;}await window.PaymentSplits.ready();paymentAccounts=await api('/api/payment-accounts');}
 
 async function checkout() {
   if (!cart.length) return;
   let paymentCheck,amount;try{amount=qrTotalCents()/100;paymentCheck=qrPaymentController?.validate();}catch(error){status(error.message,true);return;}if(!paymentCheck?.ok)return status(paymentCheck?.error||'请先加载收款账户',true);
   if (!confirm(`保存应收 ${money(amount)} 的销售单，并提交后续收款核对？`)) return;
-  const button = $('checkout'); button.disabled = true;
+  const button = $('checkout'); button.disabled = true; button.dataset.paymentBusy='1';
   try {
-    const payload={payments:paymentCheck.parts,items:cart.map(({skuId,quantity,salePrice})=>({skuId,quantity,salePrice}))},body=JSON.stringify(payload);if(!qrPaymentAttempts.has(body))qrPaymentAttempts.set(body,crypto.randomUUID());if(qrPendingPayment&&qrPendingPayment!==body)throw new Error('上一笔结果待核对，请保持原商品和分笔金额重试，不要重复开单');qrPendingPayment=body;const result=await api('/api/sale-orders',{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':qrPaymentAttempts.get(body)},body});qrPaymentAttempts.delete(body);qrPendingPayment=null;qrPaymentDraft=[];qrPaymentController?.destroy();qrPaymentController=null;
-    cart.length = 0; renderCart(); if (current) await resolveCode(current.skuId);
+    const payload={payments:paymentCheck.parts,items:cart.map(({skuId,warehouseId,quantity,salePrice})=>({skuId,warehouseId,quantity,salePrice}))},body=JSON.stringify(payload);if(!qrPaymentAttempts.has(body))qrPaymentAttempts.set(body,crypto.randomUUID());if(qrPendingPayment&&qrPendingPayment!==body)throw new Error('上一笔结果待核对，请保持原商品和分笔金额重试，不要重复开单');qrPendingPayment=body;const result=await api('/api/sale-orders',{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':qrPaymentAttempts.get(body)},body});qrPaymentAttempts.delete(body);qrPendingPayment=null;qrPaymentDraft=[];qrPaymentController?.destroy();qrPaymentController=null;
+    cart.length = 0; renderCart(); if (current) await resolveCode(current.skuId,current.skuId,current.warehouseId);
     status('开单成功：' + documentNo(result) + '；' + (result.paymentReview?.status||'收款待核对'));
   } catch (error) {if(error.status&&error.status<500)qrPendingPayment=null;status(error.message, true); }
-  finally { button.disabled = false; }
+  finally { button.dataset.paymentBusy=''; syncQRPaymentSubmit(); }
 }
 function stopCamera() {
   scanning = false; if (stream) stream.getTracks().forEach((track) => track.stop()); stream = null;
@@ -74,11 +77,11 @@ function stopCamera() {
 }
 async function startCamera() {
   if (scanning) { stopCamera(); return; }
-  if (!navigator.mediaDevices?.getUserMedia || typeof window.jsQR !== 'function') return status('当前环境不支持相机识别，请使用扫码枪或输入商品编号。', true);
+  if (!navigator.mediaDevices?.getUserMedia || !window.SaleCapture?.decode) return status('当前环境不支持相机识别，请使用扫码枪或输入商品编号。', true);
   try {
     stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
     const video = $('preview'); video.srcObject = stream; video.hidden = false; await video.play();
-    scanning = true; $('camera').textContent = '关闭相机'; status('将商品二维码放入取景框。');
+    scanning = true; $('camera').textContent = '关闭相机'; status('将商品原厂条码或二维码放入取景框。');
     const canvas = document.createElement('canvas'), context = canvas.getContext('2d', {willReadFrequently:true});
     let last = 0;
     const tick = async (time) => {
@@ -86,8 +89,8 @@ async function startCamera() {
       if (time - last > 180 && video.videoWidth) {
         last = time; canvas.width = video.videoWidth; canvas.height = video.videoHeight;
         context.drawImage(video,0,0); const pixels = context.getImageData(0,0,canvas.width,canvas.height);
-        const found = window.jsQR(pixels.data,pixels.width,pixels.height,{inversionAttempts:'dontInvert'});
-        if (found?.data) { stopCamera(); await resolveCode(found.data); return; }
+        const found = await window.SaleCapture.decode(video);
+        if (found) { stopCamera(); await resolveCode(found); return; }
       }
       requestAnimationFrame(tick);
     }; requestAnimationFrame(tick);

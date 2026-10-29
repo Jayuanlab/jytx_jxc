@@ -208,6 +208,10 @@ th{color:#435873}
 /* 工资管理与逐笔查询：手机卡片保留核对入口。 */
 .payroll-view-switch{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 18px}.payroll-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;border:2px solid #9cbbe4;background:#eef5ff;border-radius:15px;padding:18px;margin-bottom:18px}.payroll-controls label{min-width:0;margin:0;color:#164a94}.payroll-controls input,.payroll-controls select{margin-top:7px}.payroll-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.payroll-overview>[hidden]{display:none!important}.payroll-employee-card{background:#fff;border:2px solid #b8cce7;border-radius:16px;padding:20px;margin-bottom:18px;min-width:0}.payroll-card-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}.payroll-card-head h2{margin:0;color:#173d77}.payroll-state{padding:5px 10px;background:#edf3ff;border-radius:10px;color:#2b548f;font-size:15px}.payroll-main-amount{padding:16px 0;border-bottom:1px solid #d8e4f3}.payroll-main-amount>span{display:block;color:#506781}.payroll-main-amount>strong{display:block;font-size:36px;color:#174d98;overflow-wrap:anywhere}.payroll-facts{display:grid;gap:9px;margin:16px 0}.payroll-facts>div{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline}.payroll-facts dt{flex:0 0 110px;color:#536985}.payroll-facts dd{margin:0;min-width:0;flex:1 1 140px;overflow-wrap:anywhere}.payroll-card-actions{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}.payroll-card-actions button{white-space:normal;flex:1 1 160px;min-width:0}.payroll-attention{border:2px solid #d59540;background:#fff5df;border-radius:12px;padding:14px;color:#814c0c;font-weight:700;overflow-wrap:anywhere}.payroll-section{background:#fff;border:2px solid #bdcfe7;border-radius:15px;margin:18px 0;padding:16px;min-width:0}.payroll-section>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#1d519b;font-weight:800;cursor:pointer}.payroll-section>summary:before{content:'＋';flex:none}.payroll-section[open]>summary:before{content:'−'}.payroll-section>summary>span{background:#edf3ff;border-radius:12px;padding:4px 12px;margin-left:auto;font-size:17px}.payroll-section-body{margin-top:16px}.payroll-line{min-width:0;padding:16px;background:#f7faff;border:1px solid #b7cdea;border-radius:12px;margin:12px 0;overflow-wrap:anywhere}.payroll-line p{margin:10px 0;color:#4d637f}.payroll-line-amount{font-weight:800;color:#1d589f;white-space:nowrap}.payroll-negative{color:#aa3330}.payroll-line-kind{color:#254f88!important}.payroll-line-warning{border:2px solid #dfa65a;background:#fffaf0}.payroll-source{width:100%;white-space:normal;text-align:left;overflow-wrap:anywhere}.payroll-evidence{border-top:1px solid #d2e0f1;padding-top:12px;margin-top:12px}.payroll-evidence summary{color:#2d5993;font-weight:700;cursor:pointer}.payroll-resolution{background:#eaf6ed;padding:12px;border-radius:10px;color:#225939!important}.payroll-feedback:not([hidden]){display:block;border:3px solid #3c9464;border-radius:14px;background:#edf9f0;color:#205f3b;padding:18px;font-weight:800;scroll-margin-top:190px}.payroll-feedback[data-kind=error]{border-color:#c43d33;background:#fff0ed;color:#982b24}.payroll-feedback[hidden]{display:none!important}.payroll-dialog{width:min(740px,calc(100vw - 24px));max-height:calc(100dvh - 40px);padding:0;min-width:0;border:2px solid #acc4e7;border-radius:17px;overflow:auto;background:#fff}.payroll-dialog::backdrop{background:#18375988}.payroll-dialog-head{display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;padding:18px;border-bottom:1px solid #d0dfef;z-index:1}.payroll-dialog-head h2{margin:0;color:#174c98}.payroll-dialog-body{padding:18px}.payroll-document-no{overflow-wrap:anywhere;padding:12px;background:#eef5ff;border-radius:10px;font-weight:700}
 @media(max-width:700px){.payroll-overview,.payroll-controls{grid-template-columns:minmax(0,1fr)}.payroll-controls,.payroll-employee-card,.payroll-section,.payroll-line{padding:14px}.payroll-view-switch{display:grid;grid-template-columns:minmax(0,1fr)}.payroll-view-switch button{white-space:normal}.payroll-card-actions{display:grid;grid-template-columns:minmax(0,1fr)}.payroll-facts>div{display:block;background:#f6f9fd;padding:10px;border-radius:10px}.payroll-facts dd{margin-top:5px}.payroll-card-head>strong,.payroll-main-amount>strong{font-size:var(--phone-control,27px)!important}.payroll-main-amount>span,.payroll-state,.payroll-facts dt,.payroll-facts dd,.payroll-line p,.payroll-line-amount,.payroll-evidence summary,.payroll-section>summary{font-size:var(--phone-detail,24px)!important}.payroll-section>summary>span{font-size:24px!important}.payroll-main-amount>strong{font-size:var(--phone-metric,44px)!important}.payroll-line-amount{white-space:normal}.payroll-dialog{max-height:calc(100dvh - 24px)}.payroll-dialog-head,.payroll-dialog-body{padding:14px}.payroll-dialog-head button{width:100%;white-space:normal}}
+.payroll-sheet{background:#fff;border:2px solid #b8cce7;border-radius:14px;padding:14px;margin:16px 0}.payroll-sheet h2{margin:0 0 6px;color:#173d77}.payroll-sheet p{margin:0 0 12px;color:#526782}.payroll-sheet-scroll{overflow:auto}.payroll-sheet table{width:100%;border-collapse:collapse;min-width:1390px;font-size:14px}.payroll-sheet th,.payroll-sheet td{border:1px solid #d7e2ef;padding:9px 8px;vertical-align:top;text-align:left}.payroll-sheet th{background:#eaf2fc;color:#173d77;position:sticky;top:0;z-index:1;white-space:nowrap}.payroll-sheet tbody tr:nth-child(even){background:#f7faff}.payroll-sheet tbody tr.payroll-sheet-warning{background:#fff7e8}.payroll-sheet td:nth-child(4){min-width:190px}.payroll-sheet td:nth-child(10){font-weight:700;white-space:nowrap}.payroll-sheet td small{display:block;color:#855d22;font-weight:400}.payroll-sheet td:last-child{min-width:155px}.payroll-sheet .payroll-source,.payroll-sheet td button{width:auto;display:inline-block;margin:2px;padding:4px 7px;font-size:13px;white-space:normal}.payroll-sheet td:nth-child(2){white-space:nowrap}
+@media(min-width:900px){.payroll-mobile-cards{display:none}}
+@media(max-width:899px){.payroll-sheet{display:none}}
+.payroll-points-sheet table{min-width:850px}.payroll-points-sheet tfoot th{background:#eaf2fc;font-weight:800}.payroll-points-sheet td:nth-child(4){min-width:130px}
 
 
 /* Purchase documents: complete money values and separate product rows. */
@@ -253,3 +257,254 @@ th{color:#435873}
 
 .staff-list .staff-account-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid #8fa7d2;border-radius:8px;background:#eef4ff;color:#174aac;font-size:20px;font-weight:700;line-height:1.4;padding:9px 12px}
 @media(max-width:700px){html body #main .staff-list .staff-account-link{font-size:var(--phone-detail,28px)!important;}}
+
+.store-category-layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:22px;align-items:start}.store-category-content{min-width:0}.store-category-nav{font-size:16px;color:#20354c;min-width:0}.scn-desktop{background:#fff;border:1px solid #c9d9e6;border-radius:10px;max-height:74vh;overflow:auto;position:sticky;top:12px}.scn-desktop>header{display:flex;align-items:center;justify-content:space-between;background:#edf5fc;padding:15px 14px;border-bottom:1px solid #d8e3ed}.scn-desktop button,.scn-dialog button{font:inherit;cursor:pointer}.scn-desktop>header button{background:none;border:0;color:#275d8e;font-size:14px;padding:7px}.scn-help{font-size:13px;color:#63748a;margin:12px 14px}.scn-tree,.scn-tree ul{list-style:none;padding:0;margin:0}.scn-tree{padding:0 7px 14px}.scn-tree ul{border-left:1px solid #d3dde8;margin-left:16px;padding-left:9px}.scn-node{display:flex;align-items:stretch;min-height:43px;border-radius:5px;position:relative;margin-top:3px}.scn-toggle,.scn-leaf{flex:0 0 28px;align-self:center;padding:0;display:grid;place-content:center;width:20px;height:20px;min-height:0!important;color:#3e617e;background:transparent;border:0!important;font-size:20px!important}.scn-toggle{border:1px solid #becfde!important;flex-basis:21px;margin:0 4px 0 3px;background:#f8fbfd;font-size:18px!important}.scn-pick,.scn-all button{border:0!important;background:transparent;min-height:42px!important;padding:8px 7px!important;color:inherit;display:flex;align-items:center;text-align:left;justify-content:space-between;gap:8px;flex:1;min-width:0;font-size:16px!important;font-weight:500!important;box-shadow:none!important}.scn-pick span{overflow-wrap:anywhere}.scn-pick small,.scn-all small{font-size:12px;color:#6d7f91;font-variant-numeric:tabular-nums}.scn-node.selected,.scn-all.selected{background:#dceeff;color:#124e83}.scn-node:hover,.scn-all:hover{background:#f0f6fc}.scn-node.selected .scn-pick{font-weight:700!important}.scn-all{margin:0 7px 4px;padding-left:29px;border-radius:5px}.scn-all button{width:100%}.scn-empty{padding:16px;color:#758394}.scn-mobile-open{display:none}.scn-dialog{color:#20354c;background:#fff;width:min(94vw,520px);max-height:88dvh;border:0;border-radius:16px;padding:0;box-shadow:0 12px 50px #122f4a55}.scn-dialog::backdrop{background:#152c4390}.scn-dialog>header{display:flex;align-items:center;justify-content:space-between;padding:18px;border-bottom:1px solid #e1e8ee}.scn-dialog h2{font-size:23px;margin:0}.scn-dialog>header button{background:#edf4fa;border:0;border-radius:6px;padding:10px 15px;color:#205886}.scn-crumb{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:14px 18px;background:#f2f7fb}.scn-crumb button{padding:5px 3px;border:0;background:none;color:#215c94;font-size:16px}.scn-back{margin:10px 18px;padding:8px 0;background:none;border:0;color:#38688f}.scn-mobile-options{padding:0 18px 16px;max-height:45dvh;overflow:auto;min-height:140px}.scn-mobile-options>button{display:flex;align-items:center;gap:12px;width:100%;padding:16px 2px;background:#fff;border:0;border-bottom:1px solid #e3eaf0;color:#20354c;text-align:left;font-size:19px}.scn-mobile-options>button span{flex:1}.scn-mobile-options small{color:#728395;font-size:14px}.scn-mobile-options b{font-size:22px;color:#809ab2}.scn-dialog footer{padding:14px 18px 18px;border-top:1px solid #dce6ee}.scn-confirm{background:#195ca5;color:#fff;border:0;border-radius:8px;width:100%;font-size:19px;font-weight:700;padding:15px}.store-category-nav button:focus-visible,.scn-dialog button:focus-visible{outline:3px solid #50a1ed;outline-offset:2px}
+@media(max-width:760px){.store-category-layout{display:block}.scn-desktop{display:none}.scn-mobile-open{display:flex;align-items:center;gap:12px;justify-content:space-between;width:100%;padding:15px;margin:0 0 16px;border:1px solid #9ebdd9;border-radius:8px;background:#e9f3fc;color:#164f83;font-size:19px;font-weight:700;min-height:58px}.scn-mobile-open span{font-size:14px;font-weight:400;max-width:65%;overflow-wrap:anywhere;text-align:right}.store-category-nav{position:static}}
+.scn-tools{display:flex;gap:8px;margin-bottom:12px}.scn-tools button{flex:1;min-height:44px;padding:10px 8px;border:1px solid #b2cbdf;border-radius:6px;background:#fff;color:#185a91;font:600 15px/1.4 "Microsoft YaHei",sans-serif;cursor:pointer}.scn-tools button:last-child{background:#195c95;color:#fff;border-color:#195c95}.scn-tools button:hover{filter:brightness(.96)}
+
+/* v93 grouped office navigation: display only, existing destinations and access retained. */
+#nav.office-nav-organized{align-self:start;min-width:0}
+#nav .office-nav-group{margin:5px 0;border-bottom:1px solid #e8edf4;padding:3px 0 7px}
+#nav .office-nav-group>summary{display:flex;align-items:center;justify-content:space-between;gap:8px;list-style:none;cursor:pointer;padding:11px 10px;font-size:15px;font-weight:700;color:#334c68;min-height:44px;border-radius:7px}
+#nav .office-nav-group>summary::-webkit-details-marker{display:none}
+#nav .office-nav-group>summary::after{content:'›';font-size:20px;color:#8392a5;transform:rotate(0);line-height:1}
+#nav .office-nav-group[open]>summary::after{transform:rotate(90deg)}
+#nav .office-nav-group.has-current>summary{color:#205ab5;background:#f2f6fd}
+#nav .office-nav-items{padding:3px 0 1px 10px}
+#nav .office-nav-items>:is(button,a){display:block;width:100%;box-sizing:border-box;text-align:left;margin:2px 0;padding:10px 11px;font:inherit;font-size:15px;line-height:1.45;color:#516178;background:transparent;border:0;border-radius:7px;text-decoration:none;min-height:42px;white-space:normal}
+#nav .office-nav-items>:is(button,a):hover{background:#eef4fc;color:#2457db}
+#nav .office-nav-items>button.active{background:#2457db;color:#fff;font-weight:700}
+#nav .office-nav-group>summary:focus-visible,#nav .office-nav-items>:is(button,a):focus-visible{outline:2px solid #2457db;outline-offset:2px}
+@media(max-width:700px){#nav.office-nav-organized{display:flex;overflow-x:auto;align-items:center;gap:4px}#nav .office-nav-group,#nav .office-nav-items{display:contents}#nav .office-nav-group>summary{display:none}#nav .office-nav-items>:is(button,a){flex:0 0 auto;width:auto;white-space:nowrap;margin:0;padding:9px 13px}#nav.office-nav-organized>button{flex:0 0 auto}}
+@media(max-width:700px){html:is(.mobile-text-large,.mobile-text-double) #nav .office-nav-items>a{font-size:var(--phone-control)!important;line-height:1.35;min-height:68px!important;display:flex;align-items:center}}
+.inventory-phone-unit>.inventory-source-button{display:block;width:100%;min-height:48px;margin:12px 0 0;border:1px solid #8caedf;border-radius:10px;background:#edf4ff;color:#174d98;font:inherit;font-weight:700;padding:10px 12px;white-space:normal}
+.inventory-source-dialog select{display:block;width:100%;max-width:100%;min-width:0;padding:12px;margin-top:7px;background:#fff;border:2px solid #7e9ed0;border-radius:10px;font:inherit}
+.inventory-source-dialog small{display:block;font-size:.85em;font-weight:400;margin-top:8px;color:#405b7c;overflow-wrap:anywhere}
+.inventory-source-close{float:right;margin:0 0 10px 12px}.inventory-source-dialog h2{clear:left}.inventory-source-serial code{font-size:1.1em;overflow-wrap:anywhere}
+.inventory-source-preview{border:2px solid #76a38a;background:#f3faf5;border-radius:12px;padding:15px;margin:16px 0;overflow-wrap:anywhere}.inventory-source-preview h3{margin:0 0 12px}.inventory-source-preview p{margin:10px 0}
+.inventory-source-changes{display:grid;gap:12px}.inventory-source-changes>div{display:grid;gap:5px}.inventory-source-changes dt{font-weight:700}.inventory-source-changes dd{margin:0}.inventory-source-finance{border-top:1px solid #b8cebf;margin-top:16px;padding-top:14px}.inventory-source-history{border-top:1px solid #c9d8e8;padding-top:12px}.inventory-source-history article{border-top:1px solid #d6e3ef;padding-top:8px;margin-top:12px}
+.inventory-source-dialog #inventory-source-confirm{background:#176644;color:#fff;border-color:#176644}.inventory-source-dialog .inventory-count-submit [type=submit]{background:#eef4ff;color:#2457db;border-color:#9ab8e2}
+@media(max-width:600px){html body>header.topbar,html body .shell>#nav{position:static!important;top:auto!important}}
+.inventory-opening-tool{margin:0 0 18px;padding:16px;border:2px solid #8bb49b;border-radius:12px;background:#f0f8f2}.inventory-opening-tool button{font:inherit;font-weight:700;min-height:54px;padding:12px 18px;border:1px solid #176644;border-radius:10px;background:#176644;color:#fff;white-space:normal}.inventory-opening-tool p{margin:12px 0 0;color:#315c40}.inventory-opening-dialog input[readonly]{background:#e8f5ee;color:#205538}.inventory-opening-evidence{border-top:1px solid #c9d8e8;padding-top:12px}.inventory-opening-evidence summary{font-weight:700;color:#2457db;cursor:pointer}.inventory-opening-preview-rows article{padding:12px 0;border-top:1px solid #b9cfbf}.inventory-opening-preview-rows strong{display:block;font-family:Consolas,monospace;overflow-wrap:anywhere}.inventory-opening-dialog #inventory-opening-confirm{background:#176644;color:#fff;border-color:#176644}.inventory-opening-dialog .inventory-count-submit [type=submit]{background:#eef4ff;color:#2457db;border-color:#9ab8e2}
+@media(max-width:600px){.inventory-opening-tool button{display:block;width:100%}}
+html body .shell #main .inventory-summary-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px}
+html body .shell #main .inventory-summary-grid .inventory-warehouse{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:8px;min-width:0;padding:18px;white-space:normal}
+html body .shell #main .inventory-summary-grid .inventory-warehouse-total{grid-column:1/-1;background:#edf4ff;border-color:#86a9dd}
+html body .shell #main .inventory-summary-grid .inventory-summary-cost{white-space:normal;overflow-wrap:anywhere;font-size:calc(28px * var(--store-text-scale,1))!important;margin:0;color:#173f79}
+html body .shell #main .inventory-summary-grid .inventory-summary-quantity{font-size:calc(20px * var(--store-text-scale,1))!important;line-height:1.6;color:#344b67;white-space:normal;overflow-wrap:anywhere}
+html body .shell #main .inventory-summary-grid .inventory-summary-warning{font-size:calc(18px * var(--store-text-scale,1))!important;line-height:1.5;color:#8b470d;white-space:normal}
+html body .shell #main .inventory-summary-note{font-size:calc(18px * var(--store-text-scale,1))!important;line-height:1.6;color:#455a74;margin:8px 0 14px}
+@media(max-width:700px){html body .shell #main .inventory-summary-grid{grid-template-columns:minmax(0,1fr)}html body .shell #main .inventory-summary-grid .inventory-warehouse{width:100%;padding:16px}}
+
+/* Inventory query opens on stock results with only three search fields. */
+/* Show one compact result table; narrow screens scroll inside the result area. */
+html body .shell #main .inventory-group,html body .shell #main .inventory-subgroup{border:1px solid #cbd9eb;border-radius:12px;background:#fff;margin:10px 0;overflow:hidden}
+html body .shell #main .inventory-group>summary,html body .shell #main .inventory-subgroup>summary{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 18px;cursor:pointer;list-style:none;color:#183e70}
+html body .shell #main .inventory-group>summary::-webkit-details-marker,html body .shell #main .inventory-subgroup>summary::-webkit-details-marker{display:none}
+html body .shell #main .inventory-group>summary:after,html body .shell #main .inventory-subgroup>summary:after{content:'展开 ›';font-weight:700;color:#2457db;white-space:nowrap}
+html body .shell #main .inventory-group[open]>summary:after,html body .shell #main .inventory-subgroup[open]>summary:after{content:'收起 ⌄'}
+html body .shell #main .inventory-group>summary span,html body .shell #main .inventory-subgroup>summary span{margin-left:auto;color:#526783;font-size:15px}
+html body .shell #main .inventory-group-body{padding:0 14px 14px;background:#f8fbff}
+html body .shell #main .inventory-subgroup{margin:10px 0}
+html body .shell #main .inventory-subgroup>summary{padding:12px 15px}
+@media(max-width:700px){html body .shell #main .inventory-group>summary,html body .shell #main .inventory-subgroup>summary{flex-wrap:wrap}html body .shell #main .inventory-group>summary span,html body .shell #main .inventory-subgroup>summary span{margin-left:0}}
+html body .shell #main .inventory-simple-filter+.inventory-result-summary+.inventory-unit-grid{display:block;min-width:0}
+html body .shell #main .inventory-simple-filter+.inventory-result-summary+.inventory-unit-grid .inventory-desktop-results{display:block;width:100%;max-width:100%;overflow-x:auto;border:1px solid #d5e0ee;border-radius:12px;background:#fff}
+html body .shell #main .inventory-simple-filter+.inventory-result-summary+.inventory-unit-grid .inventory-desktop-table{width:100%;min-width:900px;table-layout:auto;border-collapse:collapse}
+html body .shell #main .inventory-simple-filter+.inventory-result-summary+.inventory-unit-grid .inventory-desktop-table :is(th,td){padding:12px 10px;vertical-align:top;white-space:normal;word-break:normal}
+html body .shell #main .inventory-simple-filter+.inventory-result-summary+.inventory-unit-grid .inventory-desktop-table td:nth-child(2) code{white-space:nowrap}
+html body .shell #main .inventory-simple-filter{margin:12px 0 14px}
+html body .shell #main .inventory-simple-filter .inventory-filter-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+html body .shell #main .inventory-simple-filter .inventory-filter-actions{margin-top:10px}
+html body .shell #main .inventory-maintenance{margin-top:26px}
+html body .shell #main .inventory-maintenance summary{cursor:pointer;font-weight:700;color:#176644}
+html body .shell #main .inventory-maintenance button+button{margin-left:10px}
+@media(max-width:700px){html body .shell #main .inventory-simple-filter .inventory-filter-grid{grid-template-columns:minmax(0,1fr)}html body .shell #main .inventory-maintenance button{display:block;width:100%}html body .shell #main .inventory-maintenance button+button{margin:10px 0 0}}
+
+/* Keep document and review pages focused on their own records. */
+html body:has(#financial-filter) main #boss-attendance-alert,html body:has(#financial-filter) main #work-notice-strip,html body:has(#catalog-reviews) main #boss-attendance-alert,html body:has(#catalog-reviews) main #work-notice-strip{display:none!important}
+
+html body .shell main #boss-attendance-alert,html body .shell main #work-notice-strip,html body .shell main #normal-workflow-entry{display:none!important}html body .shell main>.task-read-controls{display:flex;justify-content:flex-end;margin:0 0 8px;padding:0;background:transparent}html body .shell main>.task-read-controls button{min-height:36px;padding:6px 12px}.office-module-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.office-module-choices a{display:block;padding:22px 16px;background:#edf4ff;color:#173d71;text-decoration:none;border:1px solid #bed3ee;border-radius:12px;font-weight:700}.document-filter{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:12px;align-items:end}
+
+/* Inventory query stays horizontal at every width; narrow screens scroll within each row. */
+html body .shell #main .inventory-simple-filter{min-width:0;max-width:100%}
+html body .shell #main .inventory-simple-filter .inventory-filter-grid{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));overflow-x:auto;max-width:100%;gap:12px}
+html body .shell #main .inventory-simple-filter .inventory-filter-grid label{min-width:180px}
+html body .shell #main .inventory-simple-filter .inventory-filter-actions{display:flex;flex-wrap:nowrap;overflow-x:auto;max-width:100%}
+html body .shell #main .inventory-simple-filter .inventory-filter-actions button{white-space:nowrap;width:auto;flex:none}
+html body .shell #main .inventory-result-summary{white-space:nowrap;overflow-x:auto;max-width:100%}
+html body .shell #main .inventory-group>summary,html body .shell #main .inventory-subgroup>summary{flex-wrap:nowrap;overflow-x:auto}
+html body .shell #main .inventory-group>summary :is(strong,span),html body .shell #main .inventory-subgroup>summary :is(strong,span){white-space:nowrap}
+html body .shell #main .inventory-model-results{display:block;max-width:100%;overflow-x:auto;border:1px solid #cbd9eb;border-radius:12px;background:#fff}
+html body .shell #main .inventory-model-head,html body .shell #main .inventory-model-row>summary{display:grid;grid-template-columns:minmax(240px,2fr) minmax(90px,.7fr) minmax(180px,1.3fr) 92px 70px 100px 110px;gap:12px;align-items:center;min-width:980px;padding:12px 16px;box-sizing:border-box}
+html body .shell #main .inventory-model-head{background:#edf4ff;color:#284a78;font-weight:700}
+html body .shell #main .inventory-model-row{border-top:1px solid #e1e8f1}
+html body .shell #main .inventory-model-row>summary{cursor:pointer;list-style:none}
+html body .shell #main .inventory-model-row>summary::-webkit-details-marker{display:none}
+html body .shell #main .inventory-model-row>summary strong{min-width:0;overflow-wrap:anywhere}
+html body .shell #main .inventory-model-row>summary small{display:block;color:#64748b;font-size:13px;font-weight:400}
+html body .shell #main .inventory-model-row>summary span{min-width:0;overflow-wrap:anywhere}
+html body .shell #main .inventory-model-open{color:#2457db;font-weight:700;white-space:nowrap}
+html body .shell #main .inventory-model-open:after{content:'查看单台 ›'}
+html body .shell #main .inventory-model-row[open] .inventory-model-open:after{content:'收起单台 ⌄'}
+html body .shell #main .inventory-model-body{min-width:980px;padding:0 14px 14px;box-sizing:border-box;background:#f8fbff}
+html body .shell #main .inventory-model-body .inventory-desktop-table :is(th,td){white-space:nowrap}
+html body .shell #main.inventory-product-focus>:not(#inventory-focus-panel){display:none!important}
+html body .shell #main .inventory-focus-panel{display:block;width:100%;min-width:0;min-height:calc(100vh - 120px);padding:0;background:#fff}
+html body .shell #main .inventory-focus-header{display:flex;align-items:center;gap:18px;margin:0 0 16px}
+html body .shell #main .inventory-focus-header h2{margin:0;font-size:24px}
+html body .shell #main .inventory-focus-header button{flex:none}
+html body .shell #main .inventory-focus-panel .inventory-model-row{border:0}
+html body .shell #main .inventory-focus-panel .inventory-model-row>summary{min-width:980px;background:#edf4ff;border-radius:10px}
+html body .shell #main .inventory-focus-panel .inventory-model-body{min-width:0;padding:12px 0;background:#fff}
+html body .shell #main .inventory-focus-panel .inventory-desktop-results{max-height:none}
+@media(max-width:700px){html body .shell #main .inventory-focus-panel .inventory-model-row>summary{min-width:0;display:block}html body .shell #main .inventory-focus-header{align-items:flex-start;flex-direction:column;gap:8px}html body .shell #main .inventory-focus-header h2{font-size:21px}}
+
+/* On phones, the fixed Home action returns to the workbench for all module navigation. */
+@media(max-width:700px){html body .shell>#nav{display:none!important}}
+
+/* Product archive on phones: filter first; keep classification management and row details on demand. */
+@media(max-width:700px){
+ html body .shell #main.product-catalog-page{min-width:0}
+ html body .shell #main.product-catalog-page #product-category-tree{display:none}
+ html body .shell #main.product-catalog-page.product-tree-open #product-category-tree{display:block}
+ html body .shell #main.product-catalog-page .heading{display:flex;flex-direction:row;align-items:center;gap:10px}
+ html body .shell #main.product-catalog-page .heading .actions{width:auto;margin-left:auto}
+ html body .shell #main.product-catalog-page .product-catalog-manage{position:relative}
+ html body .shell #main.product-catalog-page .product-catalog-manage>summary{display:block;list-style:none;cursor:pointer;border:1px solid #a8bee0;background:#fff;color:#2457bd;border-radius:9px;padding:9px 12px;white-space:nowrap}
+ html body .shell #main.product-catalog-page .product-catalog-manage>summary::-webkit-details-marker{display:none}
+ html body .shell #main.product-catalog-page .product-catalog-manage[open]{z-index:4}
+ html body .shell #main.product-catalog-page .product-catalog-manage[open]>:not(summary){display:block;width:100%;margin:7px 0 0;white-space:normal}
+ html body .shell #main.product-catalog-page .product-catalog-manage[open]{background:#fff;border:1px solid #b8c9e2;border-radius:10px;padding:10px;width:min(320px,calc(100vw - 30px))}
+ html body .shell #main.product-catalog-page .product-catalog-filters{padding:14px;margin-top:10px}
+ html body .shell #main.product-catalog-page .product-catalog-filters label{display:block;margin:8px 0;font-weight:700;min-width:0}
+ html body .shell #main.product-catalog-page .product-catalog-filters :is(input[type=search],select){display:block;width:100%;min-width:0;margin-top:6px}
+ html body .shell #main.product-catalog-page .product-catalog-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ html body .shell #main.product-catalog-page .product-catalog-extra{margin:10px 0}
+ html body .shell #main.product-catalog-page .product-catalog-extra>summary{color:#2457bd;cursor:pointer}
+ html body .shell #main.product-catalog-page .product-catalog-query-actions{display:flex;gap:10px}
+ html body .shell #main.product-catalog-page .product-catalog-query-actions button{flex:1;min-width:0;white-space:normal}
+ html body .shell #main.product-catalog-page #product-catalog-results{padding:0;border:0;box-shadow:none;background:transparent}
+ html body .shell #main.product-catalog-page .product-catalog-item{margin:0;background:#fff;border-bottom:1px solid #d8e2ef}
+ html body .shell #main.product-catalog-page .product-catalog-item>summary{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:7px;list-style:none;padding:12px 6px;cursor:pointer}
+ html body .shell #main.product-catalog-page .product-catalog-item>summary::-webkit-details-marker{display:none}
+ html body .shell #main.product-catalog-page .product-catalog-item>summary strong{font-size:clamp(18px,5vw,23px)!important;line-height:1.35;min-width:0;overflow-wrap:anywhere}
+ html body .shell #main.product-catalog-page .product-catalog-price{font-size:clamp(17px,4.8vw,22px)!important;white-space:nowrap;font-weight:700;color:#174e9b}
+ html body .shell #main.product-catalog-page .product-catalog-open{font-size:clamp(15px,4vw,18px)!important;white-space:nowrap;color:#2457bd}
+ html body .shell #main.product-catalog-page .product-catalog-item-detail{padding:6px 12px 14px;background:#f2f6fc}
+ html body .shell #main.product-catalog-page .product-catalog-item-detail p{margin:7px 0;font-size:clamp(16px,4.5vw,20px)!important}
+ html body .shell #main.product-catalog-page .product-catalog-item-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+ html body .shell #main.product-catalog-page .product-catalog-item-actions :is(button,a){flex:1 1 120px;text-align:center}
+ html body .shell #main.product-catalog-page .inventory-pagination[hidden]{display:none!important}
+}
+
+/* Product catalog desktop query: keep choices in reading order and show results only after query. */
+@media(min-width:701px){
+  #main.product-catalog-page .store-category-layout{grid-template-columns:minmax(0,1fr)!important}
+  #main.product-catalog-page.product-tree-open .store-category-layout{grid-template-columns:270px minmax(0,1fr)!important}
+  #main.product-catalog-page #product-category-tree{display:none}
+  #main.product-catalog-page.product-tree-open #product-category-tree{display:block}
+  #main.product-catalog-page .product-catalog-desktop-filters .fields{grid-template-columns:repeat(4,minmax(0,1fr));align-items:end}
+  #main.product-catalog-page .product-catalog-desktop-filters .fields>label{min-width:0}
+  #main.product-catalog-page .product-catalog-desktop-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  #main.product-catalog-page .product-catalog-desktop-actions button{width:auto}
+  #main.product-catalog-page #product-catalog-results:empty{display:none}
+}
+@media(min-width:701px) and (max-width:1100px){#main.product-catalog-page .product-catalog-desktop-filters .fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Inventory query: three conditions and two actions share one compact reading row. */
+html body .shell #main .inventory-simple-filter{
+  display:grid;grid-template-columns:minmax(590px,1fr) max-content;
+  align-items:end;gap:18px;padding:16px 20px;margin:12px 0;
+  overflow-x:auto;background:#fff;border:1px solid #d8e2ef;
+}
+html body .shell #main .inventory-simple-filter .inventory-filter-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));
+  gap:14px;min-width:590px;max-width:none;overflow:visible;
+}
+html body .shell #main .inventory-simple-filter .inventory-filter-grid label{min-width:0}
+html body .shell #main .inventory-simple-filter .inventory-filter-actions{
+  display:flex;align-items:end;gap:10px;margin:0;overflow:visible;max-width:none;
+}
+html body .shell #main .inventory-simple-filter .inventory-filter-actions button{min-height:48px;white-space:nowrap}
+html body .shell #main .inventory-result-summary[data-queried="0"]{
+  margin:4px 0 10px;padding:7px 0;border:0;background:transparent;
+  color:#456078;font-weight:500;
+}
+html body .shell #main .inventory-maintenance{
+  width:max-content;max-width:100%;margin-top:18px;padding:8px 12px;
+  border:1px solid #b9d8c8;border-radius:10px;background:#f6fbf8;
+}
+@media(max-width:1050px){
+  html body .shell #main .inventory-simple-filter{grid-template-columns:590px max-content}
+}
+/* 商品档案手机页直接显示可点击的分类树；其他业务页维持原分类导航。 */
+@media(max-width:700px){
+ html body .shell #main.product-catalog-page.product-tree-open #product-category-tree .scn-desktop{display:block;position:static;max-height:250px;overflow:auto}
+ html body .shell #main.product-catalog-page #product-category-tree .scn-mobile-open{display:none}
+ html body .shell #main.product-catalog-page .heading .actions{display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:6px}
+ html body .shell #main.product-catalog-page .heading .actions>button{font-size:14px;padding:8px}
+}
+
+/* 一级分类库存查询：电脑四项横排，窄屏两列，范围仅此查询面板。 */
+html body .shell #main .inventory-simple-filter.inventory-level1-filter{grid-template-columns:minmax(0,1fr) max-content;overflow:visible}
+html body .shell #main .inventory-page-heading .inventory-workbench-link{display:inline-flex;align-items:center;min-height:36px;color:#2457db;text-decoration:none}
+html body .shell #main .inventory-simple-filter.inventory-level1-filter .inventory-filter-grid{grid-template-columns:repeat(4,minmax(140px,1fr));min-width:0;max-width:100%;gap:12px}
+html body .shell #main .inventory-simple-filter.inventory-level1-filter .inventory-filter-actions{grid-column:auto}
+@media(max-width:1200px){html body .shell #main .inventory-simple-filter.inventory-level1-filter{grid-template-columns:minmax(0,1fr)}html body .shell #main .inventory-simple-filter.inventory-level1-filter .inventory-filter-actions{justify-content:flex-start}}
+@media(max-width:700px){html body .shell #main .inventory-simple-filter.inventory-level1-filter{padding:12px;gap:12px}html body .shell #main .inventory-simple-filter.inventory-level1-filter .inventory-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}html body .shell #main .inventory-simple-filter.inventory-level1-filter .inventory-filter-grid label{min-width:0}html body .shell #main .inventory-simple-filter.inventory-level1-filter .inventory-filter-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}html body .shell #main .inventory-simple-filter.inventory-level1-filter .inventory-filter-actions button{width:100%;padding:10px 8px}html body .shell #main .inventory-simple-filter.inventory-level1-filter+.inventory-result-summary{white-space:normal;overflow:visible;font-size:16px!important;line-height:1.5}}
+
+/* Inventory results use compact expandable rows on phones; desktop keeps its table. */
+html body .shell #main .inventory-mobile-results{display:none}
+.inventory-phone-filter-toggle{display:none}
+@media(max-width:700px){
+ html body .shell #main .inventory-desktop-results{display:none!important}
+ html body .shell #main .inventory-mobile-results{display:grid;grid-template-columns:minmax(0,1fr);gap:0;min-width:0;border:1px solid #d9e3ef;border-radius:12px;overflow:hidden;background:#fff}
+ html body .shell #main .inventory-phone-row{min-width:0;margin:0;border-bottom:1px solid #d9e3ef;background:#fff}
+ html body .shell #main .inventory-phone-row>summary{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;padding:12px 8px;list-style:none;cursor:pointer}
+ html body .shell #main .inventory-phone-row>summary::-webkit-details-marker{display:none}
+ html body .shell #main .inventory-phone-row-main{display:grid;gap:4px;min-width:0}
+ html body .shell #main .inventory-phone-row-main strong{font-size:var(--phone-detail,23px);line-height:1.35;overflow-wrap:anywhere}
+ html body .shell #main .inventory-phone-row-main :is(code,.inventory-phone-row-subtitle){font-size:18px;color:#506681;overflow-wrap:anywhere;word-break:break-all;white-space:normal}
+ html body .shell #main .inventory-phone-warehouse{flex:none;background:#eaf2ff;border-radius:8px;padding:5px 10px;font-weight:700}
+ html body .shell #main .inventory-phone-row-toggle::after{content:'展开 ›';white-space:nowrap;color:#2457db;font-weight:700}
+ html body .shell #main .inventory-phone-row[open] .inventory-phone-row-toggle::after{content:'收起 ⌄'}
+ html body .shell #main .inventory-phone-row-detail{padding:8px 12px 16px;background:#f7faff;border-top:1px solid #e1e9f2}
+ html body .shell #main .inventory-phone-row-detail dl{display:grid;gap:8px;margin:4px 0}
+ html body .shell #main .inventory-phone-row-detail dl>div{display:grid;grid-template-columns:92px minmax(0,1fr);gap:8px;overflow-wrap:anywhere}
+ html body .shell #main .inventory-phone-row-detail dt{color:#526986}
+ html body .shell #main .inventory-phone-row-detail dd{margin:0;min-width:0}
+ html body .shell #main .inventory-group>summary,html body .shell #main .inventory-subgroup>summary{flex-wrap:wrap;overflow:visible}
+ html body .shell #main .inventory-group>summary :is(strong,span),html body .shell #main .inventory-subgroup>summary :is(strong,span){white-space:normal;overflow-wrap:anywhere}
+ html body .shell #main .inventory-group-body,html body .shell #main .inventory-model-body{padding:12px;min-width:0}
+ html body .shell #main .inventory-model-results{display:none}
+}
+
+/* A phone query is a compact list; opening one item gives its details the screen. */
+@media(max-width:700px){
+ html body:has(#main.inventory-phone-focus) :is(.topbar,#nav){display:none!important}
+ html body .shell #main .inventory-phone-filter-toggle{display:flex;width:100%;align-items:center;justify-content:space-between;gap:8px;margin:6px 0;padding:8px 10px;min-height:38px;border:1px solid #cbd9eb;border-radius:7px;background:#fff;color:#183e70;font-size:15px;text-align:left}
+ html body .shell #main.inventory-mobile-filters-collapsed #inventory-filter-panel{display:none!important}
+ html body .shell #main .inventory-level1-filter+.inventory-result-summary{padding:8px 10px;margin:6px 0;font-size:15px!important;line-height:1.4}
+ html body .shell #main .inventory-mobile-results{border:0;border-top:1px solid #d9e3ef;border-radius:0;overflow:visible}
+ html body .shell #main .inventory-phone-row{border:0;border-bottom:1px solid #d9e3ef;border-radius:0;box-shadow:none}
+ html body .shell #main .inventory-phone-row>summary{display:grid;grid-template-columns:minmax(0,1fr) max-content 12px;align-items:center;gap:4px;min-height:44px;padding:5px 6px;white-space:nowrap}
+ html body .shell #main .inventory-phone-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap!important;font-size:14px!important;line-height:1.35}
+ html body .shell #main .inventory-phone-row>summary .inventory-phone-serial{display:block;min-width:0;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;font:600 12px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace!important;font-variant-numeric:tabular-nums;color:#334b6a;text-align:right;direction:ltr;unicode-bidi:isolate}
+ html body .shell #main .inventory-phone-row-toggle::after{content:'›';font-size:20px}
+ html body .shell #main .inventory-phone-row[open] .inventory-phone-row-toggle::after{content:'⌄'}
+ html body .shell #main .inventory-phone-row-detail{padding:4px 8px 12px;background:#fff;border-top:1px solid #e1e9f2}
+ html body .shell #main .inventory-phone-row-detail dl{gap:0;margin:0}
+ html body .shell #main .inventory-phone-row-detail dl>div{padding:7px 0;border-bottom:1px solid #edf1f6;grid-template-columns:86px minmax(0,1fr);font-size:15px}
+ html body .shell #main .inventory-group,html body .shell #main .inventory-subgroup{margin:0;border:0;border-bottom:1px solid #d9e3ef;border-radius:0;box-shadow:none}
+ html body .shell #main .inventory-group>summary,html body .shell #main .inventory-subgroup>summary{min-height:42px;padding:7px 4px;gap:6px;flex-wrap:nowrap}
+ html body .shell #main .inventory-group>summary :is(strong,span),html body .shell #main .inventory-subgroup>summary :is(strong,span){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ html body .shell #main .inventory-group-body,html body .shell #main .inventory-model-body{padding:0;background:#fff}
+ html body .shell #main.inventory-phone-focus>:not(#inventory-phone-focus-panel){display:none!important}
+ html body .shell #main .inventory-phone-focus-panel{width:100%;min-height:calc(100dvh - 20px);background:#fff}
+ html body .shell #main .inventory-phone-focus-header{display:flex;align-items:center;gap:10px;padding:4px 0 12px;border-bottom:1px solid #d9e3ef}
+ html body .shell #main .inventory-phone-focus-header h2{font-size:19px;line-height:1.3;margin:0;min-width:0;overflow-wrap:anywhere}
+ html body .shell #main .inventory-phone-focus-panel .inventory-phone-row{border:0}
+ html body .shell #main .inventory-phone-focus-panel .inventory-phone-row>summary{display:none!important}
+ html body .shell #main .inventory-phone-focus-panel .inventory-phone-row-detail{border:0;padding:0}
+}

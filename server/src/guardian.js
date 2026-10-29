@@ -1,7 +1,6 @@
 const c = require("./common");
 function inspect(store) {
   const findings = [];
-  const add = (id, severity, summary) => findings.push({ id, severity, summary });
   const products = new Map(store.products.map((p) => [p.skuId, p]));
   const serials = new Map();
   for (const row of store.inventory) {
@@ -34,62 +33,44 @@ function inspect(store) {
     ids.add(row.id);
   }
   for (const row of store.closeouts || []) {
-    if ([row.actualCash, row.expectedCash, row.difference].every(Number.isFinite) &&
-        Math.abs(c.round(row.actualCash - row.expectedCash) - row.difference) > 0.009)
-      findings.push({ id: "closeout-difference:" + row.id, severity: "高", summary: "交班结算现金差异计算不符：" + row.id });
+    if (Math.abs(c.round(row.actualCash - row.expectedCash) - row.difference) > 0.009)
+      findings.push({ id: "closeout-difference:" + row.id, severity: "高", summary: "当日中途扎账现金差异计算不符：" + row.id });
   }
-  const cashReceipts = (store.receipts || []).filter((row) => row.account === "现金");
-  const rechargeReceipts = cashReceipts.filter((row) => row.kind === "cash_recharge");
-  const rechargeEvents = (store.airRechargeEvents || []).filter((row) => row.kind === "customer_recharge");
-  const rechargeIds = new Set(rechargeEvents.map((row) => row.id));
-  const platformRefs = new Set();
-  for (const row of rechargeEvents) {
-    const ref = String(row.reference || "").trim();
-    if (!ref) add("recharge-reference:" + row.id, "待核实", "现金充值缺少移动BOSS流水号：" + row.id);
-    else if (platformRefs.has(ref)) add("recharge-duplicate-reference:" + row.id, "高", "现金充值的移动BOSS流水号重复：" + row.id);
-    else platformRefs.add(ref);
-    if (![row.cashReceived, row.debitAmount].every((value) => Number.isFinite(value) && value > 0))
-      add("recharge-amount:" + row.id, "待核实", "现金充值缺少有效的实收现金或平台扣减金额：" + row.id);
-    else if (Math.abs(c.round(row.cashReceived - row.debitAmount)) > 0.009)
-      add("recharge-amount:" + row.id, "高", "现金充值实收与平台扣减不一致，须分别核对：" + row.id);
-    const linked = rechargeReceipts.filter((receipt) => receipt.sourceId === row.id);
-    if (linked.length !== 1) add("recharge-receipt:" + row.id, "待核实", "现金充值对应的现金流水不是一笔，请核对原单：" + row.id);
-    else if (!Number.isFinite(linked[0].amount) || !Number.isFinite(row.cashReceived) ||
-             Math.abs(c.round(linked[0].amount - row.cashReceived)) > 0.009 ||
-             linked[0].transactionDate !== row.businessDate)
-      add("recharge-receipt:" + row.id, "高", "现金充值原单与现金流水金额或业务日期不一致：" + row.id);
+  for(const row of store.dailyCloseouts||[]){
+    if(row.simpleDailyClose===true||row.status!=='待老板签认'||!require('./named-fund-accounts').applies(row.date))continue;
+    const unresolved=(row.snapshot?.mobile||[]).filter(item=>item.status!=='一致');
+    if(unresolved.length)findings.push({id:'daily-close-mobile-unresolved:'+row.id,severity:'高',summary:'旧详细扎账空充或移动BOSS仍待补录／查差，不能锁定：'+row.id,inAppOnly:true});
   }
-  for (const row of rechargeReceipts)
-    if (!rechargeIds.has(row.sourceId)) add("orphan-recharge-receipt:" + row.id, "待核实", "现金充值流水找不到对应空充原单：" + row.id);
-  for (const row of cashReceipts) {
-    const entered = row.createdAt && c.day(row.createdAt);
-    if (row.transactionDate && entered && row.transactionDate !== entered)
-      add("cross-day-cash:" + row.id, "待核实", "现金流水业务日期与录入日期不同，日结时按业务日期逐笔核对：" + row.id);
-  }
-  for (const row of store.dailyCloseouts || []) {
-    if (["已驳回", "已解锁"].includes(row.status)) continue;
-    const cashChange = row.snapshot?.cashChange;
-    const handover = row.snapshot?.cashHandoverConfirmed;
-    if (![row.openingCash, cashChange, handover, row.expectedCash, row.actualCash, row.cashDifference].every(Number.isFinite)) {
-      add("daily-close-evidence:" + row.id, "待核实", "正式扎账缺少现金期初、流水、已确认交接或实点依据：" + row.id);
-      continue;
-    }
-    if (Math.abs(c.round(row.openingCash + cashChange - handover - row.expectedCash)) > 0.009 ||
-        Math.abs(c.round(row.actualCash - row.expectedCash - row.cashDifference)) > 0.009)
-      add("daily-close-formula:" + row.id, "高", "正式扎账现金计算与原始分项不一致：" + row.id);
-    if (row.snapshot.cashHandoverPending?.length || row.snapshot.cashHandoverDisputed?.length)
-      add("daily-close-handover:" + row.id, "待核实", "正式扎账仍有待确认或有异议的现金交接：" + row.id);
-    if (Math.abs(row.cashDifference) > 0.009)
-      add("daily-close-cash-difference:" + row.id, "待核实", "正式扎账登记了现金差异，须核对实点和补录原单：" + row.id);
-  }
-  return findings;
+  return [...findings,...require("./business-change-flow").findings(store),...require("./wallet-owner-baseline").findings(store)];
 }
 function collect(store) {
   const findings = inspect(store);
   if (!findings.length) return { checked: true, findings: 0 };
   const { notice } = require("./feishu-notices");
   const day = c.day();
-  for (const finding of findings) notice(store, "guardian:" + day + ":" + finding.id, "系统预警", { id: finding.id, summary: finding.summary });
+  for (const finding of findings.filter(x=>!x.inAppOnly)) notice(store, "guardian:" + day + ":" + finding.id, "系统预警", { id: finding.id, summary: finding.summary });
   return { checked: true, findings: findings.length };
 }
-module.exports = { inspect, collect };
+function assessReception(row){
+    const reasons=[];
+    const needs=String(row.needs||'').trim();
+    if(row.duplicateOf)reasons.push('同一时段疑似重复接待，请核对原单');
+    if(!String(row.purpose||'').trim())reasons.push('未写接待来意');
+    if(!needs||needs==='咨询一般业务')reasons.push('未写具体接待事项');
+    if(!['yes','no'].includes(row.followUpNeed))reasons.push('未标明是否需要跟进');
+    if(row.followUpNeed==='yes'&&!row.followUpAt)reasons.push('未写计划跟进时间');
+    if(row.wechat?.claimed&&!row.wechat?.confirmed)reasons.push('加微信申报待核验');
+    if(row.receptionServiceRuleVersion===1){if(!row.audioEvidence)reasons.push('未保存可回放接待录音');if(!require('./reception-service-assessment').assess(row.originalDocument?.transcript,row).serviceComplete)reasons.push('未见具体双方沟通与服务过程');}
+    const profile=row.customerProfile||{},residence=[profile.town,profile.village,profile.address].filter(Boolean).join(' ');
+    const facts={purpose:!!String(row.purpose||'').trim(),question:needs.length>=6&&needs!=='咨询一般业务'&&!/^(无|没有|不知道|随便看看)$/.test(needs),residence:!!residence,timing:!!row.followUpAt||/今天|明天|后天|下周|下月|月底|月初|周末|星期|\d+月\d+日/.test(needs)};
+    const useful=facts.purpose&&facts.question&&(facts.residence||facts.timing)&&!row.duplicateOf,serviceRuleNoPoints=row.receptionServiceRuleVersion===1;
+    const state=row.validity==='无效'?(serviceRuleNoPoints?'已判无效，不计积分':row.qualityAward?.status==='已核准'?'已核准质量奖励':useful?'建议核对是否有用，可奖50分':'已判无效，暂不建议奖励'):row.duplicateOf?'建议核为无效':reasons.length?'建议先补资料':'资料齐全，待人工核实真实性';
+    return {id:row.id,displayNo:row.displayNo||row.id,ownerName:row.ownerName||'',createdAt:row.createdAt,status:row.status,validity:row.validity||'待确认',state,reasons,needsPreview:needs.slice(0,120),residencePreview:residence.slice(0,100),plannedAt:row.followUpAt||'',qualityFacts:facts,qualitySuggested:!serviceRuleNoPoints&&row.validity==='无效'&&useful&&row.qualityAward?.status!=='已核准',qualityPoints:row.qualityAward?.points||0,serviceRuleNoPoints,href:'/receptions?highlight='+encodeURIComponent(row.id)};
+}
+function receptionReview(store) {
+  const rows=store.receptions||[];
+  const assessed=rows.map(assessReception);
+  const priority=row=>row.status==='待结案确认'?0:row.validity==='无效'?1:2;
+  return {total:rows.length,invalid:rows.filter(row=>row.validity==='无效').length,pending:rows.filter(row=>row.status==='待结案确认').length,incomplete:assessed.filter(row=>row.reasons.some(reason=>reason.startsWith('未写'))).length,rows:assessed.filter(row=>row.validity==='无效'||row.validity!=='有效'&&['待结案确认','接待中','待回访','已转业务'].includes(row.status)).sort((a,b)=>priority(a)-priority(b)||String(b.createdAt||'').localeCompare(String(a.createdAt||''))).slice(0,100)};
+}
+module.exports = { inspect, collect, assessReception, receptionReview };

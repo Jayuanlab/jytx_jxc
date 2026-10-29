@@ -86,6 +86,20 @@ dialog .select-filter{background:#f8fbff}
 
 @media(max-width:700px){#failed-attempts .failed-attempt strong{font-size:var(--phone-detail,24px);line-height:1.4}}
 
+.reception-list-tools{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin:12px 0}.reception-list-tools label{display:grid;gap:5px;color:#174ca7;font-weight:800;min-width:170px}.reception-list-tools select{min-height:48px;padding:8px;border:2px solid #7199dd;border-radius:9px;background:#f7faff;color:#142e60;font:inherit}.reception-list-tools #filter{flex:1 1 220px;min-height:48px}.reception-completion{padding:10px 12px;border-radius:9px;font-weight:800}.reception-completion[data-complete="yes"]{background:#e7f5e9;color:#146333}.reception-completion[data-complete="no"]{background:#fff0ed;color:#9f211a}.receipt[hidden]{display:none!important}
+.reception-jump{display:block;margin:12px 0;padding:12px 16px;border-radius:10px;background:#eaf1ff;color:#174ca7;font-weight:800;text-decoration:none;min-height:48px;box-sizing:border-box}.reception-jump:focus-visible{outline:3px solid #f59d19}#my-receptions{scroll-margin-top:20px}
+.receipt{margin:28px 0;box-shadow:0 3px 12px #142e6014}
+.linked-business{margin:14px 0;border:1px solid #cfdbed;border-radius:10px;background:#f7faff}
+.linked-business summary{cursor:pointer;padding:11px 13px;color:#174ca7;font-weight:700}
+.linked-business-items{padding:0 13px 12px;line-height:1.8;overflow-wrap:anywhere}
+.linked-business-items a{color:#174ca7;text-decoration:underline}
+.reception-conversion{margin:14px 0;padding:14px;border:2px solid #7199dd;border-radius:12px;background:#eef5ff}
+.reception-conversion strong{display:block;color:#143f88;font-size:19px}
+.reception-conversion p,.reception-conversion-note{margin:8px 0;color:#455c7a}
+.reception-conversion-actions{display:flex;flex-wrap:wrap;gap:10px}
+.reception-conversion button{min-height:48px;border:1px solid #2458d5;border-radius:9px;background:#2458d5;color:#fff;font:inherit;font-weight:700;padding:10px 14px}
+@media(max-width:620px){.reception-conversion-actions button{flex:1 1 100%}}
+
 
 /* Reception basics: two fields per row; feedback spans the whole row. */
 #new-form .reception-first-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px 18px;min-width:0}
@@ -103,3 +117,29 @@ dialog .select-filter{background:#f8fbff}
  .panel:has(#new-form){padding:10px}
  html body #new-form .reception-first-fields input[name=phone]{font-family:Arial,"Microsoft YaHei",sans-serif;font-weight:600}
 }
+
+/* 接待与跟单：先选事项，按需打开原单或新表。 */
+#reception-entry-menu{max-width:1000px;margin-inline:auto}
+#reception-entry-menu h1{margin:0;color:#173c70}
+#reception-entry-menu>p{color:#526a86}
+.reception-entry-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.reception-entry-grid a{display:flex;flex-direction:column;gap:8px;min-height:112px;padding:20px;border:2px solid #bfd0e8;border-radius:15px;background:#f7faff;color:#173c70;text-decoration:none;box-sizing:border-box}
+.reception-entry-grid a:hover,.reception-entry-grid a:focus-visible{border-color:#2458d5;background:#edf4ff;outline:2px solid #2458d5;outline-offset:2px}
+.reception-entry-grid strong{font-size:23px}.reception-entry-grid span{line-height:1.5;color:#4e6380}
+#reception-entry-return{max-width:1000px;margin:8px auto 14px;font-weight:800}
+#reception-entry-return a{color:#2055a8}
+html[data-reception-view="home"] #reception-entry-return,
+html:not([data-reception-view="home"]) #reception-entry-menu{display:none!important}
+html[data-reception-view="home"] :is(#reception-new-panel,#reception-failure-panel,#reception-records-panel,#reception-claims-panel),
+html[data-reception-view="new"] :is(#reception-records-panel,#reception-claims-panel),
+html[data-reception-view="voice"] :is(#reception-records-panel,#reception-claims-panel),
+html[data-reception-view="mine"] :is(#reception-new-panel,#reception-failure-panel),
+html[data-reception-view="followups"] :is(#reception-new-panel,#reception-failure-panel),
+html[data-reception-view="claims"] :is(#reception-new-panel,#reception-failure-panel,#reception-records-panel){display:none!important}
+html[data-reception-view="new"] .assistant-intake{display:none!important}
+html[data-reception-view="voice"] #reception-new-panel>.row h2{font-size:0}
+html[data-reception-view="voice"] #reception-new-panel>.row h2::after{content:'语音接待 · 核对后建单';font-size:23px}
+@media(max-width:700px){.reception-entry-grid{grid-template-columns:1fr}.reception-entry-grid a{min-height:88px;padding:15px}}
+.voice-speaker-actions{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}.voice-speaker-actions button{min-height:44px;padding:8px 12px;border:1px solid #6d89b0;border-radius:8px;background:#f2f7ff;color:#173c70;font-weight:700}
+.service-assessment{margin:12px 0;padding:13px 15px;border:1px solid #c9d8eb;border-radius:9px;background:#f7faff;color:#203b5b;line-height:1.55}.service-assessment strong{display:block;margin-bottom:6px}.service-assessment p{margin:5px 0;overflow-wrap:anywhere}
+.voice-consent{display:flex;align-items:flex-start;gap:.6rem;margin:.75rem 0;font-weight:600;line-height:1.5}.voice-consent input{width:1.3rem;height:1.3rem;flex:none;margin:.12rem 0 0}.reception-audio{margin:1rem 0;padding:1rem;border:1px solid #cddceb;border-radius:.8rem;background:#f7faff}.reception-audio audio{display:block;width:100%;max-width:32rem;margin-top:.6rem}

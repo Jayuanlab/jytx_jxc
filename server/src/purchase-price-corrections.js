@@ -1,3 +1,4 @@
+const fifo=require("./fifo-costs");
 "use strict";
 const { createHash } = require("node:crypto");
 const c = require("./common"), costs = require("./supplier-costs"), suppliers = require("./suppliers");
@@ -15,6 +16,7 @@ function source(store, payload) {
   const purchaseId = c.text(payload.purchaseId, "原入库单"), itemId = c.text(payload.itemId, "原入库明细");
   const order = (store.purchases || []).find(p => p.id === purchaseId && p.supplierId === payload.supplierId), line = order?.items?.find(i => i.id === itemId);
   if (!order || !line) throw new c.HttpError(404, "原采购明细不存在或不属于该往来单位");
+  if((store.serialSourceCorrections||[]).some(r=>r.purchaseId===order.id&&r.accounting))throw new c.HttpError(409,'该采购已有单台供货商和款项归属更正，整批改价须先逐台核对当前归属');
   if (order.redOf || order.redReversedBy || ["已红冲", "已退货", "returned", "reversed"].includes(order.status)) throw new c.HttpError(409, "该入库单已经退货或红冲，须先核实原单");
   if ((store.purchaseReturns || []).some(r => r.purchaseId === order.id)) throw new c.HttpError(409, "该入库单已发生采购退货，暂不能自动更正原价");
   if ((store.purchaseReturnRequests || []).some(r => r.purchaseId === order.id && r.status === PENDING) || (store.redReversals || []).some(r => (r.sourceId || r.expenseId) === order.id && r.status === PENDING)) throw new c.HttpError(409, "该入库单有待审核退货或红冲申请，请先处理申请");
@@ -74,7 +76,7 @@ function reliableCash(store,entry,type,settlement){
  const receipts=(store.receipts||[]).filter(r=>r.sourceId===cash.id&&r.kind===(type==='payment'?'supplier_payment':'supplier_refund')&&r.supplierId===entry.supplierId),sign=type==='payment'?-1:1;
  if(!cash.paymentParts)return receipts.length===1&&c.round(receipts[0].amount)===sign*c.round(cash.amount);
  const parts=cash.paymentParts,ids=new Set(parts.map(p=>p.id));if(!parts.length||ids.size!==parts.length||receipts.length!==parts.length)return false;
- let sum=0;for(const part of parts){const matched=receipts.filter(r=>r.partId===part.id);if(matched.length!==1)return false;const r=matched[0];if(c.round(r.amount)!==sign*c.round(part.amount)||['account','paymentAccountId','accountName','accountOwnerId'].some(key=>(r[key]||'')!==(part[key]||'')))return false;sum+=suppliers.cents(part.amount);}
+ let sum=0;for(const part of parts){const matched=receipts.filter(r=>r.partId===part.id);if(matched.length!==1)return false;const r=matched[0],ownership=require('./account-ownership'),left=ownership.project(store,r),right=ownership.project(store,part);if(c.round(r.amount)!==sign*c.round(part.amount)||['account','paymentAccountId','accountScope','accountOwnerId'].some(key=>(left[key]||'')!==(right[key]||'')))return false;sum+=suppliers.cents(part.amount);}
  return sum===suppliers.cents(cash.amount);
 }
 function settlementState(store, order) {
@@ -141,6 +143,7 @@ function confirm(store, user, payload) {
     let left = suppliers.cents(row.offsetPreviousRefundAmount);
     for (const previous of row.previousRefunds) { const n = Math.min(left, previous.remainingCents); automaticOffset(store, actor, row, previous.id, e.id, n); left -= n; }
   }
+  fifo.adjustSource(stock,row.itemId,row.inventoryDelta);
   stock.stockValue = c.round(Number(stock.stockValue ?? stock.quantity * stock.costPrice) + row.inventoryDelta); stock.costPrice = stock.quantity ? Number((stock.stockValue / stock.quantity).toFixed(6)) : 0;
   for (const target of row.targets) { if (target.serialNo) { const serial = stock.serials.find(s => s.no === target.serialNo); serial.costPrice = c.round(serial.costPrice + target.costDelta); } store.costAdjustments.push({ id: c.id("CA"), kind: target.destination, sourceId: row.id, skuId: row.skuId, ...target, ...suppliers.stamp(actor) }); }
   if (row.inventoryDelta) store.movements.unshift({ id: c.id("MV"), skuId: row.skuId, product: row.name, quantity: 0, cost: row.inventoryDelta, type: "入库进价录错更正", warehouseId: stock.warehouseId || "wh-sale", warehouseName: stock.warehouseName || "销售仓", sourceId: row.id, ...suppliers.stamp(actor) });

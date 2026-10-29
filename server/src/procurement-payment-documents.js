@@ -1,0 +1,11 @@
+'use strict';
+const c=require('./common');
+function list(store,user,query=new URLSearchParams()){
+ const who=require('./master-data').actor(store,user);c.permit(who,'purchase');const id=query.get('planId'),plan=(store.procurementPlans||[]).find(x=>x.id===id);if(!plan)throw new c.HttpError(404,'未找到原订货单');if(who.roleCode==='employee'&&plan.operatorId!==who.id&&plan.receiverId!==who.id)throw new c.HttpError(403,'只能查看本人经办或指派的订货单');const caps=c.capabilities(who),allowed=who.roleCode==='owner'||caps.supplierView||caps.cost||caps.supplierSettle;
+ const number=(collection,row)=>(store.documentNumbers||[]).find(x=>x.collection===collection&&x.sourceId===row.id)?.displayNo||row.displayNo||row.id;
+ if(!allowed)return {planId:plan.id,canCreate:false,restricted:true,rows:[],message:'关联付款由有财务权限的人员核对。'};
+ const rows=(store.supplierCash||[]).filter(x=>x.type==='payment'&&x.planId===plan.id).map(row=>{const receipts=(store.receipts||[]).filter(x=>x.sourceId===row.id&&x.kind==='supplier_payment'),reversed=r=>(store.receipts||[]).some(x=>x.originalReceiptId===r.id&&(x.isReversal||/_red$/.test(x.kind||''))),active=receipts.filter(x=>!reversed(x));return {id:row.id,displayNo:number('supplierCash',row),planId:plan.id,planDisplayNo:number('procurementPlans',plan),supplierId:row.supplierId,supplier:(store.suppliers||[]).find(x=>x.id===row.supplierId)?.name||plan.supplier||'',amount:Math.abs(Number(row.amount)),date:row.date||row.createdAt,operator:row.operator||(store.users||[]).find(x=>x.id===row.operatorId)?.name||'',status:!receipts.length?'付款凭据待核':active.length===receipts.length?'已登记付款':active.length?'部分流水已红冲':'已红冲',parts:receipts.map(r=>({id:r.id,displayNo:number('receipts',r),amount:Math.abs(Number(r.amount)),accountName:r.accountName||r.account,reference:r.reference||'',reversed:reversed(r)})),href:caps.finance?'/app?tab=payments&sourceId='+encodeURIComponent(row.id):''};});
+ const plannedCents=(plan.items||[]).reduce((n,item)=>n+Math.round(Number(item.costPrice)*100)*Number(item.quantity),0),registeredCents=rows.reduce((n,row)=>n+Math.round(row.amount*100),0);
+ return {planId:plan.id,canCreate:!!caps.supplierSettle&&plan.status==='open'&&registeredCents<plannedCents,restricted:false,rows:rows.sort((a,b)=>String(b.date).localeCompare(String(a.date))),message:'实际付款以关联的采购付款单及原始资金流水为依据。收货沿用原付款关联。'};
+}
+module.exports={list};

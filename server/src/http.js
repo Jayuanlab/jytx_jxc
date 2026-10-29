@@ -1,5 +1,7 @@
-function sendJson(res, statusCode, payload) {
+function sendJson(res, statusCode, payload, {timings=null}={}) {
+  const encodingStarted=timings?performance.now():0;
   const body = JSON.stringify(statusCode >= 200 && statusCode < 300 ? require("./document-numbers").project(payload) : payload);
+  if(timings){const measured={...timings,encode:performance.now()-encodingStarted};res.setHeader('Server-Timing',Object.entries(measured).map(([name,ms])=>name+';dur='+Number(ms).toFixed(2)).join(','));}
   res.writeHead(statusCode, {
     "Content-Type": "application/json; charset=utf-8",
     "Access-Control-Allow-Origin": "*",

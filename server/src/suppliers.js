@@ -84,7 +84,8 @@ function upgrade(store) {
     });
     p.supplierEntryId = due.id;
     if (p.paidAmount > 0) {
-      const paid = entry(store, {
+      for(const a of allocations){const e=findEntry(store,a.targetId);if(e.sourceType==='supplier_exchange_difference'&&options.supplierExchangeId!==e.sourceId)throw new c.HttpError(409,'换货差价须打开供货商换货原单，核实实际账户后办理');}
+  const paid = entry(store, {
         ...meta,
         id: "legacy-paid-" + p.id,
         kind: "advance",
@@ -149,7 +150,7 @@ function resolve(store, user, payload) {
   return save(store, user, { name, contact: payload.supplierContact });
 }
 function save(store, user, payload) {
-  c.permit(user, "purchase");
+  c.permit(user, payload.id ? "purchase" : "catalogAdd");
   upgrade(store);
   const name = c.text(payload.name, "供应商名称");
   if (name.length > 100) throw new c.HttpError(400, "供应商名称过长");
@@ -187,9 +188,11 @@ function balances(store, supplierId, cutoff) {
   view.supplierEntries
     .filter((e) => e.supplierId === supplierId)
     .forEach((e) => (result[e.kind] += remaining(view, e)));
-  return Object.fromEntries(
+  const resultView=Object.fromEntries(
     Object.entries(result).map(([key, n]) => [key, amount(n)]),
   );
+  resultView.outboundReceivable=amount((store.supplierOutboundTransfers||[]).filter(row=>row.supplierId===supplierId&&row.deliveredAt&&(!cutoff||c.day(row.deliveredAt)<=cutoff)).reduce((n,row)=>n+Math.max(0,(row.lines||[]).reduce((s,line)=>s+Number(line.valueCents||0),0)-(row.cashReceipts||[]).filter(x=>!cutoff||c.day(x.at)<=cutoff).reduce((s,x)=>s+Number(x.valueCents||0),0)-(row.goodsReceipts||[]).filter(x=>!cutoff||c.day(x.at)<=cutoff).reduce((s,x)=>s+Number(x.offsetCents||0),0)),0));
+  return resultView;
 }
 function list(store, user, query = "") {
   c.permit(user, "supplierView");
@@ -201,7 +204,7 @@ function list(store, user, query = "") {
         .includes(query.trim().toLowerCase()),
     )
     .map((s) => ({ ...s, ...balances(store, s.id) }));
-  const totals = { payable: 0, cash: 0, advance: 0, credit: 0 };
+  const totals = { payable: 0, cash: 0, advance: 0, credit: 0, outboundReceivable: 0 };
   for (const row of rows)
     for (const k of Object.keys(totals))
       totals[k] = c.round(totals[k] + row[k]);
@@ -249,16 +252,25 @@ function findEntry(store, id) {
   if (!row) throw new c.HttpError(404, "往来款项不存在");
   return row;
 }
-function payment(store, user, payload) {
-  c.permit(user, "supplierSettle");
+function payment(store, user, payload, options = {}) {
+  user = require('./master-data').actor(store,user);
+  if(options.normalRegistration===true){c.permit(user,'paymentRegister');require('./normal-payment-registration').supplySource(store,user,payload);}
+  else c.permit(user, "supplierSettle");
   upgrade(store);
   let supplierId = payload.supplierId;
   let allocations = payload.allocations || [];
   if (payload.orderId) {
     const order = store.purchases.find((p) => p.id === payload.orderId);
     if (!order) throw new c.HttpError(404, "采购单不存在");
-    supplierId = order.supplierId;
-    allocations = [{ targetId: order.supplierEntryId, amount: payload.amount }];
+    if((store.serialSourceCorrections||[]).some(r=>r.purchaseId===order.id&&r.accounting)){
+      const attribution=require('./serial-source-corrections'),groups=attribution.purchaseAllocations(store,order).filter(g=>g.outstanding>0);
+      if(!supplierId&&groups.length===1)supplierId=groups[0].supplierId;
+      if(!supplierId||!groups.some(g=>g.supplierId===supplierId))throw new c.HttpError(409,'该单含更正后的供货商归属，请选择当前供货商及待付货款后付款');
+      const dues=[findEntry(store,order.supplierEntryId),...attribution.payableEntries(store,order.id)].filter(e=>e.supplierId===supplierId&&remaining(store,e)>0);
+      let left=cents(payload.amount);allocations=[];
+      for(const due of dues){const n=Math.min(left,remaining(store,due));if(n>0)allocations.push({targetId:due.id,amount:amount(n)});left-=n;}
+      if(left>0)throw new c.HttpError(409,'付款金额超过该供货商在本单的当前待付金额');
+    }else{supplierId = order.supplierId;allocations = [{ targetId: order.supplierEntryId, amount: payload.amount }];}
   }
   get(store, supplierId);
   const n = require('./payment-accounts').cents(payload.amount);if(n<=0)throw new c.HttpError(400,'金额必须大于零');
@@ -269,12 +281,11 @@ function payment(store, user, payload) {
       throw new c.HttpError(400, "预付款必须对应当前供应商的待收货订货单");
     if (payload.orderId || allocations.length)
       throw new c.HttpError(400, "订货预付款不能同时分配到其他进货单");
-    if (plan.paymentReview) {
-      if (plan.paymentReview.status !== "approved")
-        throw new c.HttpError(409, "订货付款尚未获老板批准，请先处理付款待办");
-      if (planPaidCents(store, plan) + n > cents(plan.paymentReview.approvedAmount))
-        throw new c.HttpError(409, "累计付款超过老板批准额度，请重新审核");
-    }
+    if (planPaidCents(store, plan) + n > plannedCents(plan))
+      throw new c.HttpError(409, "本订货单累计实际付款超过约定订货总额，请先核对原单；额外预付请单独登记真实用途");
+    // M169: normal procurement does not require a business approval. Actual
+    // payment still requires supplierSettle and validated real account parts;
+    // creating/receiving an order never executes payment through this change.
   }
   if (!Array.isArray(allocations)) throw new c.HttpError(400, "付款分配不正确");
   const paid = entry(store, {
@@ -327,10 +338,11 @@ function payment(store, user, payload) {
     unallocated: amount(remaining(store, paid)),
   };
 }
-function refund(store, user, payload) {
+function refund(store, user, payload, options = {}) {
   c.permit(user, "supplierSettle");
   upgrade(store);
   const source = findEntry(store, payload.sourceId);
+  if(source.sourceType==='supplier_exchange_difference'&&options.supplierExchangeId!==source.sourceId)throw new c.HttpError(409,'换货差价须从供货商换货原单核实退款');
   if (payload.supplierId && source.supplierId !== payload.supplierId)
     throw new c.HttpError(400, "退款来源不属于当前供应商");
   if (!["cash", "advance"].includes(source.kind))
@@ -374,6 +386,7 @@ function refund(store, user, payload) {
   return row;
 }
 function offset(store, user, payload) {
+  if([payload.sourceId,payload.targetId].some(id=>findEntry(store,id).sourceType==='supplier_exchange_difference'))throw new c.HttpError(409,'换货差价按本单实际收付闭合，请打开供货商换货单');
   c.permit(user, "supplierSettle");
   upgrade(store);
   const row = match(
@@ -390,8 +403,10 @@ function offset(store, user, payload) {
 function reverseOffset(store, user, payload) {
   c.permit(user, "supplierSettle");
   const row = store.supplierSettlements.find((s) => s.id === payload.id);
+  if(row?.sourceCorrectionId)throw new c.HttpError(409,'这笔核销属于单台来源更正，请从该串号重新预览更正，不能单独撤销');
   if (!row || !["offset", "payment"].includes(row.type) || row.legacy)
     throw new c.HttpError(400, "此记录不能撤销核销");
+  if([row.sourceId,row.targetId].some(id=>store.supplierEntries.some(e=>e.id===id&&e.sourceType==='supplier_exchange_difference')))throw new c.HttpError(409,'换货差价已关联实际收付，不能单独撤销核销，请核查原单实际流水');
   if (row.reversedAt) throw new c.HttpError(409, "该抵扣已撤销");
   row.reverseReason = c.text(payload.reason, "撤销原因");
   row.reversedAt = c.now();
@@ -558,14 +573,19 @@ function registerPurchase(store, user, order, payload) {
 function purchaseRows(store, user, fromSupplierView = false) {
   c.permit(user, fromSupplierView ? "supplierView" : "purchase");
   upgrade(store);
-  return store.purchases.map((original) => {
+  return store.purchases.filter(row=>user.roleCode!=='employee'||row.operatorId===user.id||row.receiverId===user.id).map((original) => {
     const correctionRows=(store.supplierAdjustments||[]).filter(a=>a.type==="purchase_price_correction"&&a.purchaseId===original.id);
     const corrections=require("./purchase-price-corrections");
     const p={...original,originalAmount:original.amount,items:original.items.map(item=>({...item,originalCostPrice:item.costPrice,recordedCostPrice:corrections.currentUnitPrice(store,original.id,item.id)})),priceCorrections:correctionRows.map(row=>({id:row.id,itemId:row.itemId,originalUnitPrice:row.originalUnitPrice,currentRecordedPrice:row.currentRecordedPrice,correctedUnitPrice:row.correctedUnitPrice,priceDelta:row.priceDelta,inventoryDelta:row.inventoryDelta,salesDelta:row.salesDelta,reference:row.reference,note:row.note,operator:row.operator,createdAt:row.createdAt}))};
     p.amount=c.round(p.items.reduce((n,item)=>n+item.quantity*item.recordedCostPrice,0));
-    const extraPayables=correctionRows.filter(row=>row.unitDelta>0&&row.entryId).map(row=>store.supplierEntries.find(e=>e.id===row.entryId)).filter(Boolean);
+    const extraPayables=[...correctionRows.filter(row=>row.unitDelta>0&&row.entryId).map(row=>store.supplierEntries.find(e=>e.id===row.entryId)).filter(Boolean),...require('./serial-source-corrections').payableEntries(store,original.id)];
+    p.supplierAllocations=require('./serial-source-corrections').purchaseAllocations(store,original);
+    p.items=p.items.map(item=>({...item,serialSources:(item.serials||[]).map(no=>require('./serial-source-corrections').purchaseUnit(store,original,item,no))}));
+    p.sourceCorrections=(store.serialSourceCorrections||[]).filter(r=>r.purchaseId===original.id).map(r=>({id:r.id,serialNo:r.serialNo,before:r.before,after:r.after,reason:r.reason,operator:r.operator,createdAt:r.createdAt}));
     if (!c.capabilities(user).supplierView) {
       const { paidAmount, supplierEntryId, cashId, ...receipt } = p;
+      receipt.supplierAllocations=receipt.supplierAllocations.map(({outstanding,settledAmount,...row})=>row);
+      receipt.items=receipt.items.map(item=>({...item,serialSources:item.serialSources.map(({paidAmount,payableAmount,...row})=>row)}));
       return receipt;
     }
     return {
@@ -606,6 +626,15 @@ function statement(store, user, id, from, to) {
     .toISOString()
     .slice(0, 10);
   const events = [];
+  for(const row of (store.supplierExchanges||[]).filter(x=>x.supplierId===id&&x.handedAt)){
+    events.push({id:row.id,date:c.day(row.handedAt),type:'供货商换货旧货交出',kind:'实物换货跟踪（非现金）',amount:amount(row.outgoing.reduce((n,x)=>n+x.valueCents,0)),sourceId:row.id,note:row.agreement,order:row.handedAt});
+    for(const receipt of row.receipts)events.push({id:receipt.id,date:c.day(receipt.at),type:'供货商换货新货验收',kind:'实物换货跟踪（非现金）',amount:amount(receipt.valueCents),sourceId:row.id,note:receipt.proof,order:receipt.at});
+  }
+  for(const row of (store.supplierOutboundTransfers||[]).filter(x=>x.supplierId===id&&x.deliveredAt)){
+    events.push({id:row.id,date:c.day(row.deliveredAt),type:'供货商调货实际交货',kind:'外调货款应收',amount:amount((row.lines||[]).reduce((n,x)=>n+Number(x.valueCents||0),0)),sourceId:row.id,note:row.agreement||'',order:row.deliveredAt});
+    for(const receipt of row.cashReceipts||[])events.push({id:receipt.id,date:c.day(receipt.at),type:'调货实收款已核实',kind:'外调货款应收核销',amount:-amount(receipt.valueCents),sourceId:row.id,note:receipt.reference||'',order:receipt.at});
+    for(const receipt of row.goodsReceipts||[])events.push({id:receipt.id,date:c.day(receipt.at),type:'调货换回货已验收',kind:'外调货款应收核销',amount:-amount(receipt.offsetCents),sourceId:row.id,note:receipt.proof||'',order:receipt.at});
+  }
   for (const e of store.supplierEntries.filter((e) => e.supplierId === id))
     events.push({
       id: e.id,
@@ -624,7 +653,7 @@ function statement(store, user, id, from, to) {
       id: s.id,
       date: c.day(s.createdAt),
       type:
-        s.type === "refund"
+        s.type === "serial_source_correction" ? "单台供货来源账面更正" : s.type === "refund"
           ? "收回退款核销"
           : s.type === "payment"
             ? "付款核销"
@@ -659,7 +688,7 @@ function statement(store, user, id, from, to) {
         (a, b) =>
           a.date.localeCompare(b.date) || a.order.localeCompare(b.order),
       ),
-    cash: store.supplierCash.filter(
+    cash: require('./serial-source-corrections').cashRows(store).filter(
       (r) => r.supplierId === id && r.date >= from && r.date <= to,
     ),
   };
@@ -670,6 +699,8 @@ function detail(store, user, id) {
   return {
     supplier: get(store, id),
     balances: balances(store, id),
+    exchanges:(store.supplierExchanges||[]).filter(row=>row.supplierId===id).map(row=>require('./supplier-exchanges').project(store,row,user)),
+    outboundTransfers:(store.supplierOutboundTransfers||[]).filter(row=>row.supplierId===id).map(row=>require('./supplier-outbound-tracking').project(row)),
     entries: store.supplierEntries
       .filter((e) => e.supplierId === id)
       .map((e) => ({
@@ -683,10 +714,10 @@ function detail(store, user, id) {
       .filter((e) => e.supplierId === id)
       .map((e) => ({ ...e, amount: amount(e.cents) }))
       .reverse(),
-    cash: store.supplierCash.filter((e) => e.supplierId === id).reverse(),
+    cash: require('./serial-source-corrections').cashRows(store).filter((e) => e.supplierId === id).reverse(),
     purchases: purchaseRows(store, user, true).filter(
-      (p) => p.supplierId === id,
-    ),
+      (p) => p.supplierId === id || p.supplierAllocations?.some(a=>a.supplierId===id&&a.amount>0),
+    ).map(p=>{const allocation=p.supplierAllocations?.find(a=>a.supplierId===id);return allocation&&p.sourceCorrections?.length?{...p,originalOrderAmount:p.amount,amount:allocation.amount,outstanding:allocation.outstanding,settledAmount:allocation.settledAmount,attributionSupplierId:id}:p;}),
     adjustments: store.supplierAdjustments
       .filter((a) => a.supplierId === id)
       .reverse(),
@@ -711,6 +742,7 @@ function reviewPlanPayment(store, user, payload) {
   if (!plan) throw new c.HttpError(409, "只能审核待收货订货单");
   if (!["approve", "defer"].includes(payload.decision))
     throw new c.HttpError(400, "请选择批准付款或暂缓付款");
+  if(payload.decision==='approve'&&plan.paymentReview?.status==='approved'&&cents(plan.paymentReview.approvedAmount)===cents(payload.approvedAmount))throw new c.HttpError(409,'本单已批准同样额度；尚未实际付款，请使用“登记实际付款”核对资金去向。');
   const paid = planPaidCents(store, plan);
   const limit = payload.decision === "approve" ? positive(payload.approvedAmount) : paid;
   if (limit < paid || limit > plannedCents(plan))
@@ -769,10 +801,11 @@ function planReceiptToken(store, plan) {
 function planRows(store, user, fromSupplierView = false) {
   c.permit(user, fromSupplierView ? "supplierView" : "purchase");
   upgrade(store);
-  return store.procurementPlans.map((plan) => ({
+  return store.procurementPlans.filter(row=>user.roleCode!=='employee'||row.operatorId===user.id||row.receiverId===user.id).map((plan) => ({
     ...plan,
     plannedAmount: amount(plannedCents(plan)),
     paidAmount: amount(planPaidCents(store, plan)),
+    paymentRemaining: amount(Math.max(0, plannedCents(plan) - planPaidCents(store, plan))),
     approvedRemaining: plan.paymentReview?.status === "approved" ? amount(Math.max(0, cents(plan.paymentReview.approvedAmount) - planPaidCents(store, plan))) : 0,
     receiptToken: planReceiptToken(store, plan),
     ...(c.capabilities(user).supplierView
@@ -810,8 +843,7 @@ function validatePlanReceipt(store, supplier, payload, user) {
 function plan(store, user, payload) {
   c.permit(user, "purchase");
   const initialPayment = c.money(payload.paidAmount || 0, "订货预付款");
-  if (initialPayment > 0 && user.roleCode !== "owner")
-    throw new c.HttpError(403, "店员只能提交订货，须由老板批准后付款");
+  if (initialPayment > 0) c.permit(user, "supplierSettle");
   const supplier = resolve(store, user, payload);
   if (!Array.isArray(payload.items) || !payload.items.length)
     throw new c.HttpError(400, "请选择订货商品");
@@ -823,9 +855,8 @@ function plan(store, user, payload) {
     status: "open",
     receiverId: user.id,
     receiver: user.name,
-    paymentReview: initialPayment > 0
-      ? { status: "approved", approvedAmount: initialPayment, reason: "老板建单时批准预付", reviewerId: user.id, reviewer: user.name, reviewedAt: c.now() }
-      : { status: "pending", approvedAmount: 0 },
+    paymentReview: { status: "not_required", policy: "staff_completed_boss_reconcile", approvedAmount: 0 },
+    reconciliation: { status: "pending", registeredBy: user.id, registeredAt: c.now(), policy: "staff_completed_boss_reconcile" },
     events: [{ type: "建订货单", operatorId: user.id, operator: user.name, at: c.now() }],
     ...stamp(user),
   };
@@ -838,8 +869,6 @@ function plan(store, user, payload) {
       id: c.id("PLI"),
       skuId: p.skuId,
       name: p.name,
-      warehouseId: p.warehouseId || "wh-sale",
-      warehouseName: require("./warehouses").byId(p.warehouseId)?.name || "销售仓",
       quantity: c.quantity(i.quantity),
       costPrice: c.money(i.costPrice),
       received: 0,
@@ -859,7 +888,7 @@ function plan(store, user, payload) {
       note: "订货预付款 " + row.id,
     });
   c.audit(store, user, "supplier:plan", row.id);
-  require("./feishu-notices").notice(store, "supplier-plan:" + row.id, "订货待付款核对", { id: row.id, summary: supplier.name + " · " + row.items.map((i) => i.name + " × " + i.quantity).join("、") + " · 预计 " + c.round(row.items.reduce((n, i) => n + i.quantity * i.costPrice, 0)) + " 元" });
+  require("./feishu-notices").notice(store, "supplier-plan:" + row.id, "订货事后对账", { id: row.id, summary: supplier.name + " · " + row.items.map((i) => i.name + " × " + i.quantity).join("、") + " · 预计 " + c.round(row.items.reduce((n, i) => n + i.quantity * i.costPrice, 0)) + " 元 · " + (initialPayment > 0 ? "已由有权付款人登记实际预付，待核实资金事实" : "未登记实际付款，收货不以老板批准为前置") });
   return row;
 }
 function assignPlan(store, user, payload) {
@@ -901,7 +930,7 @@ function receivePlan(store, order, payload) {
     );
     if (!line || line.received + item.quantity > line.quantity)
       throw new c.HttpError(409, "收货超过该订货明细的待收数量");
-    if (line.warehouseId && line.warehouseId !== item.warehouseId) throw new c.HttpError(409, "收货仓库与订货单不一致，请核对商品所属仓");
+    // An order reserves a product and quantity; each receipt records its actual warehouse.
     line.received += item.quantity;
   });
   order.planId = plan.id;
@@ -936,6 +965,7 @@ module.exports = {
   amount,
   stamp,
   positive,
+  validDate,
   creditKind,
   plan,
   planRows,
@@ -945,9 +975,3 @@ module.exports = {
   assignPlan,
   receivePlan,
 };
-
-
-
-
-
-

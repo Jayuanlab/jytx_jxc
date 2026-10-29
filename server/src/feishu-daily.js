@@ -19,6 +19,7 @@ function same(prior, next) {
       : text(prior.fields[name]) === desired));
 }
 async function syncDaily(client, store = readStore()) {
+  throw new (require("./common").HttpError)(409,"旧版按渠道合并的飞书日结同步已停用；请按具体资金账户核对，尚未迁移的外部表不再写入旧汇总。");
   const [dailyRows, lineRows] = await Promise.all([client.list(DAILY), client.list(LINES)]);
   const byDay = new Map(dailyRows.map((r) => [text(r.fields["日期"]), r]));
   const byLine = new Map(lineRows.map((r) => [text(r.fields["明细编号"]), r]));

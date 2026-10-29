@@ -1,0 +1,814 @@
+[
+  {
+    "id": "/my-finance",
+    "href": "/my-finance",
+    "label": "我的财务",
+    "group": "财务中心",
+    "capability": "learn",
+    "aliases": ["我的账务", "我的挂账", "我的红包", "本人财务", "个人账务核对"]
+  },
+  {
+    "id": "/simple-daily-close?view=reports",
+    "href": "/simple-daily-close?view=reports",
+    "label": "门店扎账报告",
+    "group": "核对结算",
+    "owner": true,
+    "capability": "learn",
+    "aliases": [
+      "扎账报告",
+      "扎账情况",
+      "现金报数"
+    ]
+  },
+  {
+    "id": "/pending-special",
+    "href": "/pending-special",
+    "label": "老板特别处理",
+    "group": "核对结算",
+    "owner": true,
+    "capability": "manageUsers",
+    "aliases": [
+      "特别处理",
+      "特事特办",
+      "旧待办处理"
+    ]
+  },
+  {
+    "id": "/app?tab=sales",
+    "href": "/app?tab=sales",
+    "label": "销售单",
+    "group": "销售业务",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/app?tab=orders",
+    "href": "/app?tab=orders",
+    "owner": false,
+    "capability": "sell",
+    "label": "销售单查询",
+    "group": "销售业务"
+  },
+  {
+    "id": "/mobile-activity-sales",
+    "href": "/mobile-activity-sales",
+    "label": "移动活动机销售",
+    "group": "销售业务",
+    "owner": false,
+    "capability": "sell"
+  },
+  {
+    "id": "/business-change-returns",
+    "href": "/business-change-returns",
+    "label": "业务变更退换申请单",
+    "group": "移动业务",
+    "owner": false,
+    "capability": "sell",
+    "aliases": [
+      "业务退换申请",
+      "移动业务变更退款"
+    ]
+  },
+  {
+    "id": "/supplier-outbound-tracking",
+    "href": "/supplier-outbound-tracking",
+    "label": "供货商调货跟踪",
+    "group": "采购库存",
+    "owner": false,
+    "capability": "purchase",
+    "aliases": [
+      "供货商调货",
+      "调货跟踪",
+      "外店调货"
+    ]
+  },
+  {
+    "id": "/sales-list",
+    "href": "/sales-list",
+    "label": "销售清单",
+    "group": "销售业务",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/receptions",
+    "href": "/receptions",
+    "label": "接待单",
+    "group": "销售业务",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/receptions?scope=followups",
+    "href": "/receptions?scope=followups",
+    "label": "接待跟进",
+    "group": "销售业务",
+    "owner": false,
+    "capability": "sell"
+  },
+  {
+    "id": "/receptions?assistant=1",
+    "href": "/receptions?assistant=1",
+    "label": "语音接待",
+    "group": "销售业务",
+    "owner": false,
+    "capability": "sell"
+  },
+  {
+    "id": "/app?tab=returns",
+    "href": "/app?tab=returns",
+    "label": "销售退换货",
+    "group": "销售业务",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/repair-services",
+    "href": "/repair-services",
+    "label": "维修服务",
+    "group": "销售业务",
+    "owner": false,
+    "capability": "sell"
+  },
+  {
+    "id": "/app?tab=receipts&entry=create",
+    "href": "/app?tab=receipts&entry=create",
+    "label": "收款单",
+    "group": "收款付款",
+    "owner": false,
+    "capability": "receiptRegister"
+  },
+  {
+    "id": "/app?tab=receipts",
+    "href": "/app?tab=receipts",
+    "label": "收款单查询",
+    "group": "收款付款",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/payment-requests",
+    "href": "/business-reconciliation?section=payments&entry=paid",
+    "label": "门店付款单",
+    "group": "收款付款",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/app?tab=payments",
+    "href": "/app?tab=payments",
+    "label": "付款单查询",
+    "group": "收款付款",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/business-reconciliation?section=payments&entry=supplier",
+    "href": "/business-reconciliation?section=payments&entry=supplier",
+    "label": "采购付款单",
+    "group": "收款付款",
+    "owner": false,
+    "capability": "supplierSettle"
+  },
+  {
+    "id": "/business-reconciliation?section=payments&entry=requests",
+    "href": "/business-reconciliation?section=payments&entry=requests",
+    "label": "待付款办理",
+    "group": "收款付款",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/topup-pairs",
+    "href": "/store-transfer",
+    "label": "门店互转单",
+    "group": "收款付款",
+    "owner": false,
+    "capability": "paymentRegister"
+  },
+  {
+    "id": "/sale-fund-responsibility",
+    "href": "/sale-fund-responsibility",
+    "label": "收款与挂账",
+    "group": "收款付款",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/app?tab=finance",
+    "href": "/app?tab=finance",
+    "label": "资金流水",
+    "group": "收款付款",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/app?tab=red",
+    "href": "/app?tab=red",
+    "label": "单据红冲",
+    "group": "收款付款",
+    "owner": false,
+    "capability": null,
+    "capabilitiesAny": [
+      "redRequest",
+      "redReview"
+    ]
+  },
+  {
+    "id": "/app?tab=purchase",
+    "href": "/app?tab=purchase&section=plans",
+    "label": "订货单",
+    "group": "进货库存",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/app?tab=purchase&section=plans&history=1",
+    "href": "/app?tab=purchase&section=plans&history=1",
+    "label": "订货单查询",
+    "group": "进货库存",
+    "owner": false,
+    "capability": "purchase"
+  },
+  {
+    "id": "/app?tab=purchase&section=inbound",
+    "href": "/app?tab=purchase&section=inbound",
+    "label": "进货单",
+    "group": "进货库存",
+    "owner": false,
+    "capability": "purchase"
+  },
+  {
+    "id": "/app?tab=purchase-query",
+    "href": "/app?tab=purchase-query",
+    "label": "进货单查询",
+    "group": "进货库存",
+    "owner": false,
+    "capability": "purchase"
+  },
+  {
+    "id": "/app?tab=purchase&section=purchase-returns",
+    "href": "/app?tab=purchase&section=purchase-returns",
+    "label": "采购退货",
+    "group": "进货库存",
+    "owner": false,
+    "capability": "purchase"
+  },
+  {
+    "id": "/app?tab=inventory",
+    "href": "/app?tab=inventory",
+    "label": "库存查询",
+    "group": "进货库存",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/stocktake",
+    "href": "/stocktake",
+    "label": "库存盘点",
+    "group": "进货库存",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/cash-handover",
+    "href": "/cash-handover?view=entry",
+    "label": "内转资金交接单",
+    "group": "交接扎账",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/cash-handover?view=history",
+    "href": "/cash-handover?view=history",
+    "owner": false,
+    "capability": null,
+    "label": "内转资金交接清单",
+    "group": "交接扎账"
+  },
+  {
+    "id": "/daily-close",
+    "href": "/daily-close",
+    "label": "当日扎账单",
+    "group": "交接扎账",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/daily-close?view=history",
+    "href": "/daily-close?view=history",
+    "label": "当日扎账查询",
+    "group": "交接扎账",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/assistant?work-signin=1",
+    "href": "/assistant?work-signin=1",
+    "label": "考勤打卡",
+    "group": "员工日常",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/work-journal",
+    "href": "/work-journal?view=journal",
+    "label": "工作日志",
+    "group": "员工日常",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/work-journal?view=points",
+    "href": "/work-journal?view=points",
+    "owner": false,
+    "capability": null,
+    "label": "工作积分",
+    "group": "员工日常"
+  },
+  {
+    "id": "/m#pending",
+    "href": "/m#pending",
+    "label": "我的待办",
+    "group": "员工日常",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/app?tab=payroll&view=details",
+    "href": "/app?tab=payroll&view=details",
+    "label": "工资明细查询",
+    "group": "员工日常",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/app?tab=products",
+    "href": "/app?tab=products",
+    "label": "商品档案",
+    "group": "商品资料",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/app?tab=products&view=pricing",
+    "href": "/app?tab=products&view=pricing",
+    "owner": false,
+    "capability": "manageProducts",
+    "label": "商品调价",
+    "group": "商品资料"
+  },
+  {
+    "id": "/master-data",
+    "href": "/master-data",
+    "label": "基础资料管理",
+    "group": "基础资料管理",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/qr",
+    "href": "/qr",
+    "label": "扫码与标签",
+    "group": "商品资料",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/payment-accounts",
+    "href": "/payment-accounts",
+    "label": "收付款账户",
+    "group": "账户往来",
+    "owner": true,
+    "capability": null
+  },
+  {
+    "id": "/app?tab=suppliers",
+    "href": "/app?tab=suppliers",
+    "label": "往来单位结算",
+    "group": "财务结算",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/funds",
+    "href": "/funds",
+    "label": "财务中心",
+    "group": "账户往来",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/assistant-finance",
+    "href": "/assistant-finance",
+    "label": "助理对账",
+    "group": "账户往来",
+    "owner": false
+  },
+  {
+    "id": "/workbench-all?view=documents",
+    "href": "/workbench-all?view=documents",
+    "label": "所有单据",
+    "group": "查询分析",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/search",
+    "href": "/document-query",
+    "label": "单据查询",
+    "group": "查询分析",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/app?tab=reports",
+    "href": "/app?tab=reports",
+    "owner": false,
+    "capability": "finance",
+    "label": "日报查询",
+    "group": "查询分析"
+  },
+  {
+    "id": "/boss-overview",
+    "href": "/boss-overview",
+    "label": "经营总览",
+    "group": "查询分析",
+    "owner": true,
+    "capability": null
+  },
+  {
+    "id": "/brain",
+    "href": "/brain",
+    "label": "数字大脑巡检",
+    "group": "查询分析",
+    "owner": false,
+    "capability": "manageUsers"
+  },
+  {
+    "id": "/carrier",
+    "href": "/carrier",
+    "label": "移动业务",
+    "group": "移动业务",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/mobile-card-bundles",
+    "href": "/mobile-card-bundles",
+    "label": "新办卡组合办理",
+    "group": "移动业务",
+    "owner": false,
+    "capability": "sell",
+    "capabilitiesAny": ["receiptRegister"]
+  },
+  {
+    "id": "/carrier-commission-rules",
+    "href": "/carrier-commission-rules",
+    "label": "酬金返还规则",
+    "group": "移动业务",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/air-recharge",
+    "href": "/air-recharge",
+    "label": "顾客现金充值",
+    "group": "移动业务",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/air-accounts",
+    "href": "/air-accounts",
+    "label": "空充BOSS",
+    "group": "移动业务",
+    "owner": false,
+    "capability": "sell"
+  },
+  {
+    "id": "/subsidy",
+    "href": "/subsidy",
+    "label": "国补台账",
+    "group": "移动业务",
+    "owner": false,
+    "capability": "finance"
+  },
+  {
+    "id": "/opening-drafts",
+    "href": "/opening-drafts",
+    "label": "期初数据",
+    "group": "移动业务",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/boss-batch",
+    "href": "/boss-batch",
+    "label": "待我确认",
+    "group": "管理设置",
+    "owner": true,
+    "capability": null
+  },
+  {
+    "id": "/app?tab=payroll&view=manage",
+    "href": "/app?tab=payroll&view=manage",
+    "label": "工资管理",
+    "group": "管理设置",
+    "owner": true,
+    "capability": null
+  },
+  {
+    "id": "/app?tab=staff",
+    "href": "/app?tab=staff",
+    "label": "员工与权限",
+    "group": "管理设置",
+    "owner": true,
+    "capability": null
+  },
+  {
+    "id": "/organization",
+    "href": "/organization",
+    "label": "门店管理",
+    "group": "管理设置",
+    "owner": true,
+    "capability": null
+  },
+  {
+    "id": "/login#account-panel",
+    "href": "/login#account-panel",
+    "label": "修改本人密码",
+    "group": "管理设置",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/m?panel=electronic-screen",
+    "href": "/m?panel=electronic-screen",
+    "label": "电子屏设置",
+    "group": "管理设置",
+    "owner": false,
+    "capability": "screenEdit"
+  },
+  {
+    "id": "/notices",
+    "href": "/notices",
+    "label": "门店消息",
+    "group": "管理设置",
+    "owner": true,
+    "capability": null
+  },
+  {
+    "id": "/app?tab=logs",
+    "href": "/app?tab=logs",
+    "label": "操作日志",
+    "group": "管理设置",
+    "owner": true,
+    "capability": null
+  },
+  {
+    "id": "/system-readiness",
+    "href": "/system-readiness",
+    "label": "设备检查",
+    "group": "管理设置",
+    "owner": true,
+    "capability": null
+  },
+  {
+    "id": "/app?tab=backup",
+    "href": "/app?tab=backup",
+    "label": "备份与恢复",
+    "group": "管理设置",
+    "owner": true,
+    "capability": null
+  },
+  {
+    "id": "/learning",
+    "href": "/learning",
+    "label": "软件学习",
+    "group": "员工学习",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/knowledge",
+    "href": "/knowledge",
+    "label": "资料中心",
+    "group": "员工学习",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/knowledge-review",
+    "href": "/knowledge-review",
+    "label": "知识审核",
+    "group": "员工学习",
+    "owner": true,
+    "capability": null
+  },
+  {
+    "id": "/order-red-packets",
+    "href": "/order-red-packets",
+    "label": "红包申请",
+    "group": "单据 · 申请交接",
+    "owner": false,
+    "capability": "sell"
+  },
+  {
+    "id": "/document-center",
+    "href": "/funds/documents",
+    "label": "单据归类",
+    "group": "财务中心",
+    "owner": false,
+    "capability": "learn"
+  },
+  {
+    "id": "/business-reconciliation?section=payments&entry=paid",
+    "href": "/business-reconciliation?section=payments&entry=paid",
+    "label": "门店付款单 · 开付款单",
+    "group": "单据 · 收款付款",
+    "owner": false,
+    "capability": null,
+    "capabilitiesAny": [
+      "paymentRegister"
+    ]
+  },
+  {
+    "id": "/sale-payments",
+    "href": "/sale-payments",
+    "label": "销售收款确认",
+    "group": "单据 · 收款付款",
+    "owner": false,
+    "capability": null,
+    "capabilitiesAny": [
+      "sell",
+      "finance"
+    ]
+  },
+  {
+    "id": "/air-accounts?view=request",
+    "href": "/air-accounts?view=request",
+    "label": "BOSS空充单 · 申请与到账确认",
+    "group": "单据 · 申请交接",
+    "owner": false,
+    "capability": null,
+    "capabilitiesAny": [
+      "sell"
+    ]
+  },
+  {
+    "id": "/air-accounts?view=ledger",
+    "href": "/air-accounts?view=ledger",
+    "label": "BOSS空充单 · BOSS台账",
+    "group": "单据 · 申请交接",
+    "owner": false,
+    "capability": null,
+    "capabilitiesAny": [
+      "finance"
+    ]
+  },
+  {
+    "id": "/store-wallet-funding",
+    "href": "/store-wallet-funding",
+    "label": "门店微信充值申请",
+    "group": "单据 · 申请交接",
+    "owner": false,
+    "capability": null,
+    "capabilitiesAny": [
+      "sell"
+    ]
+  },
+  {
+    "id": "/cash-handover?view=entry",
+    "href": "/cash-handover?view=entry",
+    "label": "内转资金交接单 · 填写交接单",
+    "group": "单据 · 申请交接",
+    "owner": false,
+    "capability": null,
+    "capabilitiesAny": [
+      "sell"
+    ]
+  },
+  {
+    "id": "/repair-materials",
+    "href": "/repair-materials",
+    "label": "维修与手机膜领用",
+    "group": "单据 · 销售业务",
+    "owner": false,
+    "capability": null,
+    "capabilitiesAny": [
+      "sell"
+    ]
+  },
+  {
+    "id": "/gift-approvals",
+    "href": "/gift-approvals",
+    "label": "赠品审批单",
+    "group": "单据 · 销售业务",
+    "owner": false,
+    "capability": null,
+    "capabilitiesAny": [
+      "sell",
+      "giftApprove"
+    ]
+  },
+  {
+    "id": "/app?tab=purchase&section=plans",
+    "href": "/app?tab=purchase&section=plans",
+    "label": "订货单 · 填写订货单",
+    "group": "单据 · 采购库存",
+    "owner": false,
+    "capability": null,
+    "capabilitiesAny": [
+      "purchase"
+    ]
+  },
+  {
+    "id": "/document-query",
+    "href": "/document-query",
+    "label": "单据统一查询",
+    "group": "单据 · 核对结算",
+    "owner": false,
+    "capability": null,
+    "capabilitiesAny": [
+      "learn"
+    ]
+  },
+  {
+    "id": "/statement-comparisons",
+    "href": "/statement-comparisons",
+    "label": "流水比对单",
+    "group": "单据 · 核对结算",
+    "owner": false,
+    "capability": null,
+    "capabilitiesAny": [
+      "finance"
+    ]
+  },
+  {
+    "id": "/business-reconciliation",
+    "href": "/business-reconciliation",
+    "label": "正常单据对账",
+    "group": "单据 · 核对结算",
+    "owner": false,
+    "capability": null,
+    "capabilitiesAny": [
+      "learn"
+    ]
+  },
+  {
+    "id": "/work-journal?view=journal",
+    "href": "/work-journal?view=journal",
+    "label": "工作日志单",
+    "group": "单据 · 员工日常",
+    "owner": false,
+    "capability": null,
+    "capabilitiesAny": [
+      "learn"
+    ]
+  },
+  {
+    "id": "/personnel",
+    "href": "/personnel",
+    "label": "请假与外勤单",
+    "group": "单据 · 员工日常",
+    "owner": false,
+    "capability": null,
+    "capabilitiesAny": [
+      "learn"
+    ]
+  },
+  {
+    "id": "/master-data#personnel-management",
+    "href": "/master-data#personnel-management",
+    "label": "人员基础信息",
+    "group": "基础资料管理",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/master-data#party-basics",
+    "href": "/master-data#party-basics",
+    "label": "往来单位基础信息",
+    "group": "基础资料管理",
+    "owner": false,
+    "capability": null
+  },
+  {
+    "id": "/supplier-exchanges",
+    "href": "/supplier-exchanges",
+    "label": "供货商换货单",
+    "group": "单据 · 采购库存",
+    "owner": false,
+    "capability": "purchase",
+    "aliases": [
+      "仓库换货",
+      "库存换货",
+      "供货商换货",
+      "保护膜换货",
+      "手机换货",
+      "换货入库",
+      "换货出库"
+    ]
+  }
+]

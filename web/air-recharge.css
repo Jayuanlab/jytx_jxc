@@ -21,3 +21,5 @@ header a,header strong{min-width:0;overflow-wrap:break-word}
  body.air-recharge-page .assistant-float{top:calc(var(--mobile-action-height,64px) + 8px);bottom:auto;right:12px;width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important}
  body.air-recharge-page header strong{padding-right:58px}
 }
+
+.opening-setup #air-opening-form{display:grid;gap:16px}.opening-setup #air-opening-form[hidden]{display:none}.opening-setup .opening-secondary{background:#edf2fa;color:#25456c;border:1px solid #c7d4e8}.opening-setup #air-opening-submit{min-height:60px;font-size:22px;margin-top:8px}.opening-success{color:#147044;font-weight:700}.air-opening-actions{display:flex;gap:12px;flex-wrap:wrap}.opening-setup .entry{margin:18px 0;padding:18px}.opening-setup p{line-height:1.65}button:disabled{cursor:not-allowed}

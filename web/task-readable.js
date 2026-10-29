@@ -1,0 +1,12 @@
+(()=>{'use strict';if(window.StoreTaskReadable)return;window.StoreTaskReadable=true;
+ const key='store-task-large-text-v1';let large=false;
+ try{const saved=localStorage.getItem(key);large=saved==='1'||(saved===null&&localStorage.getItem('store-mobile-text-size')==='double');}catch{}
+ const home=location.pathname==='/m';
+ function update(){document.documentElement.classList.toggle('task-text-large',large);document.body.classList.toggle('task-text-large',large);for(const b of document.querySelectorAll('[data-task-text-toggle]')){const text=large?'标准模式':'大字版';if(b.textContent!==text)b.textContent=text;b.setAttribute('aria-pressed',String(large));b.setAttribute('aria-label',large?'当前大字版，切换标准模式':'当前标准模式，切换大字版');}}
+ function button(){const b=document.createElement('button');b.type='button';b.dataset.taskTextToggle='';b.addEventListener('click',()=>{large=!large;try{localStorage.setItem(key,large?'1':'0');}catch{}update();window.dispatchEvent(new CustomEvent('store:font-change',{detail:{large}}));});return b;}
+ function mount(){for(const head of document.querySelectorAll('#pending-dialog .module-dialog-head,#staff-pending-dialog .module-dialog-head,#boss-task-dialog .boss-task-head'))if(!head.querySelector('[data-task-text-toggle]')){const actions=document.createElement('div');actions.className='task-read-actions';actions.append(button());const close=head.querySelector('button');if(close)actions.append(close);head.append(actions);}update();}
+ if(!home){const bar=document.createElement('nav');bar.className='task-read-controls';bar.setAttribute('aria-label','文字大小');bar.append(button());const host=document.querySelector('body>header,main>.workbench-header')||document.querySelector('main')||document.body;if(host.matches('header')){const welcome=host.querySelector?.('.welcome-line');if(welcome&&location.pathname==='/login'){welcome.classList.add('hint');host.after(welcome);}host.append(bar);}else host.prepend(bar);}
+ mount();new MutationObserver(mutations=>{if(mutations.some(m=>[...m.addedNodes].some(n=>n.nodeType===1&&!n.matches?.('[data-task-text-toggle],.task-read-actions,.task-read-controls'))))mount();}).observe(document.body,{childList:true,subtree:true});
+ window.addEventListener('storage',e=>{if(e.key===key){large=e.newValue==='1';update();}});
+ window.addEventListener('store:font-change',e=>{if(typeof e.detail?.large==='boolean'){large=e.detail.large;update();}});
+})();

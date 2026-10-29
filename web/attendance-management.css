@@ -32,7 +32,12 @@ html body.assistant-chat-page.wechat-chat #attendance-management-dialog{box-sizi
 #attendance-management-dialog .attm-table{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:10px}
 #attendance-management-dialog .attm-table th{padding:10px;font-size:24px;background:#e9f0fb;text-align:left;border-bottom:2px solid #9fb6d2}
 #attendance-management-dialog .attm-table td{padding:12px 10px;vertical-align:top;border-bottom:1px solid #c6d3e2;word-break:normal}
-#attendance-management-dialog .attm-table th:last-child{width:30%}
+#attendance-management-dialog .attm-table th:first-child{width:22%}
+#attendance-management-dialog .attm-table th:last-child{width:24%}
+#attendance-management-dialog .attm-location-mark{font-weight:800;color:#16813e}
+#attendance-management-dialog .attm-location-review{display:inline-block;min-height:40px;padding:2px 6px;margin:0 2px;border:0;color:#7b8794;background:transparent;text-decoration:underline}
+#attendance-management-dialog .attm-day-issues{margin-top:8px}
+#attendance-management-dialog .attm-legend{color:#425e78}
 #attendance-management-dialog .attm-table td strong{font-weight:800}
 #attendance-management-dialog .attm-badge{display:inline-block;border-radius:8px;padding:4px 8px;font-weight:750}
 #attendance-management-dialog .attm-normal{color:#175a33;background:#e5f4e9}

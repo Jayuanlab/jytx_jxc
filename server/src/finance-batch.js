@@ -1,0 +1,21 @@
+'use strict';
+const c=require('./common'),master=require('./master-data'),money=require('./money-verifications'),{createHash}=require('node:crypto');
+const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
+function owner(store,user){const who=master.actor(store,user);if(who.roleCode!=='owner')throw new c.HttpError(403,'仅老板可批量核对财务');return who;}
+function source(store,id){for(const k of ['otherIncome','expenses','sales','saleReturns','airRechargeEvents','supplierCash','procurementPlans','purchases']){const r=(store[k]||[]).find(x=>x.id===id);if(r)return r;}return null;}
+function preview(store,user){const who=owner(store,user),tasks=require('./shared-finance').processing(store,who).tasks,states=new Map(money.list(store,who).rows.map(r=>[r.receiptId,r]));
+ return {asOf:c.now(),userId:who.id,rows:tasks.map(task=>{const id=task.kind==='money_verification'?task.id.slice('verify:'.length):'',receipt=(store.receipts||[]).find(r=>r.id===id),state=states.get(id),origin=receipt&&source(store,receipt.sourceId);let reason='';
+ if(!id)reason='须进入原单办理结算，不把未付款当作已付';else if(!receipt||!origin)reason='原单资料不完整，请先核实原单';else if(!state?.canVerify)reason='需由实际账户持有人核实';else if(state.status==='disputed')reason='金额有异议，需单独处理';else if(state.verifiedByHolder||state.verifiedByOwner||!(state.unverifiedAmount>0))reason='已核实，请刷新';else if(receipt.sourceClaimId||receipt.isReversal||(store.receipts||[]).some(r=>r.originalReceiptId===id&&(r.isReversal||/_red$/.test(r.kind||''))))reason='原单已更正或红冲，请单独核对';
+ const registeredBy=(store.users||[]).find(u=>u.id===(receipt?.operatorId||receipt?.registeredById||origin?.operatorId));
+ return {...task,receiptId:id,ready:!reason,blockedReason:reason,direction:state?.direction||'',registeredBy:registeredBy?.name||origin?.operator||'经办人待核实',businessNote:origin?.note||origin?.purpose||origin?.needs||task.detail||'',recordedAmount:state?.reportedAmount??task.amount,alreadyVerified:state?.verifiedAmount??0,version:receipt?hash([receipt,state?.version,origin]):null};})};
+}
+function decide(store,user,payload){const who=owner(store,user);if(payload.confirmed!==true)throw new c.HttpError(400,'请确认所选款项已经实际收付且核对一致');if(!Array.isArray(payload.items)||!payload.items.length||payload.items.length>50)throw new c.HttpError(400,'每次选择1至50笔');if(new Set(payload.items.map(r=>r.id)).size!==payload.items.length)throw new c.HttpError(400,'不能重复选择同一笔');const results=[],candidates=new Map(preview(store,who).rows.map(r=>[r.id,r]));
+ for(const item of payload.items){try{const row=candidates.get(item.id);if(!row?.ready)throw new c.HttpError(409,row?.blockedReason||'此待办已处理或已变化');const next=structuredClone(store),receipt=next.receipts.find(r=>r.id===row.receiptId),state=money.state(next,receipt),origin=source(next,receipt.sourceId);if(item.version!==hash([receipt,state.version,origin])||!(state.unverifiedAmount>0))throw new c.HttpError(409,'原单、金额或核实状态已变化，请刷新');
+ money.confirm(next,who,{receiptId:receipt.id,version:state.version,decision:'verify',verifiedAmount:state.reportedAmount,confirmed:true,evidence:'老板在财务批量清单中确认已实际收付并核对一致',note:String(payload.note||'').slice(0,500)});
+ const original=(next.otherIncome||[]).find(r=>r.id===receipt.sourceId),siblings=next.receipts.filter(r=>r.sourceId===receipt.sourceId&&r.kind==='other_income'&&!r.isReversal);
+ if(original?.reconciliation&&['待老板核对','有差异'].includes(original.reconciliation.status)&&siblings.length&&siblings.every(r=>money.state(next,r).unverifiedAmount===0))require('./receipt-reconciliation').reconcile(next,who,{id:original.id,version:original.reconciliation.version,decision:'match',actualAmount:original.amount,note:String(payload.note||'财务批量核对一致').slice(0,500)});
+ c.audit(next,who,'finance:batch-item',{taskId:row.id,receiptId:receipt.id,sourceId:receipt.sourceId,originalOperatorId:receipt.operatorId||receipt.registeredById||'',batchKey:payload.batchKey||''});Object.assign(store,next);results.push({id:item.id,ok:true,sourceNo:row.sourceNo});
+ }catch(error){results.push({id:item.id,ok:false,error:error.message});}}
+ return {results,succeeded:results.filter(r=>r.ok).length,failed:results.filter(r=>!r.ok).length,noAdditionalReceipt:true,message:'逐笔核对已完成，失败项保留待处理'};
+}
+module.exports={preview,decide};

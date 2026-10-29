@@ -33,6 +33,6 @@ async function respond(local,user,payload,options={}) {
   const fallback=/笑话|笑一个/.test(payload.question)?'讲个轻松的：手机说自己最怕什么？最怕“没电还要加班”。':/无聊|聊/.test(payload.question)?'我在呢，咱们简单聊两句。你平时喜欢看视频，还是跟朋友聊天？':'这件事可以聊两句。你最关心哪一点？';
   result={answer:(safeReply||fallback).slice(0,350),sources:[],metrics:{kind:'kitty-chat',modelConnected:!!safeReply}};
  }
- return {...local,...result,context:{...local.context,kitty:stamp(user,options.scope,Math.min(count,3),result.metrics?.weatherContext)},followups:[{label:'看看移动业务',question:'我想咨询移动业务'}]};
+ return {...local,...result,context:{...local.context,kitty:stamp(user,options.scope,Math.min(count,3),result.metrics?.weatherContext)},followups:[]};
 }
 module.exports={respond,casual};

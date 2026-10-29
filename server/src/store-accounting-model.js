@@ -1,0 +1,19 @@
+'use strict';
+const c=require('./common'),definition=require('./store-accounting-model.json');
+function model(user){c.permit(user,'manageUsers');return {...structuredClone(definition),ruleAuthority:require('./rule-authority').publicPolicy(),personalFinance:{name:'我的财务',startDate:'2026-10-28',scope:'只读当前登录本人的经办、本人账户、原挂账职责及红包；默认当日金额及条数仅含2026-10-28起的原记录；全部累计scope=all查询全部历史，不删除、不销账',boundary:'查询不记账、不清挂账、不确认到账、不再次发红包；登记、核实和实际动作按原单证据区分',href:'/my-finance'}};}
+function accounting(store,user,date=c.day()){
+ c.permit(user,'manageUsers');if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||Number.isNaN(Date.parse(date+'T00:00:00Z'))||new Date(date+'T00:00:00Z').toISOString().slice(0,10)!==date)throw new c.HttpError(400,'账务日期不正确');
+ const report=require('./erp').report(store,user,date),receipts=require('./serial-source-corrections').receiptRows(store).filter(r=>(r.transactionDate||(r.createdAt&&Number.isFinite(Date.parse(r.createdAt))?c.day(r.createdAt):null))===date),inventory=store.inventory||[];
+ const finance={receiptCount:receipts.length,receivedCents:receipts.filter(r=>r.amount>0).reduce((n,r)=>n+Math.round(Number(r.amount)*100),0),paidCents:-receipts.filter(r=>r.amount<0).reduce((n,r)=>n+Math.round(Number(r.amount)*100),0),notice:'这里是原始收付款变动合计，包含内部流转及冲正；经营收入、费用、销售及毛利分别按原业务日报计算。'};
+ const comparisons=(store.statementComparisons||[]).slice().reverse();
+ const personal=date>='2026-10-28'&&date<=c.day()?require('./my-finance').report(store,user,new URLSearchParams({from:date,to:date})):null;finance.personalFinance={name:'我的财务',startDate:'2026-10-28',scope:'own',viewerId:user.id,personalOnly:true,summary:personal?.summary||null,dashboard:personal?.dashboard||null,openCount:personal?.openItems.length??null,warnings:personal?.warnings||[],href:'/my-finance'};
+ return {date,asOf:c.now(),modelVersion:definition.version,supplierExchanges:require('./supplier-exchanges').totals(store),sales:report.summary,inventory:{models:inventory.filter(r=>r.quantity>0).length,quantity:inventory.reduce((n,r)=>n+Number(r.quantity||0),0),valueCents:inventory.reduce((n,r)=>n+Math.round(Number(r.stockValue||0)*100),0),availableSerials:inventory.reduce((n,r)=>n+(r.serials||[]).filter(s=>['可售','未激活'].includes(s.status)).length,0),scope:'当前库存，不冒充历史日库存快照'},finance,wallet:require('./wallet-daily').summary(store,date),checks:require('./guardian').inspect(store),comparisons:{total:comparisons.length,matched:comparisons.filter(r=>r.status==='汇总一致').length,different:comparisons.filter(r=>r.status==='汇总有差异').length,latest:comparisons.slice(0,5).map(r=>({id:r.id,title:r.title,status:r.status,createdAt:r.createdAt}))},actions:[{label:'查看财务账务与待处理',href:'/funds'},{label:'上传流水并比对',href:'/statement-comparisons'},{label:'每日扎账',href:'/daily-close'},{label:'库存与串号',href:'/app?tab=inventory'},{label:'销售原单',href:'/app?tab=orders'}],executionScope:'按现有原业务处理器自动核算及检查；新增证据写回和全流程编排按模型中的实现状态单独接入。'};
+}
+function query(store,user,question){
+ const q=String(question||'');const active=require('./rule-authority').query(q,user);if(active)return active;if(!/账务模型|业务模型|数据模型|规则模型|对账模型|所有(?:的)?规则|数字大脑.{0,10}(?:账务|算账|处理财务)|(?:流水号|流水尾号|尾号流水).{0,12}(?:怎么|如何|认可|规则)|没有大模型.{0,12}(?:对账|算账)/.test(q))return null;
+ if(!c.capabilities(user).manageUsers)return {answer:'账务模型总览及全部经营核算由老板查看。日常登记和核对仍按当前岗位职责办理。',sources:[],metrics:{kind:'store-accounting-model',restricted:true}};
+ const ids=/尾号|流水号/.test(q)?['R07','R09','R10','R11','R12','R13']:/没有大模型/.test(q)?['R07','R20']:['R01','R03','R04','R07','R09','R10','R11','R15','R16'];
+ const rules=definition.rules.filter(r=>ids.includes(r.id));
+ return {answer:'已建立'+definition.models.length+'类账务模型。数字大脑按原单计算销售、库存和资金，核对笔数金额，并按证据识别规则处理已有记录。'+rules.map(r=>r.name+'：'+r.effect+'。').join('')+'已上线和待接入的能力在模型总览中分别标明。',sources:[{label:'当前账务模型与实际单据核算',href:'/brain'}],action:{type:'navigate',label:'打开数字大脑账务模型',href:'/brain'},metrics:{kind:'store-accounting-model',modelVersion:definition.version,ruleIds:ids}};
+}
+module.exports={model,accounting,query};

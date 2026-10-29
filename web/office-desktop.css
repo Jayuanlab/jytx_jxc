@@ -21,21 +21,28 @@
  html body .shell #main .inventory-unit-grid{display:block}
  html body .shell #main .inventory-unit-grid>.inventory-unit{display:none}
  html body .shell #main .inventory-desktop-results{display:block;border:1px solid #d9dfE6;border-radius:12px;background:white;overflow:auto;max-width:100%;max-height:70vh}
- html body .shell #main table.inventory-desktop-table{width:100%;min-width:1230px;table-layout:auto}
+ html body .shell #main table.inventory-desktop-table{width:100%;min-width:1100px;table-layout:auto}
  html body .shell #main .inventory-desktop-table :is(th,td){font-size:20px!important;line-height:1.45;padding:15px 14px;vertical-align:middle;white-space:nowrap}
  html body .shell #main .inventory-desktop-table th{position:sticky;top:0;background:#edf3fb;color:#395675;z-index:1;border-bottom:2px solid #cfdaE8;font-weight:700}
- html body .shell #main .inventory-desktop-table .inventory-desktop-product{min-width:220px;white-space:normal}
- html body .shell #main .inventory-desktop-table .inventory-desktop-product strong{display:block;font-size:21px}
- html body .shell #main .inventory-desktop-table .inventory-desktop-product small{display:block;font-size:18px!important;overflow-wrap:anywhere}
+ html body .shell #main .inventory-desktop-table .inventory-desktop-code{min-width:92px;white-space:nowrap}
+ html body .shell #main .inventory-desktop-table .inventory-desktop-product{min-width:190px;white-space:nowrap}
+ html body .shell #main .inventory-desktop-table .inventory-desktop-product strong{display:inline;font-size:17px;line-height:1.25}
+ html body .shell #main .inventory-desktop-table .inventory-desktop-product small{display:inline;font-size:12px!important;white-space:nowrap}
+ html body .shell #main .inventory-desktop-table .inventory-desktop-code .inventory-product-code{display:inline;color:#233a5c;font:700 20px/1.4 Consolas,ui-monospace,monospace;white-space:nowrap}
+ html body .shell #main .inventory-desktop-table .inventory-desktop-product .inventory-original-barcode:before{content:' · ';color:#94a3b8}
  html body .shell #main .inventory-desktop-table code{font:700 20px/1.4 Consolas,ui-monospace,monospace}
  html body .shell #main .inventory-desktop-table tbody tr:nth-child(even){background:#f8fafc}
  html body .shell #main .inventory-desktop-table tbody tr:hover{background:#edf5ff}
- html body .shell #main .inventory-desktop-table .inventory-desktop-actions{display:flex;gap:9px;flex-wrap:wrap;max-width:280px}
+ html body .shell #main .inventory-desktop-table .inventory-desktop-actions{display:flex;gap:9px;flex-wrap:nowrap;max-width:none;white-space:nowrap}
  html body .shell #main .inventory-desktop-table .inventory-desktop-actions :is(button,a){font-size:18px!important;min-height:42px;padding:8px 10px}
  html body .topbar .identity{min-width:0;justify-content:flex-end;flex-wrap:wrap;gap:8px}
  html body .topbar .identity>a{font-size:15px;margin-right:4px!important}
  html body .topbar{min-height:66px;height:auto;gap:20px;padding-top:10px;padding-bottom:10px}
  html body .topbar .brand{flex-shrink:0}
+}
+@media(min-width:701px){
+ html body .shell #main .inventory-simple-filter+.inventory-result-summary+.inventory-unit-grid .inventory-desktop-table :is(th,td){white-space:nowrap}
+ html body .shell #main .inventory-simple-filter+.inventory-result-summary+.inventory-unit-grid .inventory-desktop-table .inventory-desktop-product{white-space:nowrap}
 }
 @media(min-width:701px) and (max-width:1050px){
  html body .shell{grid-template-columns:190px minmax(0,1fr)}
@@ -44,4 +51,34 @@
  html body .shell #main .inventory-warehouse-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
  html body .shell #main .inventory-warehouse{flex-direction:column;gap:8px;align-items:flex-start;padding:12px}
  html body .shell #main .inventory-warehouse :is(span,strong){font-size:20px!important;white-space:normal}
+}
+
+/* Inventory keeps one query area above the results and gives the table the full page width. */
+@media(min-width:701px){
+ html body .shell:has(>#main .inventory-level1-filter){grid-template-columns:minmax(0,1fr)}
+ html body .shell:has(>#main .inventory-level1-filter)>#nav{display:none}
+ html body .shell:has(>#main .inventory-level1-filter)>#main{grid-column:1;max-width:none;width:100%;padding:18px 24px}
+ html body .shell #main .inventory-simple-filter.inventory-level1-filter{display:grid;grid-template-columns:minmax(0,1fr) max-content;align-items:end;gap:12px;padding:12px 16px;margin:8px 0 12px}
+ html body .shell #main .inventory-simple-filter.inventory-level1-filter .inventory-filter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;min-width:0;overflow:visible}
+ html body .shell #main .inventory-simple-filter.inventory-level1-filter .inventory-filter-grid label{min-width:0}
+ html body .shell #main .inventory-simple-filter.inventory-level1-filter .inventory-filter-actions{grid-column:auto;display:flex;flex-wrap:nowrap;align-items:end;gap:8px;margin:0;overflow:visible}
+ html body .shell #main .inventory-simple-filter.inventory-level1-filter .inventory-filter-actions button{white-space:nowrap;min-height:44px!important}
+ html body .shell #main .inventory-simple-filter.inventory-level1-filter :is(label,input,select,button){font-size:16px!important}
+ html body .shell #main .inventory-simple-filter.inventory-level1-filter :is(input,select){min-height:44px!important;padding:6px 10px}
+ html body .shell #main .inventory-level1-filter+.inventory-result-summary{white-space:normal;overflow:visible;line-height:1.5}
+ html body .shell #main .inventory-page-heading{display:flex;flex-direction:row-reverse;align-items:center;justify-content:space-between;gap:12px}
+ html body .shell #main .inventory-page-heading .heading{margin-bottom:6px}
+ html body .shell #main .inventory-workbench-link{display:inline-flex;align-items:center;min-height:38px;color:#2457db;text-decoration:none;font-size:16px}
+ html body .shell #main .inventory-workbench-link:hover{text-decoration:underline}
+ html body .shell #main .inventory-model-head,html body .shell #main .inventory-model-row>summary{grid-template-columns:92px minmax(190px,2fr) 80px minmax(130px,1.2fr) 80px 44px 90px 100px;min-width:850px}
+ html body .shell #main .inventory-model-code{font:700 18px/1.4 Consolas,ui-monospace,monospace;white-space:nowrap}
+ html body .shell #main .inventory-focus-panel .inventory-model-row>summary{display:none!important}
+ html body .shell #main .inventory-focus-panel .inventory-model-body{padding-top:0}
+}
+@media(min-width:701px) and (max-width:1250px){
+ html body .shell #main .inventory-simple-filter.inventory-level1-filter{grid-template-columns:minmax(0,1fr)}
+ html body .shell #main .inventory-simple-filter.inventory-level1-filter .inventory-filter-actions{grid-column:1}
+}
+@media(min-width:701px) and (max-width:900px){
+ html body .shell #main .inventory-simple-filter.inventory-level1-filter .inventory-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }

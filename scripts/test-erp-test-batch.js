@@ -19,7 +19,7 @@ assert.ok(phone && accessory);
 const inventory = (item) => store.inventory.find((row) => row.skuId === item.skuId);
 const beforePhone = inventory(phone).quantity;
 const beforeAccessory = inventory(accessory).quantity;
-const order = erp.sale(store, owner, { account: "微信", accountOwnerId: owner.id, items: [
+const order = erp.sale(store, owner, { account: "微信", items: [
   { skuId: phone.skuId, quantity: 1, salePrice: phone.salePrice, serialNo: phone.serials[0] },
   { skuId: accessory.skuId, quantity: 2, salePrice: accessory.salePrice },
 ] });
@@ -28,7 +28,6 @@ assert.equal(inventory(accessory).quantity, beforeAccessory - 2);
 assert.equal(inventory(phone).serials.find((s) => s.no === phone.serials[0]).status, "已售");
 assert.equal(order.amount, Math.round((phone.salePrice + 2 * accessory.salePrice) * 100) / 100);
 assert.throws(() => erp.sale(store, owner, { items: [{ skuId: phone.skuId, quantity: 1, salePrice: phone.salePrice, serialNo: phone.serials[0] }] }), /串码|库存|已售/);
-require("../server/src/sale-payments").confirm(store, owner, {orderId:order.id,actualAmount:order.amount,reference:"TEST-BATCH-PAID"});
 const returned = erp.returnSale(store, owner, { orderId: order.id, reason: "测试退货", account: "微信", items: order.items.map((item) => ({ itemId: item.id, quantity: item.quantity })) });
 assert.equal(returned.items.length, 2);
 assert.equal(inventory(phone).quantity, beforePhone);

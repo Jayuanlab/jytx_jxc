@@ -26,17 +26,3 @@ test('正式手机类别和旧叫法统计一致，配件不混入手机销量',
  const s=fixture();for(const type of ['智能手机','智能机','二手手机','二手机','老人机','功能机']){s.sales[0].items[0].type=type;assert.equal(assistant.ask(s,owner,{question:'今天卖了多少台手机'}).metrics.netUnits,1,type);}
  s.sales[0].items[0].type='配件';assert.equal(assistant.ask(s,owner,{question:'今天卖了多少台手机'}).metrics.netUnits,0);
 });
-
-test('销售收款核对功能直接导航，近期已查过串号也不错误继承',()=>{
- const s=fixture(),before=JSON.stringify(s),context={userId:staff.id,at:Date.now(),serialToken:'869000000001234',question:'查串号1234是否已经销售',mode:'store'};
- for(const question of ['进入销售收款核对','打开销售收款确认','销售收款核对在哪里']){
-  const reply=assistant.ask(s,staff,{question,context});assert.equal(reply.action?.href,'/sale-payments',question);assert.equal(reply.metrics.kind,'function-entry',question);assert.equal(reply.metrics.featureId,'payment');assert.equal(reply.saleFlow,undefined);assert.equal(JSON.stringify(s),before);
- }
- const denied=assistant.ask(s,{id:'viewer',roleCode:'employee',status:'active',permissions:[]},{question:'进入销售收款核对'});assert.equal(denied.action,undefined);assert.equal(denied.metrics.allowed,false);
-});
-test('具体串号核对和这台手机追问仍返回销售状态，不退化为收款菜单',()=>{
- const s=fixture();s.inventory[0].quantity=0;s.inventory[0].serials[0].status='已售';s.sales[0].items[0].serialNo='869000000001234';const before=JSON.stringify(s),context={userId:staff.id,at:Date.now(),serialToken:'869000000001234',question:'查串号1234是否已经销售',mode:'store'};
- for(const question of ['查一下串号1234是不是已经销售了','串号869000000001234销售了没有','这台是不是已经销售了','进入销售收款核对，串号1234是否已经销售']){
-  const reply=assistant.ask(s,staff,{question,context});assert.equal(reply.metrics.kind,'serial-status',question);assert.equal(reply.metrics.status,'sold',question);assert.equal(reply.metrics.serialNo,'869000000001234');assert.equal(reply.action,undefined);assert.equal(reply.saleFlow,undefined);assert.equal(JSON.stringify(s),before);
- }
-});

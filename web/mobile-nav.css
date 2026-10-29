@@ -161,7 +161,6 @@ html body .assistant-brand-actions #digital-assistant-launcher.assistant-in-head
 .assistant-entry-controls{display:inline-flex;align-items:center;flex-wrap:wrap;gap:8px;max-width:100%;min-width:0}
 .assistant-role-choice{display:inline-flex;align-items:stretch;border:2px solid #b5c9e6;border-radius:12px;overflow:hidden;flex:0 0 auto}
 html body .assistant-entry-controls .assistant-entry-button{position:static!important;display:inline-flex!important;align-items:center;justify-content:center;min-width:62px!important;min-height:50px!important;height:auto!important;width:auto!important;flex:0 0 auto!important;padding:8px 11px!important;margin:0!important;border:0!important;border-radius:0!important;font:800 24px/1.2 "Microsoft YaHei",sans-serif!important;color:#fff!important;white-space:nowrap!important;cursor:pointer;box-shadow:none!important}
-html body .assistant-entry-controls a.assistant-entry-button{text-decoration:none!important}
 html body .assistant-entry-controls .assistant-entry-work{background:#2458d5!important}
 html body .assistant-entry-controls .assistant-entry-personal{background:#19734f!important;border-left:2px solid #fff!important}
 html body .assistant-entry-controls .assistant-entry-customer{background:#a45108!important;border-radius:12px!important}
@@ -195,3 +194,12 @@ html body .assistant-entry-controls .assistant-entry-retry{min-height:42px!impor
  .assistant-separated-panel .assistant-float-head a{font-size:18px}
  .assistant-separated-panel .assistant-float-head div{gap:8px}
 }
+
+/* Personal chat owns the full usable viewport in its parent page. */
+body.assistant-personal-open{overflow:hidden!important}
+body.assistant-personal-open> :not(#assistant-entry-panel){visibility:hidden!important}
+body.assistant-personal-open .assistant-separated-panel[data-assistant=personal]{visibility:visible!important;position:fixed!important;inset:var(--assistant-personal-top,0px) 0 auto 0!important;width:100vw!important;height:var(--assistant-personal-height,100dvh)!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;z-index:10000!important}
+body.assistant-personal-open .assistant-separated-panel[data-assistant=personal]>.assistant-float-head{display:none!important}
+body.assistant-personal-open .assistant-separated-panel[data-assistant=personal]>iframe:not([hidden]){display:block!important;width:100%!important;height:100%!important;min-height:0!important;flex:1 1 0!important;border:0!important}
+
+html body .assistant-entry-controls a.assistant-entry-button{text-decoration:none!important}

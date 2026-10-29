@@ -31,8 +31,10 @@ function payload(header, lines, products, suppliers, store) {
       if (!product) throw new Error("商品档案不存在或已停用：" + code);
       if (product.stockManaged === false) throw new Error("服务项目不能入库");
       const warehouse = text(line.fields["入库仓库"]).trim();
-      if (warehouse && warehouse !== "销售仓")
-        throw new Error("当前仅支持销售仓入库");
+      const choices=require('./warehouse-directory').list(store,true);
+      const selected=choices.find(w=>w.id===warehouse||w.code===warehouse.toUpperCase()||w.name===warehouse||w.name.startsWith(warehouse+'·'));
+      const warehouseId=selected?.id||(warehouse===''||warehouse==='销售仓'?product.warehouseId:'');
+      if(!warehouseId||!choices.some(w=>w.id===warehouseId&&w.active!==false))throw new Error('请在采购明细填写在用的入库仓库');
       const quantity = Number(line.fields["数量"]);
       if (!Number.isSafeInteger(quantity) || quantity < 1)
         throw new Error("数量必须是正整数");
@@ -43,7 +45,7 @@ function payload(header, lines, products, suppliers, store) {
       if (!product.trackSerial && serials.length)
         throw new Error("普通商品不需要串码");
       return {
-        skuId: product.skuId, quantity,
+        skuId: product.skuId, warehouseId, quantity,
         costPrice: amount(line.fields["单件进价"], "单件进价"),
         serials,
       };

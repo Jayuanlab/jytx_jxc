@@ -52,6 +52,7 @@ function capabilities(user) {
   const result = {
     learn: true,
     communicate: !customerOnly,
+    catalogAdd: !customerOnly && user.status === 'active' && ['owner','manager','employee','warehouse'].includes(user.roleCode),
     managePay: owner || has("payroll:manage"),
     viewAllPay: owner || has("payroll:view_all"),
     confirmPay: owner,
@@ -63,6 +64,8 @@ function capabilities(user) {
     cost: owner || manager || has("cost:view"),
     profit: owner || has("finance:view_profit"),
     finance: owner || manager || has("finance:view"),
+    receiptRegister: !customerOnly && user.status === 'active' && ['owner','manager','employee','warehouse'].includes(user.roleCode),
+    paymentRegister: !customerOnly && user.status === 'active' && ['owner','manager','employee','warehouse'].includes(user.roleCode),
     financeReceive: owner || manager || has("finance:receive"),
     supplierView: owner || manager || has("supplier:view"),
     supplierSettle: owner || has("supplier:settle"),
@@ -74,16 +77,17 @@ function capabilities(user) {
     redReview: owner,
     feedbackReview: owner || has('feedback:review'),
     learningReview: owner || has('learning:review'),
-    dutyManage: owner || has('duties:manage'),
-    workReview: owner || has('work:review'),
-    usedPhoneAssess: owner || manager || has('used-phone:assess'),
-    usedPhoneReview: owner || has('used-phone:review'),
     opening: owner,
     manageUsers: owner,
+    knowledgeSubmit: owner || manager || !customerOnly && user.roleCode === "employee",
     giftApprove: owner || has("gift:approve"),
   };
   if(!owner&&!customerOnly)for(const field of staffPermissionFields){
     if(typeof user.capabilityOverrides?.[field.key]==="boolean")result[field.key]=user.capabilityOverrides[field.key];
+  }
+  if(!customerOnly&&user.roleCode==='employee'&&user.status==='active'){
+    for(const key of ['sell','purchase','returnSale','manageProducts','stocktake'])result[key]=true;
+    for(const key of ['allSales','finance','supplierView','supplierSettle','supplierAdjust','managePay','viewAllPay','giftApprove'])result[key]=false;
   }
   result.redReview = owner; // 红冲必须由老板本人批准，员工授权不能覆盖。
   return result;
@@ -124,9 +128,17 @@ function audit(store, user, action, detail) {
 }
 function initialize(store) {
   for (const key of [
+    "businessReconciliations", "moneyVerifications", "inventoryLossCases",
     "products",
     "inventory",
     "sales",
+    "mobileActivitySales",
+    "businessChangeRequests",
+    "supplierOutboundTransfers",
+    "supplierExchanges",
+    "mobileActivityPayments",
+    "mobileActivityBusinessOptions",
+    "mobileActivityCommissionRules",
     "purchases",
     "saleReturns",
     "saleReturnRequests",
@@ -156,15 +168,16 @@ function initialize(store) {
     "receptionAttempts",
     "learningRecords",
     "workJournals",
-    "dutyAssignments", "usedPhoneAssessments",
     "employeeKnowledge",
     "knowledgeImports",
     "conversionClaims",
     "assistCommissionAllocations",
     "carrierServices",
+    "mobileCardBundles",
     "dailyCloseouts",
     "cashHandovers",
     "fundTransfers",
+    "walletCashExchanges",
     "airRechargeEvents",
     "govSubsidyClaims",
     "cardEvents",
@@ -174,12 +187,14 @@ function initialize(store) {
     "supplierSettlements",
     "supplierCash",
     "supplierAdjustments",
+    "serialSourceCorrections",
     "costAdjustments",
     "procurementPlans",
     "searchSynonyms",
     "redReversals",
     "productPriceChanges",
     "attendance",
+    "leaveRequests",
     "assistantReports",
     "assistantPhrases",
     "assistantDialogues",
@@ -187,6 +202,7 @@ function initialize(store) {
     "companionProfiles", "companionMemories", "companionMessages", "companionFavors", "companionReminders", "learningContributionAwards",
   ])
     store[key] ||= [];
+  require("./warehouse-directory").remember(store);
   return store;
 }
 module.exports = {

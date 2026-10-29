@@ -1,0 +1,10 @@
+.pending-alert-control{display:flex;flex-wrap:wrap;align-items:center;gap:9px 12px;margin:12px 0;padding:11px 13px;border:1px solid #dce5ec;border-radius:12px;background:#f6fafc;color:#263f58}
+.pending-alert-control label{font-weight:650}
+.pending-alert-control select{font:inherit;min-height:42px;max-width:100%;padding:5px 10px;border:1px solid #9aafc0;border-radius:9px;background:#fff;color:#1c3045}
+.pending-alert-control span{flex-basis:100%;font-size:.86em;line-height:1.4;color:#536b80}
+#pending-submitted .pending-item{align-items:center}
+#pending-submitted .pending-item-action{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px}
+#pending-submitted .pending-item-action a,#pending-submitted .pending-item-action button{font:inherit;min-height:40px;padding:7px 12px;border:1px solid #bfd0df;border-radius:9px;background:#fff;color:#24527a;text-decoration:none;cursor:pointer}
+#pending-submitted .pending-item-action button{background:#eaf4ff;border-color:#81add6;font-weight:650}
+#pending-submitted .pending-item-action button:disabled{opacity:.55;cursor:wait}
+#pending-urge-result{min-height:1.5em;color:#24527a}

@@ -6,6 +6,7 @@ function dates(query){
  return {from,to,start:new Date(from+'T00:00:00+08:00').toISOString(),end:new Date(Date.parse(to+'T00:00:00+08:00')+86400000).toISOString()};
 }
 async function salesPage(user,query){
+ if(['from','to','supplier','productName'].some(name=>query.get(name)))return require('./document-queries').salesPage(user,query);
  let limit=Number(query.get('limit')||40);if(!Number.isSafeInteger(limit)||limit<1||limit>100)throw new c.HttpError(400,'每页数量须为1至100');
  let cursor=null;
  if(query.get('cursor'))try{cursor=JSON.parse(Buffer.from(query.get('cursor'),'base64url').toString('utf8'));if(!Array.isArray(cursor)||cursor.length!==2||!cursor.every(x=>typeof x==='string')||Number.isNaN(Date.parse(cursor[0]))||cursor[1].length>160)throw Error();}catch{throw new c.HttpError(400,'分页位置不正确，请刷新');}
@@ -30,8 +31,10 @@ async function serials(user,query){
  if(!/^[a-z0-9-]{4,40}$/i.test(q))throw new c.HttpError(400,'请输入完整串号或后四位');
  return pg.scoped(async(client,scope)=>{
   const found=(await client.query("SELECT s.serial_no,s.inventory_key,s.data,p.data AS product FROM erp_serial_units s LEFT JOIN erp_records p ON p.tenant_id=s.tenant_id AND p.branch_id=s.branch_id AND p.collection='products' AND p.record_key=split_part(s.inventory_key,'/',2) WHERE s.tenant_id=$1 AND s.branch_id=$2 AND "+(/^\d{4}$/.test(q)?"right(s.serial_no,4)=$3":"s.serial_no=$3")+" ORDER BY s.serial_no LIMIT 101",[scope.tenantId,scope.branchId,q])).rows;
+  const serialNos=found.map(r=>r.serial_no),records=serialNos.length?(await client.query("SELECT collection,data FROM erp_records WHERE tenant_id=$1 AND branch_id=$2 AND (collection='suppliers' OR collection='serialSourceCorrections' AND data->>'serialNo'=ANY($3::text[]) OR collection='purchases' AND EXISTS(SELECT 1 FROM jsonb_array_elements(COALESCE(data->'items','[]'::jsonb)) i WHERE EXISTS(SELECT 1 FROM jsonb_array_elements_text(COALESCE(i->'serials','[]'::jsonb)) sn WHERE sn=ANY($3::text[])))) ORDER BY collection,rank,record_key",[scope.tenantId,scope.branchId,serialNos])).rows:[];
+  const sourceStore={suppliers:records.filter(r=>r.collection==='suppliers').map(r=>r.data),purchases:records.filter(r=>r.collection==='purchases').map(r=>r.data),serialSourceCorrections:records.filter(r=>r.collection==='serialSourceCorrections').map(r=>r.data)};
   return {rows:found.slice(0,100).map(row=>{
-   const data={...row.data,serialNo:row.serial_no,skuId:row.product?.skuId,name:row.product?.name,warehouseId:row.inventory_key.split('/')[0]};
+   const data={...row.data,...require('../serial-sources').resolve(sourceStore,row.product||{skuId:row.inventory_key.split('/')[1]},row.data),serialNo:row.serial_no,skuId:row.product?.skuId,name:row.product?.name,warehouseId:row.inventory_key.split('/')[0]};
    if(!c.capabilities(user).cost){delete data.costPrice;delete data.costSources;delete data.cost;delete data.stockValue;}return data;
   }),hasMore:found.length>100,ambiguous:found.length>1};
  });

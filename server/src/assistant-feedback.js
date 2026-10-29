@@ -18,7 +18,7 @@ function list(store,user,query=new URLSearchParams()){
  staff(user);if(query.get('draft')==='1')return draft(store,user,query);const owner=user.roleCode==='owner',all=(store.assistantAnswerFeedback||[]).filter(x=>owner||x.submittedById===user.id||delegation.allowed(store,user,'feedback',x)),status=query.get('status')||'待审核';
  if(!['待审核','已生效','已处理','不采纳','全部'].includes(status))throw new c.HttpError(400,'纠错状态不正确');
  const offset=Number(query.get('offset')||0);if(!Number.isSafeInteger(offset)||offset<0)throw new c.HttpError(400,'页码不正确');
- const rows=all.filter(x=>status==='全部'||x.status===status).sort((a,b)=>status==='待审核'?a.createdAt.localeCompare(b.createdAt):b.createdAt.localeCompare(a.createdAt));
+ const focus=query.get('id')||'';const rows=all.filter(x=>focus?x.id===focus:status==='全部'||x.status===status).sort((a,b)=>status==='待审核'?a.createdAt.localeCompare(b.createdAt):b.createdAt.localeCompare(a.createdAt));
  return {canReview:c.capabilities(user).feedbackReview,canAssign:owner,pendingCount:all.filter(x=>x.status==='待审核').length,total:rows.length,rows:rows.slice(offset,offset+50).map(row=>{
   const canReview=delegation.allowed(store,user,'feedback',row),extras={canReview,...(owner?{reviewers:delegation.reviewers(store,'feedback',row.submittedById)}:{})};
   if(!canReview)return {...row,...extras};

@@ -16,7 +16,7 @@ async function cached(key,ttl,work) {
  pending.set(key,promise);return promise;
 }
 const clean=v=>String(v||'').replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,'$1').replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').trim();
-const requestPrefix=/^(?:请|麻烦|帮我|帮忙|查一下|查查|查询|查|看看|看一下|我在|我住在|就是|在|今天|今日|今儿个|今儿|明天|后天|现在|今晚)+/;
+const requestPrefix=/^(?:请|麻烦|帮我|帮忙|查一下|查查|查询|查|看看|看一下|我就想知道|我想知道|我想查|给我查|我在|我住在|就是|在|今天|今日|今儿个|今儿|明天|后天|现在|今晚上|今晚)+/;
 function locationText(value) {
  return String(value||'').trim().replace(requestPrefix,'').replace(/[，,、\s]+/g,'').replace(/[。.!！?？]+$/,'');
 }
@@ -25,19 +25,19 @@ function isLocation(value) {
   !/天气|新闻|喜欢|想要|记住|吃什么|聊天|不知道|算了|不用|不查|不要|取消|结束|谢谢|好的|你好|继续|什么|怎么样|如何|明天|今天|今日|今儿|后天|业务|套餐|资费|办理|办卡|手机卡|宽带|流量|充值|话费|购机|手机|商品|咨询|笑话|笑一个|八卦|明星|娱乐|无聊|起居|睡眠|生活习惯|养生|运动/.test(value);
 }
 function cityFrom(question,fallback='') {
- const text=String(question||'').trim(),match=text.match(/^(.*?)(?:天气|气温|温度|下雨|多少度|几度|冷不冷|热不热)/u);
+ const text=String(question||'').trim(),match=text.match(/^(.*?)(?:天气|气温|温度|下雨|有雨|降雨|多少度|几度|冷不冷|热不热)/u);
  if(!match)return fallback;
- const candidate=locationText(match[1]).replace(/(?:的|今天|今日|今儿个|今儿|明天|后天|现在|今晚|会不会|会|有没有|是否)+$/,'');
- return isLocation(candidate)?candidate:fallback;
+ const candidate=locationText(match[1]).replace(/(?:的|今天|今日|今儿个|今儿|明天|后天|现在|今晚上|今晚|上午|下午|早上|晚上|中午|夜里|会不会|会|有没有|是否)+$/,'');
+ return /^(?:该地方|这里|那里|这个地方)$/.test(candidate)?fallback:isLocation(candidate)?candidate:fallback;
 }
 function weatherInput(question,{city='',weatherContext=null,now=Date.now()}={}) {
  const q=String(question||'').trim();
  const valid=weatherContext&&Number.isFinite(weatherContext.at)&&now-weatherContext.at>=0&&now-weatherContext.at<30*60000&&
   typeof weatherContext.city==='string'&&weatherContext.city.length<=60&&[0,1,2].includes(weatherContext.dayOffset);
  const context=valid?weatherContext:null;
- const direct=/天气|下雨|气温|(?:今天|今日|今儿个|今儿|明天|后天|现在|今晚|室外).*(?:几度|多少度|温度|冷不冷|热不热)/.test(q);
+ const direct=/天气|下雨|有雨|降雨|气温|(?:今天|今日|今儿个|今儿|明天|后天|现在|今晚上|今晚|室外).*(?:几度|多少度|温度|冷不冷|热不热)/.test(q);
  const followup=context&&/^(?:那|那么)?(?:(?:今天|今日|今儿个|今儿|明天|后天|现在|今晚)(?:呢|怎么样|咋样|如何|的天气|会不会下雨|会下雨|下雨|有没有雨|有雨|多少度|几度|冷不冷|热不热)?|会不会下雨|会下雨|下雨|有没有雨|有雨|多少度|几度|温度多少|气温多少|冷不冷|热不热)[呢吗啊呀?？。！!]*$/.test(q);
- const supplied=locationText(q),cityAnswer=context?.needsCity&&!direct&&!followup&&isLocation(supplied);
+ const supplied=locationText(q),cityAnswer=context?.needsCity&&!direct&&!followup&&isLocation(supplied)&&!/(?:哪里|为什么|怎么|是不是|有多个|吗|呢|谁)/.test(q);
  if(!direct&&!followup&&!cityAnswer)return null;
  const location=cityAnswer?supplied:cityFrom(q,context?.city||city);
  const dayOffset=/后天/.test(q)?2:/明天/.test(q)?1:/今天|今日|今儿|现在|今晚/.test(q)?0:context?.dayOffset||0;
@@ -51,6 +51,7 @@ function locationParts(location) {
  if(province?.[2]){regions.push(areaName(province[1]));name=province[2];}
  const municipality=name.match(/^(.+?市)(.+)$/u);
  if(municipality){regions.push(areaName(municipality[1]));name=municipality[2];}
+ if(!regions.length&&areaName(name)==='云阳')regions.push('重庆');
  return {name:areaName(name),regions};
 }
 async function query(question,{city='',weatherContext=null,fetchImpl=globalThis.fetch,now=Date.now()}={}) {
@@ -62,14 +63,14 @@ async function query(question,{city='',weatherContext=null,fetchImpl=globalThis.
   try{
    const parts=locationParts(location);
    if(parts.name.length<2)throw Error('invalid-location');
-   const result=await cached('weather:'+c.day(now)+':'+JSON.stringify(parts),10*60000,async()=>{
+   const result=await cached('weather:'+c.day(now)+':'+JSON.stringify(parts),0,async()=>{
     const url=new URL('https://geocoding-api.open-meteo.com/v1/search');url.search=new URLSearchParams({name:parts.name,count:'20',language:'zh',format:'json',countryCode:'CN'});
     const geo=JSON.parse(await limited(url,fetchImpl));
     const places=(geo.results||[]).filter(x=>x.country_code==='CN'&&Number.isFinite(x.latitude)&&Number.isFinite(x.longitude)&&
      areaName(x.name)===parts.name&&parts.regions.every(region=>[x.admin1,x.admin2,x.admin3].some(admin=>areaName(admin)===region)));
     if(places.length!==1)return {answer:places.length?'这个地名有多个地点，请选一个：'+places.map(x=>[x.admin1,x.admin2,x.name].filter((v,i,a)=>v&&a.indexOf(v)===i).join(' ')).join('；')+'。':'暂时没找到“'+location+'”的天气地点，可以换成所在城市名。',sources:[],metrics:{kind:'live-weather',needsCity:true}};
     const p=places[0],forecast=new URL('https://api.open-meteo.com/v1/forecast');
-    forecast.search=new URLSearchParams({latitude:String(p.latitude),longitude:String(p.longitude),current:'temperature_2m,weather_code',daily:'weather_code,temperature_2m_max,temperature_2m_min',timezone:'Asia/Shanghai',forecast_days:'3'});
+    forecast.search=new URLSearchParams({latitude:String(p.latitude),longitude:String(p.longitude),current:'temperature_2m,weather_code',hourly:'temperature_2m,precipitation_probability,weather_code',daily:'weather_code,temperature_2m_max,temperature_2m_min',timezone:'Asia/Shanghai',forecast_days:'3'});
     const weather=JSON.parse(await limited(forecast,fetchImpl));
     return {place:[p.admin1,p.admin2,p.name].filter((x,i,a)=>x&&a.indexOf(x)===i).join(' '),weather};
    });
@@ -78,6 +79,11 @@ async function query(question,{city='',weatherContext=null,fetchImpl=globalThis.
    if(!Array.isArray(d?.time)||!d.time[index]||d.time[0]!==c.day(now))throw Error('stale');
    const lo=d.temperature_2m_min?.[index],hi=d.temperature_2m_max?.[index];
    if(!Number.isFinite(lo)||!Number.isFinite(hi))throw Error('missing');
+   const period=/上午|早上|早晨/.test(question)?{label:'上午',from:6,to:12}:/下午/.test(question)?{label:'下午',from:12,to:18}:/今晚上|今晚|晚上|夜里|夜间/.test(question)?{label:'晚上',from:18,to:24}:null;
+   if(period&&Array.isArray(w.hourly?.time)){
+    const hours=w.hourly.time.map((time,i)=>({time,temp:w.hourly.temperature_2m?.[i],rain:w.hourly.precipitation_probability?.[i]})).filter(x=>x.time?.slice(0,10)===d.time[index]&&Number(x.time.slice(11,13))>=period.from&&Number(x.time.slice(11,13))<period.to&&Number.isFinite(x.temp));
+    if(hours.length){const min=Math.min(...hours.map(x=>x.temp)),max=Math.max(...hours.map(x=>x.temp)),rain=hours.filter(x=>Number.isFinite(x.rain)).map(x=>x.rain);return withContext({answer:result.place+' '+d.time[index]+' '+period.label+'：气温约'+min+'～'+max+'℃。'+(rain.length?'降雨概率最高约'+Math.max(...rain)+'%。':'降雨概率暂无小时数据。')+'这是查询时的小时预报。',sources:[{label:'Open-Meteo 小时天气预报',href:'https://open-meteo.com/en/docs',id:d.time[index]}],metrics:{kind:'live-weather',fetchedAt:c.now(),period:period.label}});}
+   }
    return withContext({answer:result.place+' '+d.time[index]+'：'+(conditions[d.weather_code?.[index]]||'天气情况见预报')+'，'+lo+'～'+hi+'℃。'+(!index&&Number.isFinite(w.current?.temperature_2m)?'当前约'+w.current.temperature_2m+'℃。':''),
     sources:[{label:'Open-Meteo 天气预报',href:'https://open-meteo.com/en/docs',id:d.time[index]}],metrics:{kind:'live-weather',fetchedAt:c.now()}});
   }catch{return withContext({answer:'天气来源暂时没连上，稍后再查一次；这次不使用旧数据。',sources:[],metrics:{kind:'live-weather',unavailable:true}});}

@@ -19,3 +19,17 @@ html body.session-controls-ready .topbar #logout{display:none!important}
  html body.session-controls-ready .topbar.session-controls-host~.shell #nav{top:calc(var(--mobile-action-height,64px) + var(--session-controls-header-height,58px))}
 }
 @media print{html body.session-controls-ready .session-controls{display:none!important}}
+
+/* Keep the account exit reachable in the paged mobile workbench. */
+@media(max-width:1023px),(hover:none) and (pointer:coarse){
+ html body.store-workbench.session-controls-ready .home-header .hero-top.session-controls-host{padding-top:46px!important;min-height:46px!important;box-sizing:border-box}
+ html body.store-workbench.session-controls-ready .home-header .session-controls{position:fixed!important;top:calc(env(safe-area-inset-top,0px) + 8px)!important;right:12px!important;left:auto!important;bottom:auto!important;z-index:100050!important;display:flex!important;flex-basis:auto!important;width:auto!important;max-width:calc(100vw - 24px)!important;margin:0!important;visibility:visible!important}
+ html body.store-workbench.session-controls-ready .home-header .session-controls .session-logout{min-height:40px!important;min-width:100px!important;padding:8px 12px!important;font-size:16px!important;line-height:1.25!important;border:1px solid #c8d9ec!important;border-radius:14px!important;background:#fff!important;color:#27496b!important;box-shadow:0 3px 12px #27496b14;white-space:nowrap!important}
+ html body.store-workbench.session-controls-ready .home-header .session-controls .session-controls-status{position:absolute;top:44px;right:0;width:min(280px,calc(100vw - 24px));padding:10px;border-radius:12px;background:white;box-shadow:0 3px 16px #27496b24;font-size:16px!important}
+}
+
+@layer corporate-clean {
+ html body.store-workbench.session-controls-ready>.session-controls-home{position:fixed!important;top:env(safe-area-inset-top,0px)!important;left:0!important;right:0!important;z-index:100050!important;display:flex!important;visibility:visible!important;justify-content:flex-end!important;width:100%!important;margin:0!important;padding:6px 12px!important;background:#fff!important;border-bottom:1px solid #e2e8f0!important}
+ html body.store-workbench.session-controls-ready>.session-controls-home .session-logout{min-height:44px!important;font-size:16px!important;white-space:nowrap!important}
+ html body.store-workbench.session-controls-ready>main.wrap{margin-top:58px!important}
+}

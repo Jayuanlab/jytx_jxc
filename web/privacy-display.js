@@ -1,0 +1,1 @@
+(()=>{'use strict';if(window.top!==window)return;function reset(){if(!document.body)return;document.body.classList.remove('privacy-on');document.body.classList.add('privacy-ready');document.querySelectorAll('.privacy-controls,.privacy-cover').forEach(node=>node.remove());}if(document.body)reset();else document.addEventListener('DOMContentLoaded',reset,{once:true});})();

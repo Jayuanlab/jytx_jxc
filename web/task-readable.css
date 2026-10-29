@@ -1,0 +1,53 @@
+/* Approved type scale. Keep this important layer ahead of legacy unlayered !important rules. */
+@layer store-readable {
+ :root{--read-body:16px;--read-aux:14px;--read-note:12px;--read-title:26px;--read-group:18px;--read-pad-y:20px;--read-pad-x:22px;--read-button-y:10px;--read-button-x:16px;--read-control:46px;--read-row:12px;--read-head-control:40px}
+ html.task-text-large{--read-body:22px;--read-aux:18px;--read-note:14px;--read-title:30px;--read-group:24px;--read-pad-y:28px;--read-pad-x:28px;--read-button-y:14px;--read-button-x:22px;--read-control:62px;--read-row:18px;--read-head-control:50px}
+ body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;font-size:var(--read-body)!important;line-height:1.5!important;color:#222}
+ body:not(.store-workbench) :is(p,li,td,th,label,summary,span,code,strong,b,dd,dt),body.store-workbench :is(#pending-dialog,#staff-pending-dialog,#boss-task-dialog) :is(p,li,td,th,label,summary,span,code,strong,b,dd,dt){font-size:var(--read-body)!important;line-height:1.5!important}
+ body:not(.store-workbench) :is(h1,.heading h1),body.store-workbench :is(#pending-dialog,#staff-pending-dialog,#boss-task-dialog) h1{font-size:var(--read-title)!important;line-height:1.5!important}
+ body:not(.store-workbench) :is(h2,h3,.card h2,.receipt h3),body.store-workbench :is(#pending-dialog,#staff-pending-dialog,#boss-task-dialog) :is(h2,h3){font-size:var(--read-group)!important;line-height:1.5!important}
+ body:not(.store-workbench) small{font-size:var(--read-body)!important;line-height:1.5!important}
+ body:not(.store-workbench) :is(.muted,.hint,.guidance,.inventory-phone-origin,.inventory-phone-origin span,.inventory-phone-warehouse,.date,.time,.warehouse-name){font-size:var(--read-aux)!important;line-height:1.5!important;color:#666!important}
+ body:not(.store-workbench) :is(label,code,.inventory-phone-model,.inventory-phone-values b,.inventory-desktop-product strong,.inventory-desktop-product small){color:#222!important}
+ body:not(.store-workbench) :is(code,.serial,.imei,.money,.amount,.sku,.sku-code,.product-code,[data-serial],.inventory-phone-serial,.inventory-phone-values b,.inventory-desktop-product small,.inventory-phone-model,.inventory-desktop-product strong),body:not(.store-workbench) :is([class*="serial"],[class*="money"],[class*="amount"],[class*="sku-code"]) :is(small,span,code,strong){font-size:var(--read-body)!important;line-height:1.5!important;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+ body:not(.store-workbench) :where(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),select,textarea,button,.primary,.secondary,.danger),body.store-workbench :where(#pending-dialog,#staff-pending-dialog,#boss-task-dialog) :where(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),select,textarea,button){font-size:var(--read-body)!important;line-height:1.5!important;min-height:var(--read-control)!important;padding:var(--read-button-y) var(--read-button-x)!important;box-sizing:border-box}
+ body:not(.store-workbench) :is(input[type="checkbox"],input[type="radio"]){width:22px!important;height:22px!important;min-height:22px!important;padding:0!important;flex-shrink:0}
+ html.task-text-large body:not(.store-workbench) :is(input[type="checkbox"],input[type="radio"]){width:28px!important;height:28px!important;min-height:28px!important}
+ body:not(.store-workbench) :is(.panel,.card,.receipt,.inventory-unit,.inventory-filter-panel,.sale-step){padding:var(--read-pad-y) var(--read-pad-x)!important;box-sizing:border-box}
+ body:not(.store-workbench) :is(th,td){padding:var(--read-row) 12px!important;vertical-align:middle}
+ body:not(.store-workbench) :is(input,textarea)::placeholder{color:#666;opacity:1}
+ body:not(.store-workbench) :is(input,select,textarea){color:#222;background-color:#fff}
+ body:not(.store-workbench) :is(.hint,.guidance):not([role="alert"]):not(.error):not(.danger){white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;margin-block:6px}
+ body:not(.store-workbench) :is([role="alert"],.error,.field-error){white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+ body:not(.store-workbench) :is(.footnote,.note-label){font-size:var(--read-note)!important;line-height:1.5!important}
+ .task-read-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px}
+ .task-read-controls{display:inline-flex!important;flex:0 0 auto;align-items:center;justify-content:flex-end;position:static!important;z-index:auto!important;padding:0!important;background:transparent!important;border:0!important;margin:0 0 0 auto!important}
+ body :is(.task-read-controls button,[data-task-text-toggle]){min-height:var(--read-head-control)!important;padding:5px 10px!important;border:1px solid #a7bce0;border-radius:9px;background:#edf3ff;color:#1649ad;font-size:var(--read-body)!important;line-height:1.5!important;font-weight:700;white-space:nowrap}
+ body:not(.store-workbench)>header,.account-page .workbench-header{display:flex!important;align-items:center!important;gap:8px!important;min-height:0!important;height:auto!important;padding:3px 16px!important;flex-wrap:nowrap!important}
+ body:not(.store-workbench)>header :is(h1,strong,a,button,summary,span),.account-page .workbench-header :is(h1,strong,button){font-size:var(--read-body)!important;line-height:1.5!important;white-space:nowrap}
+ body:not(.store-workbench)>header :is(button,.page-help-button),.account-page .workbench-header button{min-height:var(--read-head-control)!important;padding:5px 10px!important}
+ .topbar .brand small{display:none!important}
+ .topbar .identity{display:flex!important;gap:6px!important;flex-wrap:nowrap!important;min-width:0}
+ .topbar .brand{min-width:0;flex-shrink:1}
+ .topbar .mark,.workbench-header .mark{width:var(--read-head-control)!important;height:var(--read-head-control)!important;min-width:var(--read-head-control)!important;line-height:var(--read-head-control)!important;font-size:var(--read-body)!important}
+ body #branch-context{padding:4px 16px!important;gap:8px!important;align-items:center;white-space:nowrap;min-height:0!important;overflow:auto;font-size:var(--read-body)!important;line-height:1.5!important}
+ body #branch-context :is(strong,a){font-size:var(--read-body)!important;line-height:1.5!important;white-space:nowrap}
+ body:not(.store-workbench) .inventory-desktop-table :is(td,th,code,.inventory-desktop-product strong,.inventory-desktop-product small){font-size:var(--read-body)!important;line-height:1.5!important}
+ body:not(.store-workbench) .inventory-desktop-table .inventory-desktop-product{min-width:180px}
+ body:not(.store-workbench) table.inventory-desktop-table{min-width:1040px}
+ body:not(.store-workbench) .inventory-filter-panel .inventory-extra-filters{padding-top:8px!important}
+ body:not(.store-workbench) .inventory-filter-actions{gap:8px!important}
+ body:not(.store-workbench) :is(.inventory-phone-serial,.inventory-phone-model,.inventory-desktop-product small){white-space:normal!important;text-overflow:clip!important;overflow:visible!important}
+ @media(max-width:700px){
+  :root{--mobile-action-height:calc(47px + env(safe-area-inset-top))}
+  html.task-text-large{--mobile-action-height:calc(57px + env(safe-area-inset-top))}
+  .task-read-controls{display:none!important}
+  .account-page .task-read-controls{display:inline-flex!important}
+  .account-page .workbench-header .mark{display:none!important}
+  .mobile-action-dock{min-height:var(--mobile-action-height)!important;padding:calc(3px + env(safe-area-inset-top)) 8px 3px!important;gap:6px!important;box-shadow:none!important}
+  body .mobile-action-dock :is(a,button){min-height:var(--read-head-control)!important;min-width:0!important;font-size:var(--read-body)!important;line-height:1.5!important;flex:1 1 0;padding:4px 6px!important;gap:4px!important;white-space:nowrap}
+  body .mobile-action-dock :is(span,.nav-icon){font-size:var(--read-body)!important;line-height:1.5!important}
+  body:not(.store-workbench) :is(.panel,.card,.receipt,.inventory-unit,.inventory-filter-panel,.sale-step){padding-inline:18px!important}
+  body:not(.store-workbench)>header{overflow-x:auto;padding-inline:10px!important;scrollbar-width:thin}
+ }
+}

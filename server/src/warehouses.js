@@ -1,22 +1,23 @@
 const c = require('./common');
 const WAREHOUSES = Object.freeze([
   {id:'wh-a',code:'A',name:'A仓·手机数码',scope:'智能机、功能机、二手机、笔记本、儿童手表及数码产品'},
-  {id:'wh-b',code:'B',name:'B仓·配件',scope:'日常零售配件'},
-  {id:'wh-c',code:'C',name:'C仓·移动业务',scope:'与A仓共用商品类别、品牌、型号分类；移动商品名称加YD'},
+  {id:'wh-b',code:'B',name:'B仓·配件维修',scope:'配件实物及维修服务；维修用料从库存选择'},
+  {id:'wh-c',code:'C',name:'C仓·移动业务',scope:'可使用A/B仓相同分类；商品直接建档或入库到C仓，名称按原商品显示'},
   {id:'wh-other',code:'OTHER',name:'其他仓',scope:'独立实物仓，可按数量或串号入库、销售、盘点和调拨；服务项目不形成实物库存'}
 ]);
-const byId = id => WAREHOUSES.find(row=>row.id===id);
+const byId = id => require('./warehouse-directory').find(id);
 const baseName = name => String(name||'').trim().replace(/(?:\s*[（(]\s*YD\s*[）)])+\s*$/i,'').trim();
 function productName(name,warehouseId){
-  const text=String(name||'').trim();
-  return warehouseId==='wh-c'?baseName(text)+'（YD）':text;
+  return baseName(name);
 }
+function displayName(name,warehouseId){ return baseName(name); }
 function suggest(product){
   if(product.stockManaged===false)return '';
   if(/[（(]\s*YD\s*[）)]\s*$/i.test(String(product.name||'')))return 'wh-c';
+  if(product.trackSerial===true)return 'wh-a';
   const type=String(product.type||'');const detail=[product.name,product.subType,product.thirdType].join(' ');
   if(/智能机|智能手机|功能机|二手机|笔记本|电脑|手表|数码|平板/.test(type)||/笔记本|儿童手表|智能手表|平板电脑/.test(detail))return 'wh-a';
-  if(/号卡|移动业务|运营商/.test(type)||/摄像头|路由器|活动物品|活动礼品|移动业务/.test(detail))return 'wh-c';
+  if(/号卡|移动业务|运营商/.test(type)||/移动业务/.test(detail))return 'wh-c';
   return 'wh-b';
 }
 function resolveName(value,product){
@@ -24,14 +25,14 @@ function resolveName(value,product){
   if(text==='服务项目')return {id:'',name:'服务项目'};
   if(!text||text==='销售仓'){const row=byId(suggest({...product,stockManaged:true}));return row}
   const aliases={'A仓':'wh-a','A':'wh-a','手机数码仓':'wh-a','B仓':'wh-b','B':'wh-b','配件仓':'wh-b','C仓':'wh-c','C':'wh-c','移动业务仓':'wh-c','其他':'wh-other','其他仓':'wh-other'};
-  const row=byId(aliases[text]||text)||WAREHOUSES.find(item=>item.name===text);
+  const row=byId(aliases[text]||text)||require('./warehouse-directory').list(null,true).find(item=>item.name===text||item.code===text);
   if(!row)throw new c.HttpError(400,'仓库名称只能填 A仓、B仓、C仓、其他或服务项目');
   return row;
 }
 function selected(product,requested){
-  if(product.stockManaged===false)return 'wh-other';
+  if(product.stockManaged===false&&!requested&&!product.warehouseId)return 'wh-other';
   const id=requested||product.warehouseId||'wh-other';
-  if(!byId(id))throw new c.HttpError(400,'请选择 A、B、C 仓或其他');
+  if(!byId(id)||byId(id).active===false)throw new c.HttpError(400,'请选择在用仓库');
   return id;
 }
 function distinguishNames(store){
@@ -40,7 +41,7 @@ function distinguishNames(store){
     if(p.stockManaged===false||p.warehouseId!=='wh-c')continue;
     const normalized=productName(p.name,p.warehouseId);
     if(normalized!==p.name){
-      const original=baseName(p.name);
+      const original=p.name;
       p.name=normalized;changed.push(p.skuId);
       p.aliases=[...new Set([...(p.aliases||[]),original].filter(Boolean))];
     }
@@ -80,4 +81,4 @@ function migrate(store,user){
   c.audit(store,user,'warehouse:setup','A/B/C三仓建账；商品 '+productCount+' 种；库存行 '+stockRows+' 行；YD 区分 '+renamed.length+' 种');
   return {changed:true,products:productCount,stockRows,renamed:renamed.length};
 }
-module.exports={WAREHOUSES,byId,suggest,resolveName,selected,distinguishNames,migrate,baseName,productName};
+module.exports={BASE_WAREHOUSES:WAREHOUSES,get WAREHOUSES(){return require("./warehouse-directory").list();},byId,suggest,resolveName,selected,distinguishNames,migrate,baseName,productName,displayName};

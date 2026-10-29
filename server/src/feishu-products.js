@@ -50,7 +50,7 @@ async function processProducts(client, read = readStore, transact = transaction)
             trackSerial: method === "串码",
             unit: text(row.fields["单位"]).trim() || (method === "服务" ? "项" : "件"),
             salePrice: price, active: row.fields["启用"] !== false,
-          });
+          },{internal:true});
           product.thirdType = series;
           job = { key, result: { skuId: product.skuId }, at: new Date().toISOString() };
           current.feishuJobs.push(job);

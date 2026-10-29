@@ -18,6 +18,7 @@ function list(store, user) {
 }
 
 function draftPayload(payload) {
+  if(payload.sourceType==='opening')return require("./opening-purchase-returns").normalize(payload);
   if (payload.confirmed !== true)
     throw new c.HttpError(400, "请确认实物退货和供应商认可的退货款后提交老板审核");
   return {
@@ -40,7 +41,7 @@ function request(store, user, payload) {
   if ((store.purchaseReturnRequests || []).some((row) =>
     row.status === "待老板审核" && (
       (row.supplierId === draft.supplierId && row.reference === draft.reference) ||
-      (row.purchaseId === draft.purchaseId && row.itemId === draft.itemId)
+      (draft.sourceType==='opening'?row.sourceType==='opening'&&row.openingKey===draft.openingKey:row.sourceType!=='opening'&&row.purchaseId===draft.purchaseId&&row.itemId===draft.itemId)
     )
   ))
     throw new c.HttpError(409, "该供应商确认编号或原采购明细已有待老板审核的退货申请");
@@ -53,6 +54,7 @@ function request(store, user, payload) {
   const row = {
     id: c.id("PRQ"),
     kind: "purchase_return",
+    ...(preview.sourceType==='opening'?{sourceType:'opening',openingKey:preview.openingKey,openingBatchId:preview.openingBatchId,openingSourceId:preview.openingSourceId,warehouseId:preview.warehouseId,warehouseName:preview.warehouseName}:{}),
     supplierId: preview.supplierId,
     supplier: supplier?.name || source?.supplier || "",
     purchaseId: preview.purchaseId,
@@ -94,14 +96,18 @@ function review(store, user, payload) {
   else {
     // Ignore replacement amounts/serials sent by the reviewer: only the saved
     // application may be approved, and its quote must still match current stock.
+    let result;
+    if(row.sourceType==='opening')result=require('./opening-purchase-returns').applyReviewed(store,user,row);
+    else {
     const preview = supplierCosts.previewReturn(store, user, row.payload);
     if (preview.previewToken !== row.previewToken)
       throw new c.HttpError(409, "库存、成本或退货资料已有变化，请驳回后重新申请");
-    const result = supplierCosts.returnPurchase(store, user, {
+    result = supplierCosts.returnPurchase(store, user, {
       ...row.payload,
       confirmed: true,
       previewToken: preview.previewToken,
     });
+    }
     result.requestId = row.id;
     result.requesterId = row.requesterId;
     result.requester = row.requester;

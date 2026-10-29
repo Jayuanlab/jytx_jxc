@@ -1,3 +1,19 @@
+function createTodoFocus115(parameter,label,back,hidden=[]){
+ const id=new URLSearchParams(location.search).get(parameter)||'';let box=null;
+ const matches=row=>!!row&&String(row.id||'')===id;
+ function select(rows,root){
+  if(!id)return rows;const visible=rows.filter(matches),host=document.getElementById(root);
+  if(host){if(!box){box=document.createElement('section');box.className='panel todo-focus';box.setAttribute('role','status');host.before(box);for(let node=host.parentElement;node;node=node.parentElement)if(node.tagName==='DETAILS')node.open=true;box.scrollIntoView({block:'start'});}
+   box.replaceChildren();const title=document.createElement('strong'),detail=document.createElement('p'),all=document.createElement('a'),pending=document.createElement('a');
+   title.textContent=visible.length?'当前待办 · '+label:'未找到这张'+label;
+   const row=visible[0];detail.textContent=row?'单号 '+String(row.displayNo||row.number||row.id)+' · '+String(row.status||'请核对原单')+'。这里只显示这一张原单。':'原单不存在或当前账号不可见，请返回待办刷新。';
+   all.href=back;all.textContent='查看全部'+label;pending.href='/m#pending';pending.textContent='返回我的待办';box.append(title,detail,all,document.createTextNode(' · '),pending);
+   for(const key of hidden){const node=document.getElementById(key);if(node)node.hidden=true;}
+  }return visible;
+ }
+ return {id,matches,select};
+}
+const todoFocus115=createTodoFocus115("report","员工情况报告","/assistant?mode=store#report-panel",["report-form"]);
 const documentNo = (row) => String(row?.displayNo || row?.number || row?.id || "");
 const documentRef = (row, field) => String(row?.[field.replace(/Id$/, "DisplayNo")] || row?.[field.replace(/Id$/, "No")] || row?.[field] || "");
 'use strict';
@@ -23,6 +39,12 @@ const assistantEmbedded=new URLSearchParams(location.search).has('embedded');let
 if(assistantEmbedded)document.documentElement.classList.add('assistant-embedded');
 const $=id=>document.getElementById(id);let assistantBranchId='',assistantOrganizationReady=false,me,draft,pendingAction,conversationContext=null,pausedSaleFlow=null,displayedReply=null,inlineDialogue=null,inlineReplyStyle='sichuan';
 const workChat=ChatWindow.mount({input:$('question'),thread:$('work-thread'),toggle:$('work-more-toggle'),panel:$('work-more-panel'),dock:$('work-dock')});
+$('work-more-close').onclick=()=>workChat.menu(false);
+let attendanceEntryDecisionMade=false;
+let attendanceExitPending=false;
+let attendanceLoadFailed=false;
+const attendanceFocusedPage=new URLSearchParams(location.search).get('work-signin')==='1';
+if(attendanceFocusedPage)document.documentElement.classList.add('attendance-focused-page');
 let chatPending=false;
 function beginChatTurn(question){
  if(chatPending&&$('current-question').textContent===question)return;
@@ -45,7 +67,8 @@ function resetChatWindow(){
  chatPending=false;$('chat-history').replaceChildren();$('current-question').hidden=true;$('current-question').querySelector('p').textContent='';workChat.menu(false);workChat.resizeInput();
 }
 function requestId(){if(globalThis.crypto?.randomUUID)return crypto.randomUUID();const b=new Uint8Array(16);if(globalThis.crypto?.getRandomValues)crypto.getRandomValues(b);else for(let i=0;i<16;i++)b[i]=Math.random()*256;return 'req-'+Array.from(b,x=>x.toString(16).padStart(2,'0')).join('');}
-async function api(path,body,key){const r=await fetch(path,{method:body?'POST':'GET',credentials:'same-origin',cache:'no-store',headers:body?{'Content-Type':'application/json','Idempotency-Key':key||requestId()}:undefined,body:body?JSON.stringify(body):undefined});const d=await r.json().catch(()=>({}));if(!r.ok){if(r.status===401)location.href='/login?next=/assistant';const error=Error(d.error?.message||'请求失败');error.statusCode=r.status;throw error}return d}
+const assistantLoginTarget=attendanceFocusedPage?'/login?next='+encodeURIComponent('/assistant?work-signin=1'):'/login?next=/assistant';
+async function api(path,body,key){const r=await fetch(path,{method:body?'POST':'GET',credentials:'same-origin',cache:'no-store',headers:body?{'Content-Type':'application/json','Idempotency-Key':key||requestId()}:undefined,body:body?JSON.stringify(body):undefined});const d=await r.json().catch(()=>({}));if(!r.ok){if(r.status===401)location.href=assistantLoginTarget;const error=Error(d.error?.message||'请求失败');error.statusCode=r.status;throw error}return d}
 const time=v=>new Date(v).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'});
 const navigate=href=>{if(window.top&&window.top!==window)window.top.location.href=href;else location.href=href};
 const modeKey='erp-assistant-mode-v1';let assistantMode='store',modeEpoch=0,queryVersion=0;const modeParams=new URLSearchParams(location.search);let customerLocked=modeParams.get('locked')==='1'||location.pathname==='/kitty';
@@ -235,7 +258,7 @@ function advanceSale(raw){
   if(f.stage==='product'){saleFlow=null;ask(f.request.replace(/[。！!？?]+$/,'')+' '+q);return}
   if(f.stage==='booking'){
     if(/^(已成交|成交了|已付款|已经付款|已交付|已取机|确认成交)/.test(q)){saleFlow=null;queryVersion++;startSaleFlow(f.request+'，'+q,false,f.candidateSkuIds);return}
-    if(/^(只是预订|仅预订|预订|未成交|还没成交|尚未成交)/.test(q)){sessionStorage.setItem('erp-reception-draft-after-login-v1',JSON.stringify({phone:'',name:'',source:'到店',purpose:'购买手机',needs:f.request}));saleFlow=null;navigate('/receptions');return}
+    if(/^(只是预订|仅预订|预订|未成交|还没成交|尚未成交)/.test(q)){sessionStorage.setItem('erp-reception-draft-after-login-v1',JSON.stringify({phone:'',name:'',source:'到店',purpose:'购买手机',needs:f.request}));saleFlow=null;flowAnswer('未成交需求可记入工作日志；未生成交易。');return}
     flowAnswer('请确认：已成交还是仅预订？',[{label:'已成交',value:'已成交'},{label:'仅预订',value:'只是预订'}]);return;
   }
   if(/^(?:先)?跳过[。！!？?]*$/.test(q)){
@@ -329,7 +352,7 @@ function clearConversation(){$('assistant-reply-text').value='';$('assistant-rep
 }
 $('new-topic').onclick=clearConversation;
 function isProductCreateRequest(q){q=String(q||'').normalize('NFKC');return /(?:新建|新增|创建|建立|添加|增加|录入|登记)\s*(?:(?:一个|一条|一份|个|条|份|新的|新)\s*)?(?:(?:移动(?:公司)?(?:的)?|C\s*仓)\s*)?(?:商品|产品)(?:资料|档案|信息)?|(?:商品|产品)\s*(?:建档|建个档案|建一个档案)/i.test(q)&&!/(?:不要|不用|不想|不需要|不必|暂不|先不|别|取消|停止)\s*.{0,8}(?:新建|新增|创建|建立|添加|增加|录入|登记|建档)/.test(q)}
-function isFlowQuery(q){if(isProductCreateRequest(q)||window.AssistantSaleInput.statusQuery(q)||window.AssistantSaleInput.receptionRequest(q))return true;return /(库存|串号|串码|销量|营业额|销售额|毛利|利润|订单|单据|采购|进货|供应商|供货商|待办|待审核|待确认|出勤|考勤|店况|店里情况|积分|工单|奖励|同义词|能做什么)/.test(q)&&/(查|找|看|统计|汇报|多少|怎么样|有没有|在哪|能做什么|什么情况|情况如何)/.test(q)}
+function isFlowQuery(q){if(isProductCreateRequest(q)||window.AssistantSaleInput.statusQuery(q)||window.AssistantSaleInput.receptionRequest(q))return true;return /(库存|串号|串码|销量|营业额|销售额|毛利|利润|订单|单据|采购|进货|供应商|供货商|待办|待审核|待确认|出勤|考勤|店况|店里情况|积分|工单|奖励|同义词|能做什么|显示屏|电子屏|大屏)/.test(q)&&/(查|找|看|统计|汇报|多少|怎么样|有没有|在哪|能做什么|什么情况|情况如何)/.test(q)}
 function isConversationTopic(value){
   const q=String(value||'').replace(/[\s，,。.!！?？～~、]/g,'');
   const greeting='(?:你好|您好|嗨|哈喽|hello|hi|早上好|上午好|中午好|下午好|晚上好)';
@@ -462,15 +485,16 @@ function showConversationPair(){finishChatTurn();}
 async function ask(q){
   q=String(q).trim();if(!q)return;const pair=q.match(/^(\d{4}|\d{12,20})[\s，,；;]+(\d{1,8}(?:\.\d{1,2})?)(?:元|块)?[。！!]*$/);
   if(pair)q='手机，串号'+pair[1]+'，售价'+pair[2]+'元';lastAssistantQuestion=q;
+  if(/^(?:确认|就这样|采用这版|就用这版|确认修改|确认发布)[。！!？?]*$/.test(q)&&['screen-update','screen-publish'].includes(pendingAction?.type)){$('action-button').click();return;}
   if(/^(?:打开这个功能|打开这个|打开吧|进去|进去吧|进入吧|确认打开|去看看)[。！!？?]*$/.test(q)&&pendingAction?.type==='navigate'){openPendingFeature();return;}
   if(/^(?:换个话题|新话题|重新聊|清空对话)[。！!？?]*$/.test(q)){clearConversation();return}
   if(assistantMode==='store'&&pausedSaleFlow&&/^(?:继续填单|继续刚才的单|继续开刚才的单|恢复填单)[。！!？?]*$/.test(q)){resumeSale();return}
   if(saleSubmitting||saleFlow?.submission){$('status').textContent='请先核对这张单的提交结果，再查询或准备另一张单。';return}
   beginChatTurn(q);
-  if(saleFlow&&!saleFlow.submission&&(isFlowQuery(q)||isConversationTopic(q))){pausedSaleFlow=saleFlow;saleFlow=null;showPausedDraft();renderSaleWorkspace()}
+  if(saleFlow&&!saleFlow.submission&&(isFlowQuery(q)||isConversationTopic(q)||/显示屏|电子屏|大屏/.test(q))){pausedSaleFlow=saleFlow;saleFlow=null;showPausedDraft();renderSaleWorkspace()}
   if(saleFlow?.stage==='review'&&/^(?:去核对|打开销售单|确认开单|继续开单|确认|继续)$/.test(String(q).trim())){if(q==='打开销售单')openDraftForReview();else openSaleReview();return}
   if(saleFlow){advanceSale(q);return}
-  if(assistantMode==='store'&&me?.capabilities.sell&&!isProductCreateRequest(q)){const parsed=window.AssistantSaleInput.analyze(q);if(parsed.saleRequest&&(parsed.serialToken||/手机(?:串号|串码)/.test(q))){queryVersion++;await startSaleFlow('手机，'+q);return}}
+  if(assistantMode==='store'&&me?.capabilities.sell&&!isProductCreateRequest(q)&&!/(已售|卖过|卖出|销售记录|有没有销售|是否销售|卖出去了吗)/.test(q)){const parsed=window.AssistantSaleInput.analyze(q);if(parsed.saleRequest&&(parsed.serialToken||/手机(?:串号|串码)/.test(q))){queryVersion++;await startSaleFlow('手机，'+q);return}}
   resetAnswerEditor();resetTariffExport();stopSpeech();pauseVoiceCapture();voiceBusy=true;pendingAction=null;$('action').hidden=true;$('status').textContent=assistantMode==='customer'?'正在查资料…':'正在核对账套…';$('result').hidden=true;$('flow-choices').replaceChildren();
   const requestEpoch=modeEpoch,requestVersion=++queryVersion,requestContext=conversationContext;const current=()=>requestEpoch===modeEpoch&&requestVersion===queryVersion;
   try{const requestedStyle=customerReplyStyle;const d=await api('/api/assistant/ask',{question:q,context:conversationContext,customerReplyStyle:requestedStyle,mode:assistantMode});if(!current())return;answerReplyStyle=['customer-talk-guidance','customer-dialogue','assistant-social','product-recommendations','tariff-recommendations'].includes(d.metrics?.kind)?replyStyle(d.metrics.replyStyle||d.metrics.customerReplyStyle||d.customerReplyStyle||requestedStyle):'mandarin';conversationContext=d.context||null;renderFollowups(d.followups);renderEvidence(d);if(d.saleFlow&&assistantMode==='store'){pausedSaleFlow=null;showPausedDraft();if(d.saleFlow.type==='product'){saleFlow={stage:'product',request:d.saleFlow.request};flowAnswer('顾客选定或预订了什么商品？请说商品名称或型号，例如“华为手机”。');return}await startSaleFlow(d.saleFlow.request,d.saleFlow.reservation,d.saleFlow.candidateSkuIds);return}
@@ -482,10 +506,42 @@ async function ask(q){
     $('status').textContent='';showConversationPair();setSpeechButtons();
   }catch(e){if(current()){saleFlow=null;$('status').textContent=e.message}}finally{if(current()){voiceBusy=false;if(!speaking)resumeVoiceCapture()}}
 }
+function openScreenEditChooser(action){
+ if(assistantMode!=='store'||!me?.capabilities?.screenEdit){$('status').textContent='当前身份不能编辑显示屏。';return}
+ let dialog=$('screen-edit-dialog');if(!dialog){dialog=document.createElement('dialog');dialog.id='screen-edit-dialog';dialog.className='screen-edit-dialog';document.body.append(dialog)}
+ dialog.replaceChildren();const form=document.createElement('form');form.method='dialog';const title=document.createElement('h2');title.textContent=action.options?.length?'编辑显示屏内容':'起草新显示屏内容';form.append(title);
+ let select=null;if(action.options?.length){const label=document.createElement('label');label.textContent='选择要修改的一条';select=document.createElement('select');for(const row of action.options){const option=document.createElement('option');option.value=String(row.index);option.textContent='第'+row.index+'条 · '+row.title;select.append(option)}label.append(select);form.append(label)}
+ const label=document.createElement('label');label.textContent='显示屏新文字';const textarea=document.createElement('textarea');textarea.rows=5;textarea.maxLength=500;textarea.required=true;textarea.value=action.options?.[0]?.content||'';label.append(textarea);form.append(label);
+ if(select)select.onchange=()=>{textarea.value=action.options.find(row=>String(row.index)===select.value)?.content||''};const buttons=document.createElement('div');buttons.className='actions';const cancel=document.createElement('button');cancel.type='button';cancel.textContent='取消';cancel.onclick=()=>dialog.close();const preview=document.createElement('button');preview.type='submit';preview.className='primary';preview.textContent='让助理预览修改';buttons.append(cancel,preview);form.append(buttons);dialog.append(form);
+ form.onsubmit=event=>{event.preventDefault();const value=textarea.value.trim();if(!value)return;const question=select?'把显示屏第'+select.value+'条改成：'+value:'显示屏显示：'+value;dialog.close();$('question').value=question;ask(question)};dialog.showModal();textarea.focus();
+}
 $('prepare-sale').onclick=()=>prepareWorkDocument('sale');$('prepare-reception').onclick=()=>prepareWorkDocument('reception');
 $('action-button').onclick=async()=>{
  if(!pendingAction)return;
  if(pendingAction.type==='navigate'){openPendingFeature();return}
+ if(pendingAction.type==='screen-edit-choose'){openScreenEditChooser(pendingAction);return}
+ if(pendingAction.type==='screen-update'){
+  const selected=pendingAction,p=selected.payload;
+  if(assistantMode!=='store'||!me?.capabilities?.screenEdit||!p||typeof p.id!=='string'||!Number.isSafeInteger(p.revision)||typeof p.title!=='string'||typeof p.content!=='string'){$('status').textContent='当前身份不能修改电子屏内容。';return}
+
+  selected.requestKey ||= requestId();
+  $('action-button').disabled=true;
+  try{await api('/api/store-communication/update',p,selected.requestKey);pendingAction=null;$('action').hidden=true;$('status').textContent='电子屏内容已更新。'}
+  catch(error){$('status').textContent='修改未确认：'+error.message+'。请重新查询这条内容后再试。'}
+  finally{$('action-button').disabled=false}
+  return;
+ }
+ if(pendingAction.type==='screen-publish'){
+  const selected=pendingAction,p=selected.payload;
+  if(assistantMode!=='store'||!me?.capabilities?.screenEdit||!p||typeof p.title!=='string'||typeof p.content!=='string'){$('status').textContent='当前身份不能发布电子屏通知。';return}
+
+  selected.requestKey ||= requestId();
+  $('action-button').disabled=true;
+  try{await api('/api/store-communication/publish',p,selected.requestKey);pendingAction=null;$('action').hidden=true;$('status').textContent='电子屏通知已发布。'}
+  catch(error){$('status').textContent='发布未确认：'+error.message+'。请保留当前草稿重试核对。'}
+  finally{$('action-button').disabled=false}
+  return;
+ }
  if(pendingAction.type==='attendance'){
   const selected=pendingAction,operation=selected.operation;
   if(['fieldwork-start','fieldwork-end','fieldwork-checkpoint'].includes(operation)){await openFieldwork(operation,selected.fieldworkId);if(fieldworkTarget)fieldworkTarget.pendingAction=selected;return;}
@@ -517,7 +573,7 @@ function attendancePageVisible(){return typeof document==='undefined'||document.
 function cancelAttendanceLocationRun(){
  const run=attendanceLocationRun;if(!run||run.cancelled)return;
  run.cancelled=true;run.controller.abort();fieldworkRequest=null;
- if(attendancePageVisible()&&attendanceAllowed()&&me.id===run.ownerId){const message=run.hasPosted?'已停止后续定位。已提交的打卡记录请刷新核对，原签到时间保留。':'本次定位已取消，没有继续提交打卡。';attendanceMessage(message);$('status').textContent=message;}
+ if(attendancePageVisible()&&attendanceAllowed()&&me.id===run.ownerId){const message=run.hasPosted?'已停止后续定位。已提交的打卡记录请刷新核对，原签到时间保留。':'本次定位已取消，没有继续提交打卡。';attendanceMessage(message);$('status').textContent=message;attendanceFlash76('已取消定位',message,'info');}
 }
 function beginAttendanceLocationRun(){
  const run={ownerId:me.id,epoch:modeEpoch,marker:attendanceLogoutMarker(),controller:new AbortController(),cancelled:false,hasPosted:false};
@@ -538,7 +594,7 @@ async function attendanceRunApi(run,path,body,key){
   const response=await fetch(route,{method:data?'POST':'GET',credentials:'same-origin',cache:'no-store',signal:run.controller.signal,headers:data?{'Content-Type':'application/json','Idempotency-Key':requestKey||requestId()}:undefined,body:data?JSON.stringify({...data,locationOwnerId:run.ownerId}):undefined});
   const result=await response.json().catch(()=>({}));
   if(!run.current())throw Error('attendance-cancelled');
-  if(!response.ok){if(response.status===401){cancelAttendanceLocationRun();location.href='/login?next=/assistant';}const error=Error(result.error?.message||'请求失败');error.statusCode=response.status;throw error;}
+  if(!response.ok){if(response.status===401){cancelAttendanceLocationRun();location.href=assistantLoginTarget;}const error=Error(result.error?.message||'请求失败');error.statusCode=response.status;throw error;}
   return result;
  };
  // Recheck the cookie session before sending captured location, including a retry of a saved request.
@@ -574,6 +630,16 @@ async function autoSupplementAttendanceLocation(run,expectedId){
 }
 
 function attendanceAllowed(){return assistantMode==='store'&&!customerLocked&&!!me?.id;}
+function attendancePointCount77(data,userId){const works=[...(data?.activeFieldwork||[]),...(data?.rows||[]).filter(r=>r.userId===userId).flatMap(r=>r.fieldwork||[])],seen=new Set();for(const w of works){if(w.userId!==userId)continue;for(const [i,p]of (w.checkpoints||[]).entries()){if(!p.at||!Number.isFinite(Date.parse(p.at)))continue;const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(p.at));if(date!==data.date)continue;seen.add(p.id||w.id+':'+i+':'+p.at);}}return seen.size;}
+function setAttendanceButton77(id,label,at,resume){const b=document.getElementById(id),title=document.createElement('span'),time=document.createElement('small');title.className='attendance-button-label';title.textContent=label;time.className='attendance-button-time';time.textContent=at?attendanceShortTime76(at):'';b.replaceChildren(title,time);b.dataset.punchState=at?'recorded':'idle';b.setAttribute('aria-label',label+(at?' '+attendanceShortTime76(at):'')+(resume?'，点击重新签到':''));}
+function attendanceLogout78(){try{sessionStorage.removeItem('officeLocalToken')}catch{}void fetch('/api/auth/logout',{method:'POST',credentials:'same-origin',keepalive:true}).catch(()=>{});try{if(window.top.StoreSessionControls?.completeLogout){window.top.StoreSessionControls.completeLogout();return;}}catch{}location.replace('/login');}
+let attendanceAction76='';
+function attendanceShortTime76(value){return value&&Number.isFinite(Date.parse(value))?new Date(value).toLocaleTimeString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):'';}
+function attendanceFeedbackView76(action,result,repeated=false){const labels={checkin:'签到',checkout:'签退','fieldwork-start':'外勤开始','fieldwork-end':'外勤结束','fieldwork-checkpoint':'定位打卡','location-supplement':'补定位','spot-response':'抽查打卡'},name=labels[action]||'打卡',stamp=attendanceShortTime76(result?.feedback?.eventAt||result?.checkpoint?.at||(action==='checkout'?result?.checkOutAt:action==='fieldwork-end'?result?.lastFieldwork?.endAt:action==='fieldwork-start'?result?.lastFieldwork?.startAt:result?.checkInAt)||(action==='fieldwork-end'?result?.lastFieldwork?.endAt:result?.lastFieldwork?.startAt)),loc=action==='checkout'?result?.checkOutLocation:result?.checkInLocation;return {title:'✓ '+(repeated?'已'+name:name+'成功'),detail:(stamp||'记录已保存')+(repeated?' · 未重复记录':loc?.status==='待老板核对'?' · 定位待核对':'')};}
+function installAttendanceFeedback76(){if(document.getElementById('attendance-feedback-v76'))return;const style=document.createElement('link');style.id='attendance-feedback-v76';style.rel='stylesheet';style.href='/assistant.css?v=20261016-v77-attendance';document.head.append(style);const box=document.createElement('section');box.id='attendance-feedback-toast-v76';box.hidden=true;box.setAttribute('role','status');box.setAttribute('aria-live','polite');const title=document.createElement('strong'),detail=document.createElement('p'),close=document.createElement('button');close.type='button';close.textContent='知道了';close.setAttribute('aria-label','关闭打卡提示');close.onclick=()=>{box.hidden=true;};box.append(title,detail,close);document.body.append(box);const status=document.getElementById('attendance-status'),controls=document.querySelector('.attendance-primary-actions');if(status&&controls)controls.after(status);const policy=document.createElement('p');policy.id='attendance-auto-policy-v77';policy.textContent='每天21:00自动签退 · 2026-10-17起';if(controls)controls.after(policy);}
+function attendanceFlash76(title,detail,tone='success'){installAttendanceFeedback76();const box=document.getElementById('attendance-feedback-toast-v76');box.querySelector('strong').textContent=title;box.querySelector('p').textContent=String(detail||'').slice(0,400);box.dataset.tone=tone;box.hidden=false;}
+function attendanceCompleted76(action,result,repeated=false){const v=attendanceFeedbackView76(action,result,repeated);attendanceFlash76(v.title,v.detail,'success');}
+
 function attendanceMessage(message,error=false,tone='info'){const box=$('attendance-status');box.textContent=message;box.classList.toggle('attendance-error',error);box.dataset.feedbackTone=error?'error':tone;}
 function attendanceDuration(value){
  if(!Number.isInteger(value)||value<0)return '待核对';
@@ -824,9 +890,9 @@ function refreshAttendanceSpotChecks(){
 
 function fieldworkRecord(row,active=false){
  const card=attendanceNode('article','','fieldwork-record');
- card.append(attendanceNode('strong',(row.name||'本人')+' · '+(active?'外勤进行中':'下村外勤'),'fieldwork-record-title'));
+ card.append(attendanceNode('strong',(row.name||'本人')+' · '+(active?'外勤进行中':'外勤'),'fieldwork-record-title'));
  card.append(attendanceNode('p','地点：'+(row.location||'未记录')));
- card.append(attendanceNode('p','事项：'+(row.workContent||'下村工作')));
+ card.append(attendanceNode('p','事项：'+(row.workContent||'外勤工作')));
  card.append(attendanceNode('p','开始：'+attendanceTime(row.startAt)));
  card.append(attendanceNode('p',row.endAt?'结束：'+attendanceTime(row.endAt):'结束：尚未结束'));
  card.append(attendanceLocationNode('出发定位',row.startLocation,{fieldworkId:row.id,event:'start'}));
@@ -838,13 +904,82 @@ function fieldworkRecord(row,active=false){
  if(active&&row.userId===me?.id){const button=attendanceNode('button','结束本次外勤');button.type='button';button.className='fieldwork-end-button';button.disabled=attendanceWriteBusy;button.onclick=()=>openFieldwork('fieldwork-end',row.id);card.append(button);}
  return card;
 }
+function mountFocusedAttendance(){
+ if(!attendanceFocusedPage||$('attendance-today-state'))return;
+ const panel=$('attendance-panel'),actions=panel.querySelector('.attendance-primary-actions');
+ const state=attendanceNode('p','正在读取今天的打卡状态…','attendance-today-state');state.id='attendance-today-state';state.setAttribute('role','status');state.setAttribute('aria-live','polite');actions.before(state);
+ const today=attendanceNode('button','回到今天');today.id='attendance-back-today';today.type='button';today.hidden=true;today.onclick=()=>{$('attendance-date').value='';attendanceMessage('');attendance();};actions.append(today);
+ const dateLabel=panel.querySelector('label[for="attendance-date"]'),dateControls=dateLabel?.nextElementSibling;
+ if(dateLabel&&dateControls){const dates=document.createElement('details');dates.id='attendance-date-details';const title=document.createElement('summary');title.textContent='查看其他日期';dates.append(title,dateLabel,dateControls);panel.querySelector('#attendance-auto-policy-v77')?.after(dates);}
+ const records=$('attendance');if(records){const details=document.createElement('details');details.id='attendance-record-details';const title=document.createElement('summary');title.textContent='今日记录与定位';details.append(title);records.before(details);details.append(records);}
+}
+const dutyPostName={frontdesk:'营业前台',mobile:'手机柜台'};
+function renderDailyDuty(){
+ const panel=$('attendance-panel'),actions=panel?.querySelector('.attendance-primary-actions');if(!actions)return;
+ let section=$('staff-roster-panel');if(!section){section=attendanceNode('section','','staff-roster-panel');section.id='staff-roster-panel';actions.before(section);}
+ section.replaceChildren();const data=attendanceSnapshot?.staffSchedule;
+ section.append(attendanceNode('h3','当日值班 · 找谁负责'));
+ if(!data){section.append(attendanceNode('p','正在读取当日值班安排…'));return;}
+ const today=data.date===data.today,entries=Array.isArray(data.entries)?data.entries.filter(r=>r.status==='work'):[];
+ section.append(attendanceNode('p',data.date+(today?' · 当前值班':' · 历史安排'),'staff-roster-date'));
+ const now=Array.isArray(data.plannedNow)?data.plannedNow:[];
+ const front=now.filter(r=>r.post==='frontdesk').map(r=>r.name).join('、');
+ const mobile=now.filter(r=>r.post==='mobile').map(r=>r.name).join('、');
+ const closer=entries.find(r=>r.closeoutSubmitter);
+ const current=attendanceNode('div','','staff-roster-current');
+ current.append(attendanceNode('p','营业前台 · 现金保管安排：'+(today?front||'当前时段未安排':entries.filter(r=>r.post==='frontdesk').map(r=>r.name).join('、')||'未安排')));
+ current.append(attendanceNode('p','手机柜台：'+(today?mobile||'当前时段未安排':entries.filter(r=>r.post==='mobile').map(r=>r.name).join('、')||'未安排')));
+ current.append(attendanceNode('p','扎账交接提交人：'+(closer?.name||'未指定')));
+ section.append(current);
+ const list=attendanceNode('div','','staff-roster-list');
+ if(entries.length)for(const row of entries){const item=attendanceNode('div','','staff-roster-row');item.append(attendanceNode('strong',row.startTime+'—'+row.endTime+' · '+(dutyPostName[row.post]||'岗位待核')+' · '+row.name+(row.userId===me?.id?'（本人）':'')));if(row.post==='frontdesk')item.append(attendanceNode('span','现金保管安排'));if(row.closeoutSubmitter)item.append(attendanceNode('span','扎账交接提交人'));list.append(item);}
+ else list.append(attendanceNode('p','当日还没有值班安排，请联系老板或店长。'));
+ section.append(list);
+ if(today){const live=Array.isArray(data.liveToday)?data.liveToday:[];section.append(attendanceNode('p','实际已签到：'+(live.length?live.map(r=>r.name+(r.place==='fieldwork'?'（外勤）':'（店内）')).join('、'):'尚未见签到记录'),'staff-roster-live'));}
+ section.append(attendanceNode('p',data.note||'值班安排与实际打卡、现金交接、扎账提交分别记录。','staff-roster-note'));
+ if(data.canManage&&today){const details=document.createElement('details');details.className='staff-roster-editor';details.append(attendanceNode('summary','安排或调整今日值班'));const form=document.createElement('form');form.id='staff-roster-form';
+ const field=(label,node)=>{const wrap=document.createElement('label');wrap.append(document.createTextNode(label),node);form.append(wrap);return node;};
+ const select=(name,options)=>{const node=document.createElement('select');node.name=name;for(const [value,label] of options){const option=document.createElement('option');option.value=value;option.textContent=label;node.append(option);}return node;};
+ const staff=field('值班人',select('userId',[['','请选择'],...(data.staff||[]).map(r=>[r.id,r.name])]));
+ field('安排',select('status',[['work','值班'],['cancelled','撤销此人今日安排']]));
+ field('岗位',select('post',[['frontdesk','营业前台 · 现金保管'],['mobile','手机柜台']]));
+ for(const [name,label] of [['startTime','上班时间'],['endTime','下班时间']]){const input=document.createElement('input');input.type='time';input.name=name;input.required=true;input.value=name==='startTime'?'09:00':'21:00';field(label,input);}
+ const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.name='closeoutSubmitter';field('指定为当日扎账交接提交人',checkbox);
+ const note=document.createElement('input');note.name='note';note.maxLength=200;note.placeholder='可写交接说明';field('备注（选填）',note);
+ const save=attendanceNode('button','保存当日安排');save.type='submit';save.className='primary';form.append(save);
+ const feedback=attendanceNode('p','','staff-roster-feedback');feedback.setAttribute('role','status');form.append(feedback);
+ staff.onchange=()=>{const row=data.entries.find(r=>r.userId===staff.value);if(!row)return;form.elements.status.value=row.status;form.elements.post.value=row.post||'frontdesk';form.elements.startTime.value=row.startTime||'09:00';form.elements.endTime.value=row.endTime||'21:00';checkbox.checked=!!row.closeoutSubmitter;note.value=row.note||'';};
+ form.onsubmit=async event=>{event.preventDefault();if(!staff.value)return feedback.textContent='请选择值班人。';const row=data.entries.find(r=>r.userId===staff.value);save.disabled=true;feedback.textContent='正在保存…';try{const result=await api('/api/personnel/schedule',{date:data.date,userId:staff.value,status:form.elements.status.value,post:form.elements.post.value,startTime:form.elements.startTime.value,endTime:form.elements.endTime.value,closeoutSubmitter:checkbox.checked,note:note.value,expectedVersion:row?.version||0});await attendance();const message=result.message||'已保存';$('staff-roster-panel')?.prepend(attendanceNode('p',message,'staff-roster-success'));}catch(error){feedback.textContent=error.message;}finally{save.disabled=false;}};
+ details.append(form);section.append(details);}
+}
 function syncAttendanceControls(){
- const allowed=attendanceAllowed(),historic=!!attendanceSnapshot&&attendanceSnapshot.date!==attendanceToday(),latest=ownLatestAttendance();
- $('checkin').textContent=latest?.checkOutAt?'重新签到':'签到';
+ const allowed=attendanceAllowed()&&!attendanceExitPending,historic=!!attendanceSnapshot&&attendanceSnapshot.date!==attendanceToday(),latest=ownLatestAttendance();
+ installAttendanceFeedback76();
+ mountFocusedAttendance();
+ const ownOutside77=ownActiveFieldwork(),activeShift77=!!(latest&&!latest.checkOutAt||ownOutside77);
+ setAttendanceButton77('checkin',attendanceWriteBusy?'处理中…':!attendanceSnapshot?'正在读取…':historic?'签到（请选今天）':latest?.checkOutAt?'重新签到':latest?'已签到':'签到',activeShift77?latest?.checkInAt:null,!!latest?.checkOutAt);
+ setAttendanceButton77('checkout',attendanceWriteBusy?'处理中…':!attendanceSnapshot?'正在读取…':historic?'签退（请选今天）':latest?.checkOutAt?'已签退':'签退',latest?.checkOutAt,false);
+ const points77=attendancePointCount77(attendanceSnapshot,me?.id);setAttendanceButton77('fieldwork-start',attendanceWriteBusy?'处理中…':ownOutside77?'结束外勤':'外勤',ownOutside77?.startAt,false);$('fieldwork-checkpoint-shortcut').textContent='定位打卡'+(points77?' '+points77+'次':'');$('fieldwork-checkpoint-shortcut').dataset.punchState=points77?'recorded':'idle';
+
+ for(const id of ['checkin','checkout','fieldwork-start','fieldwork-checkpoint-shortcut'])$(id).title=attendanceWriteBusy?'正在提交，请稍候':historic?'请选择今天再打卡':!attendanceSnapshot?'正在读取打卡状态':'';
+
  for(const id of ['attendance-date','attendance-refresh'])$(id).disabled=!allowed||attendanceWriteBusy;
- for(const id of ['checkin','checkout','fieldwork-start'])$(id).disabled=!allowed||attendanceWriteBusy||fieldworkOpening||historic||!attendanceSnapshot;
+ $('checkin').disabled=!allowed||attendanceWriteBusy||fieldworkOpening||historic||!attendanceSnapshot||activeShift77;
+ $('checkout').disabled=!allowed||attendanceWriteBusy||fieldworkOpening||historic||!attendanceSnapshot||!activeShift77;
+ $('fieldwork-start').disabled=!allowed||attendanceWriteBusy||fieldworkOpening||historic||!attendanceSnapshot||!!latest?.checkOutAt&&!ownOutside77;
  $('fieldwork-shortcut').disabled=!allowed||attendanceWriteBusy||fieldworkOpening;
- $('fieldwork-checkpoint-shortcut').disabled=!allowed||attendanceWriteBusy||fieldworkOpening||!attendanceSnapshot;
+ $('fieldwork-checkpoint-shortcut').disabled=!allowed||attendanceWriteBusy||fieldworkOpening||!attendanceSnapshot||!ownOutside77;
+ if(attendanceFocusedPage){
+  const state=$('attendance-today-state'),records=$('attendance-record-details'),today=$('attendance-back-today');
+  if(records&&!records.dataset.initialized){records.open=['owner','manager'].includes(me?.roleCode);records.dataset.initialized='1';}
+  if(records&&historic)records.open=true;
+  state.textContent=attendanceExitPending?'签退已保存，正在退出登录…':!allowed?'请登录门店账号查看本人打卡。':!attendanceSnapshot?attendanceLoadFailed?'暂时无法读取今天的打卡状态，请重试。':'正在读取今天的打卡状态…':historic?'正在查看 '+attendanceSnapshot.date+' 的记录。':activeShift77?'已签到'+(latest?.checkInAt?' '+attendanceShortTime76(latest.checkInAt):'')+(ownOutside77?' · 外勤进行中':'')+'，下班时请签退。':latest?.checkOutAt?'已签退 '+attendanceShortTime76(latest.checkOutAt)+'。需要继续工作时重新签到。':'今天尚未签到。到店后点签到；外勤可按实际情况登记。';
+  state.dataset.state=attendanceExitPending?'finished':historic?'history':activeShift77?'working':latest?.checkOutAt?'finished':'ready';
+  $('checkin').hidden=!!(attendanceExitPending||historic||activeShift77);$('checkout').hidden=!!(attendanceExitPending||historic||!activeShift77);
+  $('fieldwork-start').hidden=!!(attendanceExitPending||historic||latest?.checkOutAt&&!ownOutside77);
+  $('fieldwork-checkpoint-shortcut').hidden=!!(attendanceExitPending||historic||!ownOutside77);
+  today.textContent=attendanceLoadFailed?'重试读取':'回到今天';today.hidden=!!(attendanceExitPending||!historic&&!attendanceLoadFailed);
+ }
  $('fieldwork-shortcut').hidden=!allowed;
  for(const button of $('attendance').querySelectorAll('button'))button.disabled=!allowed||attendanceWriteBusy||fieldworkOpening;
  for(const id of ['fieldwork-submit','fieldwork-cancel'])$(id).disabled=attendanceWriteBusy;
@@ -857,11 +992,12 @@ function renderAttendance(){
  const box=$('attendance');box.replaceChildren();const data=attendanceSnapshot;if(!data)return;
  renderAttendanceStore();
  $('attendance-date').value=data.date;
+ renderDailyDuty();
  const current=attendanceNode('section','','attendance-current'),active=Array.isArray(data.activeFieldwork)?data.activeFieldwork:[],
  visibleActive=data.privileged?active:active.filter(row=>row.userId===me.id);
  current.append(attendanceNode('h3',data.privileged?'当前外勤':'我的当前外勤'));
  if(visibleActive.length)for(const row of visibleActive)current.append(fieldworkRecord(row,true));
- else current.append(attendanceNode('p','目前没有正在进行的下村外勤。'));
+ else current.append(attendanceNode('p','目前没有正在进行的外勤。'));
  box.append(current);
  box.append(attendanceNode('h3',data.date+' 出勤记录'));
  const rows=Array.isArray(data.rows)?data.rows:[],visibleRows=data.privileged?rows:rows.filter(row=>row.userId===me.id);
@@ -872,7 +1008,7 @@ function renderAttendance(){
   card.append(attendanceLocationNode('签到定位',row.checkInLocation,{attendanceId:row.id,event:'checkin'}));
   if(ownAttendanceSupplementRow(row.id)){const button=attendanceNode('button','补定位');button.type='button';button.className='attendance-supplement-button';button.onclick=()=>openAttendanceSupplement(row.id);card.append(button);card.append(attendanceNode('p','补充的是现在位置，原签到时间和记录保留；不能证明早先签到时的位置。','attendance-note'));}
   for(const point of Array.isArray(row.locationSupplements)?row.locationSupplements:[]){const supplement=attendanceNode('section','','attendance-supplement-record');supplement.append(attendanceNode('strong','补充定位：'+attendanceTime(point.at)));supplement.append(attendanceLocationNode('补充的当前位置',point.locationReport,{attendanceId:row.id,event:'supplement',supplementId:point.id}));card.append(supplement);}
-  card.append(attendanceNode('p',row.checkOutAt?'签退：'+attendanceTime(row.checkOutAt):'签退：尚未签退'));
+  card.append(attendanceNode('p',row.checkOutAt?(row.autoCheckout?'自动签退：':'签退：')+attendanceTime(row.checkOutAt):'签退：尚未签退'));if(row.autoCheckout)card.append(attendanceNode('p','系统21:00自动签退 · 记录已保留','attendance-note'));
   if(row.checkOutAt)card.append(attendanceLocationNode('签退定位',row.checkOutLocation,{attendanceId:row.id,event:'checkout'}));
   card.append(attendanceNode('p','工作时长（含外勤）：'+attendanceDuration(row.workSeconds),'attendance-total'));
   card.append(attendanceNode('p','其中外勤：'+attendanceDuration(row.fieldworkSeconds)));
@@ -881,7 +1017,7 @@ function renderAttendance(){
  }
  if(!visibleRows.length)box.append(attendanceNode('p','所选日期没有'+(data.privileged?'员工':'本人')+'签到记录。'));
  if(data.privileged)box.append(attendanceNode('p','在职员工 '+data.expected+' 人；未登记：'+((data.notRecorded||[]).join('、')||'无')+'。未登记不能认定缺勤。','attendance-note'));
- if(data.date!==attendanceToday())box.append(attendanceNode('p','当前正在查看历史记录。要签到或开始下村外勤，请选择今天。','attendance-note'));
+ if(data.date!==attendanceToday())box.append(attendanceNode('p','当前正在查看历史记录。要签到或开始外勤，请选择今天。','attendance-note'));
  renderAttendanceSpotChecks();
  syncAttendanceControls();
 }
@@ -903,27 +1039,35 @@ async function attendance(){
   const data=await api('/api/assistant/attendance'+(date?'?date='+encodeURIComponent(date):''));
   if(!current())return null;
   if(!data||!Array.isArray(data.rows)||!Array.isArray(data.activeFieldwork)||!/^\d{4}-\d{2}-\d{2}$/.test(data.date))throw Error('出勤记录格式不完整，请刷新重试。');
-  attendanceSnapshot=data;renderAttendance();return data;
- }catch(error){if(current()){attendanceSnapshot=null;$('attendance').replaceChildren();attendanceMessage('无法读取出勤记录：'+error.message,true);syncAttendanceControls();}return null;}
+  attendanceLoadFailed=false;attendanceSnapshot=data;renderAttendance();
+  if(!attendanceEntryDecisionMade&&me?.roleCode==='employee'&&!assistantEmbedded&&assistantMode==='store'&&data.date===attendanceToday()){
+   attendanceEntryDecisionMade=true;
+   if(!ownLatestAttendance())requestAnimationFrame(()=>revealAssistantPanel('attendance-panel'));
+  }
+  return data;
+ }catch(error){if(current()){attendanceLoadFailed=true;attendanceSnapshot=null;$('attendance').replaceChildren();attendanceMessage('无法读取出勤记录：'+error.message,true);syncAttendanceControls();}return null;}
 }
 function closeFieldwork(){if(attendanceLocationRun)cancelAttendanceLocationRun();if(!attendanceWriteBusy||attendanceLocationRun?.cancelled)$('fieldwork-dialog').close();}
 async function openFieldwork(action,expectedId){
  if(!attendanceAllowed()||attendanceWriteBusy||fieldworkOpening||!['fieldwork-start','fieldwork-end','fieldwork-checkpoint'].includes(action))return;
  fieldworkOpening=true;syncAttendanceControls();const epoch=modeEpoch,ownerId=me.id;
  try{
-  if(!await attendance()||epoch!==modeEpoch||!attendanceAllowed()||me.id!==ownerId)return;
+  // The button is enabled only after today's attendance has loaded. Re-fetching here
+  // can race with the page's refresh and silently discard the tap on a slow phone.
+  if(!attendanceSnapshot&&!await attendance())return;
+  if(epoch!==modeEpoch||!attendanceAllowed()||me.id!==ownerId)return;
   const active=ownActiveFieldwork();
   if(action==='fieldwork-start'&&active){revealAssistantPanel('attendance-panel');attendanceMessage('已有外勤进行中，请先结束“'+active.location+'”再开始下一处。',true);return;}
-  if(action==='fieldwork-start'&&attendanceSnapshot.date!==attendanceToday()){revealAssistantPanel('attendance-panel');attendanceMessage('请先选择今天，再开始下村外勤。',true);return;}
-  if(['fieldwork-end','fieldwork-checkpoint'].includes(action)&&(!active||expectedId&&active.id!==expectedId)){revealAssistantPanel('attendance-panel');attendanceMessage(action==='fieldwork-checkpoint'?'请先开始下村外勤，再到新地点定位打卡。':'本次外勤已结束，或当前没有本人正在进行的外勤，请查看最新记录。');return;}
+  if(action==='fieldwork-start'&&attendanceSnapshot.date!==attendanceToday()){revealAssistantPanel('attendance-panel');attendanceMessage('请先选择今天，再开始外勤。',true);return;}
+  if(['fieldwork-end','fieldwork-checkpoint'].includes(action)&&(!active||expectedId&&active.id!==expectedId)){revealAssistantPanel('attendance-panel');attendanceMessage(action==='fieldwork-checkpoint'?'请先开始外勤，再到新地点定位打卡。':'本次外勤已结束，或当前没有本人正在进行的外勤，请查看最新记录。');return;}
   const row=ownLatestAttendance();
-  if(action==='fieldwork-start'&&row?.checkOutAt){revealAssistantPanel('attendance-panel');attendanceMessage('已在 '+attendanceTime(row.checkOutAt)+' 签退。请先点“重新签到”恢复工作，再开始下村外勤。');return;}
+  if(action==='fieldwork-start'&&row?.checkOutAt){revealAssistantPanel('attendance-panel');attendanceMessage('已在 '+attendanceTime(row.checkOutAt)+' 签退。请先点“重新签到”恢复工作，再开始外勤。');return;}
   fieldworkTarget={action,fieldworkId:active?.id||null,ownerId,epoch};
-  $('fieldwork-title').textContent=action==='fieldwork-start'?'登记下村外勤':action==='fieldwork-checkpoint'?'定位打卡':'结束本次外勤';
-  $('fieldwork-hint').textContent=action==='fieldwork-start'?'填好后开始。今天尚未签到时，系统会同时登记本人签到；时间以服务器记录为准。':action==='fieldwork-checkpoint'?'每到新地点填写村名/地点，再保存手机定位。可重复打卡，只追加地点记录，不新建班次，不重复累计工作时间。':'核对地点后结束。只结束本人这一段外勤，不会自动签退。';
+  $('fieldwork-title').textContent=action==='fieldwork-start'?'登记外勤':action==='fieldwork-checkpoint'?'定位打卡':'结束本次外勤';
+  $('fieldwork-hint').textContent=action==='fieldwork-start'?'填好后开始。今天尚未签到时，系统会同时登记本人签到；时间以服务器记录为准。':action==='fieldwork-checkpoint'?'每到新地点填写地点，再保存手机定位。可重复打卡，只追加地点记录，不新建班次，不重复累计工作时间。':'核对地点后结束。只结束本人这一段外勤，不会自动签退。';
   $('fieldwork-location').value=action!=='fieldwork-end'?'':active.location;
-  $('fieldwork-content').value=action!=='fieldwork-end'?'':active.workContent||'下村工作';
-  $('fieldwork-submit').textContent=action==='fieldwork-start'?'开始下村工作':action==='fieldwork-checkpoint'?'保存本次定位':'确认结束外勤';
+  $('fieldwork-content').value=action!=='fieldwork-end'?'':active.workContent||'外勤工作';
+  $('fieldwork-submit').textContent=action==='fieldwork-start'?'开始外勤工作':action==='fieldwork-checkpoint'?'保存本次定位':'确认结束外勤';
   $('fieldwork-status').textContent='';syncAttendanceControls();$('fieldwork-dialog').showModal();
   if(action!=='fieldwork-end')$('fieldwork-location').focus();else $('fieldwork-submit').focus();
  }finally{fieldworkOpening=false;syncAttendanceControls();}
@@ -943,11 +1087,11 @@ async function openAttendanceSupplement(expectedId){
  }finally{fieldworkOpening=false;syncAttendanceControls();}
 }
 async function submitAttendance(body,actionToClear=null){
- if(!attendanceAllowed()||attendanceWriteBusy||!attendancePageVisible())return false;
+ if(!attendanceAllowed()||attendanceWriteBusy||attendanceExitPending||!attendancePageVisible())return false;
  const supplement=body.action==='location-supplement';
  if(supplement&&!ownAttendanceSupplementRow(body.attendanceId))return false;
  const run=beginAttendanceLocationRun(),serialized=JSON.stringify(body);
- attendanceWriteBusy=true;syncAttendanceControls();attendanceRunProgress(run,supplement?'正在补定位，请稍候…':'等待允许定位，正在读取手机位置，请稍候…');
+ attendanceAction76=body.action;attendanceWriteBusy=true;syncAttendanceControls();attendanceFlash76('正在'+({checkin:'签到',checkout:'签退'}[body.action]||'打卡'),'正在读取定位并提交，请稍候…','pending');attendanceRunProgress(run,supplement?'正在补定位，请稍候…':'等待允许定位，正在读取手机位置，请稍候…');
  try{
   if(['checkin','checkout'].includes(body.action)&&!attendanceRunRequestMatches(run,serialized)){
    $('attendance-date').value='';
@@ -955,20 +1099,20 @@ async function submitAttendance(body,actionToClear=null){
    const latest=ownLatestAttendance(),active=ownActiveFieldwork();
    if(body.action==='checkin'&&(latest&&!latest.checkOutAt||active)){
     const message='已在 '+attendanceTime(latest?.checkInAt||active?.startAt)+' 签到。本次未重复记录。';
-    attendanceMessage(message);$('status').textContent=message;
+    attendanceMessage(message);$('status').textContent=message;attendanceCompleted76(body.action,latest||{checkInAt:active?.startAt},true);
     if(latest&&!latest.checkOutAt)await autoSupplementAttendanceLocation(run,latest.id);
     return true;
    }
    if(body.action==='checkout'&&latest?.checkOutAt){
     const message='已在 '+attendanceTime(latest.checkOutAt)+' 签退。本次未重复记录。'+(me?.roleCode==='owner'?'管理员账号继续可办理业务。':'工作操作已锁定，请重新签到恢复。');
-    attendanceMessage(message);$('status').textContent=message;if(run.current())await attendancePublishWorkLock(body.action,latest);return true;
+    attendanceMessage(message);$('status').textContent=message;attendanceCompleted76(body.action,latest,true);if(run.current())await attendancePublishWorkLock(body.action,latest);return true;
    }
-   if(body.action==='checkout'&&!latest&&!active){attendanceMessage('当前没有本人已签到的班次，请先签到，再签退。',true);return false;}
+   if(body.action==='checkout'&&!latest&&!active){attendanceFlash76('暂不能签退','当前没有已签到的班次，请先签到。','info');attendanceMessage('当前没有本人已签到的班次，请先签到，再签退。',true);return false;}
   }
   if(!attendanceRunRequestMatches(run,serialized)){
    const location=await captureAttendanceLocation(()=>run.current()&&(!supplement||!!ownAttendanceSupplementRow(body.attendanceId)),{signal:run.controller.signal,onRetry:()=>attendanceRunProgress(run,'手机暂未取得位置，正在自动重试，请稍候…')});
    if(!run.current()||location.locationCancelled)return false;
-   if(location.locationBusy){attendanceMessage('上次定位尚未结束，请稍后再试；本次没有提交打卡。',true);return false;}
+   if(location.locationBusy){attendanceFlash76('上次定位尚未结束','本次没有提交，请稍后再试。','info');attendanceMessage('上次定位尚未结束，请稍后再试；本次没有提交打卡。',true);return false;}
    if(supplement&&!ownAttendanceSupplementRow(body.attendanceId)){attendanceMessage('当前班次已变化，本次没有提交补定位，请查看最新记录。',true);return false;}
    if(supplement&&!location.locationEvidence){const message=attendanceLocationFailureHelp(location.locationFailure)+' 本次未提交补定位，原签到记录保留；仍待老板核对。';attendanceMessage(message,false,'pending');$('status').textContent=message;return false;}
    fieldworkRequest={serialized,key:requestId(),body:{...body,...location},ownerId:run.ownerId,epoch:run.epoch,marker:run.marker};
@@ -983,25 +1127,27 @@ async function submitAttendance(body,actionToClear=null){
   if(!run.current())return true;
   if(actionToClear&&pendingAction===actionToClear){pendingAction=null;$('action').hidden=true;}
   const message=attendanceResultMessage(body,result,supplement);
+  attendanceCompleted76(body.action,result,result?.feedback?.repeated===true);if(body.action==='checkout'&&result?.feedback?.recorded&&me?.roleCode!=='owner'){attendanceExitPending=true;syncAttendanceControls();setTimeout(attendanceLogout78,1600);return true;}
   if(!supplement){fieldworkTarget=null;if($('fieldwork-dialog').open)$('fieldwork-dialog').close();}
   $('attendance-date').value='';attendanceMessage(message+(locationSummary?' '+locationSummary:''),false,result?.feedback?.repeated?'info':reviewRequired||!!warning?'pending':attendanceLocationTone(verdict));$('status').textContent=message+(locationSummary?' '+locationSummary:'');
   if(run.current())await attendancePublishWorkLock(body.action,result);
   if(run.current())await attendance();
+  if(run.current()&&body.action==='checkin'&&result?.userId===run.ownerId){workChat.menu(false);workChat.scroll();}
   if(run.current()&&body.action==='checkin'&&result?.userId===run.ownerId&&result.id)await autoSupplementAttendanceLocation(run,result.id);
   return true;
  }catch(error){
   const message=error.statusCode===423?'已签退，工作操作已锁定。请重新签到恢复；原签退时间见出勤记录。':error.statusCode?'未能保存：'+error.message:'未能确认保存结果，请用相同内容重试，并核对最新记录。';
-  if(run.current()){attendanceMessage(message,true);$('status').textContent=message;if($('fieldwork-dialog').open)$('fieldwork-status').textContent=message;}
+  if(run.current()){attendanceFlash76(error.statusCode?'打卡未成功':'打卡结果待确认',message,'error');attendanceMessage(message,true);$('status').textContent=message;if($('fieldwork-dialog').open)$('fieldwork-status').textContent=message;}
   return false;
- }finally{if(attendanceLocationRun===run)attendanceLocationRun=null;attendanceWriteBusy=false;syncAttendanceControls();}
+ }finally{if(attendanceLocationRun===run)attendanceLocationRun=null;attendanceWriteBusy=false;syncAttendanceControls();const toast76=document.getElementById('attendance-feedback-toast-v76');if(toast76&&!toast76.hidden&&toast76.dataset.tone==='pending')attendanceFlash76('操作已结束','请查看最新打卡记录确认结果。','info');}
 }
 $('fieldwork-form').onsubmit=async event=>{
  event.preventDefault();const target=fieldworkTarget;
  if(!target||attendanceWriteBusy||!attendanceAllowed()||target.ownerId!==me.id||target.epoch!==modeEpoch)return;
  let body;
  if(['fieldwork-start','fieldwork-checkpoint'].includes(target.action)){
-  const location=$('fieldwork-location').value.trim(),workContent=$('fieldwork-content').value.trim()||'下村工作';
-  if(!location||location.length>120||workContent.length>300){$('fieldwork-status').textContent='请填写村名/地点（最多120字），事项最多300字。';$('fieldwork-location').focus();return;}
+  const location=$('fieldwork-location').value.trim(),workContent=$('fieldwork-content').value.trim()||'外勤工作';
+  if(!location||location.length>120||workContent.length>300){$('fieldwork-status').textContent='请填写地点（最多120字），事项最多300字。';$('fieldwork-location').focus();return;}
   if(target.action==='fieldwork-checkpoint'&&!target.fieldworkId)return;
   body={action:target.action,location,workContent,...(target.action==='fieldwork-checkpoint'?{fieldworkId:target.fieldworkId}:{})};
  }else{if(!target.fieldworkId)return;body={action:target.action,fieldworkId:target.fieldworkId};}
@@ -1010,11 +1156,12 @@ $('fieldwork-form').onsubmit=async event=>{
 $('fieldwork-cancel').onclick=closeFieldwork;
 $('fieldwork-dialog').addEventListener('cancel',event=>{if(attendanceLocationRun)cancelAttendanceLocationRun();else if(attendanceWriteBusy)event.preventDefault();});
 $('fieldwork-dialog').addEventListener('close',()=>{if(!attendanceWriteBusy){fieldworkTarget=null;$('fieldwork-status').textContent='';}});
-$('fieldwork-start').onclick=()=>openFieldwork('fieldwork-start');
+$('fieldwork-start').onclick=()=>{const active=ownActiveFieldwork();openFieldwork(active?'fieldwork-end':'fieldwork-start',active?.id);};
 $('fieldwork-shortcut').onclick=()=>{$('attendance-date').value='';revealAssistantPanel('attendance-panel');attendance();};
 $('attendance-date').onchange=()=>{attendanceMessage('');attendance();};
 $('attendance-refresh').onclick=()=>{attendanceMessage('');attendance();};
-for(const action of ['checkin','checkout'])$(action).onclick=()=>submitAttendance({action});
+$('checkin').onclick=()=>submitAttendance({action:'checkin'});
+$('checkout').onclick=()=>{if(confirm('确认现在签退？签退记录保存后将退出登录，继续工作需重新签到。'))submitAttendance({action:'checkout'});};
 $('attendance-store-open').onclick=openAttendanceStore;
 $('attendance-spot-open').onclick=openAttendanceSpotSettings;
 $('attendance-spot-form').onsubmit=saveAttendanceSpotSettings;
@@ -1022,6 +1169,9 @@ $('attendance-spot-cancel').onclick=closeAttendanceSpotSettings;
 $('attendance-spot-dialog').addEventListener('cancel',event=>{if(attendanceWriteBusy)event.preventDefault();});
 setInterval(refreshAttendanceSpotChecks,30000);
 document.addEventListener?.('visibilitychange',()=>{if(!attendancePageVisible())cancelAttendanceLocationRun();refreshAttendanceSpotChecks();});
+function refreshVisibleDuty(){if(!attendancePageVisible()||!attendanceAllowed()||attendanceWriteBusy||fieldworkOpening||$('staff-roster-panel')?.querySelector('.staff-roster-editor[open]')||$('fieldwork-dialog')?.open)return;if(attendanceSnapshot&&$('attendance-panel')&&!$('attendance-panel').hidden)attendance();}
+setInterval(refreshVisibleDuty,30000);
+document.addEventListener?.('visibilitychange',()=>{if(attendancePageVisible())refreshVisibleDuty();});
 window.addEventListener('pagehide',cancelAttendanceLocationRun);
 window.addEventListener('storage',event=>{if(event.key==='store-session-logout-v1')cancelAttendanceLocationRun();});
 window.addEventListener('click',event=>{if(event.target?.closest?.('.session-logout,.mobile-logout,#logout'))cancelAttendanceLocationRun();},true);
@@ -1039,7 +1189,7 @@ $('attendance-review-dialog').addEventListener('cancel',event=>{if(attendanceWri
 $('attendance-review-dialog').addEventListener('close',()=>{if(!attendanceWriteBusy)attendanceReviewTarget=null;});
 for(const id of ['attendance-store-address','attendance-store-latitude','attendance-store-longitude','attendance-store-radius'])$(id).addEventListener('input',previewAttendanceStore);
 
-async function reports(){if(assistantMode==='customer')return;try{const rows=await api('/api/assistant/reports');$('reports').replaceChildren();for(const r of rows){const box=document.createElement('div');box.className='report';const h=document.createElement('strong');h.textContent=r.author+' · '+r.status;const p=document.createElement('p');p.textContent=r.text;const t=document.createElement('small');t.textContent=time(r.createdAt)+' · '+documentNo(r);box.append(h,p,t);if(r.reviewNote){const n=document.createElement('p');n.textContent='核实说明：'+r.reviewNote;box.append(n)}if(me.roleCode==='owner'&&r.status==='待老板核实')for(const status of ['已核实','无需处理']){const b=document.createElement('button');b.textContent=status;b.onclick=()=>openReportReview(r,status);box.append(b)}$('reports').append(box)}if(!rows.length)$('reports').textContent='暂无情况报告。'}catch(e){$('report-status').textContent=e.message}}
+async function reports(){if(assistantMode==='customer')return;try{const rows=todoFocus115.select(await api('/api/assistant/reports'),'reports');if(todoFocus115.id)revealAssistantPanel('report-panel');$('reports').replaceChildren();for(const r of rows){const box=document.createElement('div');box.className='report';const h=document.createElement('strong');h.textContent=r.author+' · '+r.status;const p=document.createElement('p');p.textContent=r.text;const t=document.createElement('small');t.textContent=time(r.createdAt)+' · '+documentNo(r);box.append(h,p,t);if(r.reviewNote){const n=document.createElement('p');n.textContent='核实说明：'+r.reviewNote;box.append(n)}if(me.roleCode==='owner'&&r.status==='待老板核实')for(const status of ['已核实','无需处理']){const b=document.createElement('button');b.textContent=status;b.onclick=()=>openReportReview(r,status);box.append(b)}$('reports').append(box)}if(!rows.length)$('reports').textContent=todoFocus115.id?'这张情况报告不存在或当前账号不可见。':'暂无情况报告。'}catch(e){$('report-status').textContent=e.message}}
 let reportReviewTarget=null,reportReviewBusy=false;
 function openReportReview(row,status){
  if(assistantMode!=='store'||me?.roleCode!=='owner'||reportReviewBusy)return;
@@ -1117,12 +1267,12 @@ $('phrase-form').onsubmit=async e=>{e.preventDefault();const body=Object.fromEnt
 
 function applyMode(){
  if(assistantMode==='customer')resetAttendanceView();else syncAttendanceControls();
- $('prepare-sale').hidden=assistantMode!=='store'||!me;$('prepare-sale').disabled=!me?.capabilities.sell;$('prepare-reception').hidden=assistantMode!=='store'||!me;
- document.title=assistantMode==='customer'?'小猫咪机器人':'工作助理';$('assistant-title').textContent=document.title;$('personal-entry').hidden=assistantMode==='customer'||me?.roleCode!=='owner';document.querySelector('.mode-panel').hidden=customerLocked||assistantEmbedded;
+ $('prepare-sale').hidden=assistantMode!=='store'||!me;$('prepare-sale').disabled=!me?.capabilities.sell;$('prepare-reception').hidden=true;
+ document.title=new URLSearchParams(location.search).get('work-signin')==='1'?'考勤打卡':assistantMode==='customer'?'小猫咪机器人':'工作助理';$('assistant-title').textContent=document.title;$('personal-entry').hidden=true;document.querySelector('.mode-panel').hidden=customerLocked||assistantEmbedded;
  document.documentElement.classList.toggle('customer-mode',assistantMode==='customer');
  document.documentElement.classList.toggle('customer-editor',assistantMode==='customer'&&isDialogueOwner());
  $('mode-store').setAttribute('aria-pressed',String(assistantMode==='store'));$('mode-customer').setAttribute('aria-pressed',String(assistantMode==='customer'));
- $('assistant-home').hidden=false;$('mode-store').hidden=customerLocked;$('mode-store').disabled=customerLocked;
+ $('assistant-home').hidden=customerLocked&&window.matchMedia('(max-width:700px)').matches;$('assistant-home').textContent=attendanceFocusedPage?'← 返回工作台':window.matchMedia('(max-width:700px)').matches?'← 首页':'‹ 返回首页';$('mode-store').hidden=customerLocked;$('mode-store').disabled=customerLocked;
  $('mode-hint').textContent=assistantMode==='customer'?(customerLocked?'固定顾客模式：仅提供商品和业务咨询。':'顾客模式：仅提供商品和业务咨询。切换会清除之前的对话。'):'店内模式：按本账号权限查看业务和账务。';
  $('hero-title').textContent=assistantMode==='customer'?'选商品，问业务，轻松办':'问账套，找单据，办事情';
  $('hero-description').textContent=assistantMode==='customer'?'可以咨询号卡、套餐、宽带和商品，具体办理由营业员核对。':'只按当前账号可见的已录入数据回答。开单草稿由人确认后才入账。';
@@ -1152,7 +1302,7 @@ function setMode(mode){
  if(assistantMode==='store'&&me){restorePendingSale();attendance();reports();loadCapabilities();loadSupervision();if(me.roleCode==='owner'){loadPhrases();loadDialogues()}}
 }
 $('mode-store').onclick=()=>setMode('store');$('mode-customer').onclick=()=>setMode('customer');
-$('personal-entry').onclick=event=>{event.preventDefault();if(assistantMode!=='store'||me?.roleCode!=='owner')return;stopVoiceSession();navigate('/companion')};
+
 let dialogueRows=[],editingDialogue=null;
 const splitQuestionWays=value=>String(value||'').split(/[\/／\r\n]+/).map(x=>x.trim()).filter(Boolean);
 function editDialogue(row){

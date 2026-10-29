@@ -197,7 +197,7 @@ function clearHistory(store,user) {
 
  roles.permitPersonal(user);store.companionMessages=(store.companionMessages||[]).filter(row=>row.userId!==user.id);
 
- const p=own(store,'companionProfiles',user)[0];if(p){p.sessionId=randomUUID();p.screenAfterId=null;p.screenClearedAt=null;}
+ const p=own(store,'companionProfiles',user)[0];if(p)p.sessionId=randomUUID();
 
  c.audit(store,user,'companion:clear-history',user.id);return {cleared:true};
 
@@ -233,7 +233,7 @@ function recall(store,user,q) {
 
  }
 
- if(!/^(?:谢谢|多谢|感谢)(?:你)?(?:的)?提醒/.test(q)&&/提醒|今天.*(?:安排|要做)|待办/.test(q)) {
+ if(/提醒|今天.*(?:安排|要做)|待办/.test(q)) {
 
   const rows=own(store,'companionReminders',user).filter(x=>!x.done);
 
@@ -242,12 +242,9 @@ function recall(store,user,q) {
  }
 
  if(memorySearch.recallQuestion(q)) {
-  const chosen=memorySearch.rank(memories,user.id,q,{limit:8,budget:2500});
-  const all=memorySearch.broad(q),parts=chosen.map(r=>(r.opinionOnly||['observer','family'].includes(r.sourceKind)?'亲友看法（'+(r.reportedBy||'亲友')+'，仅供参考）：':'')+r.content);
-  if(all)parts.unshift(...[p.city&&'常住城市：'+p.city,p.interests&&'兴趣：'+p.interests,p.routine&&'作息：'+p.routine].filter(Boolean));
-  else if(/起床|睡|作息/.test(q)&&p.routine)parts.unshift('你填写的作息：'+p.routine);
-  else if(/我(?:的)?(?:爱好|喜欢什么)/.test(q)&&p.interests)parts.unshift('你填写的兴趣：'+p.interests);
-  return parts.length?'按你确认保存的记忆：'+parts.join('；')+'。有变化可到“记忆与习惯”修改。':'已确认的记忆里还没找到这件事。你可以告诉我正确情况，再确认保存。';
+  const rows=memorySearch.rank(memories,user.id,q,{limit:8,budget:2500}),all=memorySearch.broad(q);
+  const parts=[...(all?[p.city&&'常住城市：'+p.city,p.interests&&'兴趣：'+p.interests,p.routine&&'作息：'+p.routine]:[]),...rows.map(r=>(r.opinionOnly||['observer','family'].includes(r.sourceKind)?'亲友看法（'+(r.reportedBy||'亲友')+'，仅供参考）：':'')+r.content)].filter(Boolean);
+  return parts.length?'按你确认保存的记忆：'+parts.join('；')+'。有变化可以随时修改。':'已确认的记忆里还没找到这件事。你可以告诉我正确情况，再确认保存。';
  }
 
  return null;

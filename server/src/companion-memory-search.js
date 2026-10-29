@@ -36,5 +36,5 @@ function rank(rows,userId,q,{limit=12,budget=3500,now=Date.now(),personalize=fal
  if(!scored.length&&personalize&&generic(query))scored=candidates.filter(r=>['习惯','爱好'].includes(r.category)||r.category==='其他'&&/散步|清茶|钓鱼|唱歌/.test(r.content)).filter(r=>!person(r.content).length).slice(-3).reverse().map(r=>({r,score:1}));
  const selected=[];let size=0;for(const {r} of scored){if(selected.length>=Math.min(12,Math.max(1,limit)))break;if(size+r.content.length>budget)continue;size+=r.content.length;selected.push(r);}return selected;
 }
-function recallQuestion(q){return broad(normalize(q))||/记得|记住过|记录过|保存过/.test(q)||/我的.{0,6}(?:口味|兴趣).{0,8}(?:什么|怎样|哪些|吗|呢|[?？])/.test(q)||/(?:我|我的|亲友|女儿|儿子|老伴|朋友).{0,14}(?:喜欢什么|几点(?:起床|睡|醒)|什么(?:口味|习惯)|爱好|习惯|能吃辣|吃不吃辣)/.test(q)||/(?:我(?:的)?|咱家)(?:儿子|女儿|孩子|老伴|爱人|丈夫|妻子|老公|老婆|爸爸|妈妈|父亲|母亲|朋友|家人).{0,16}(?:叫什么|名字|是谁|多大|几岁|多少岁|生日|住哪|在哪里|做什么工作|职业|有几个)/.test(q)||/(?:我叫什么|我的名字是什么|我的生日|我多大|我住哪里|我住哪)/.test(q);}
+function recallQuestion(q){return broad(normalize(q))||/记得|记住过|记录过|保存过/.test(q)||/我的.{0,6}(?:口味|兴趣).{0,8}(?:什么|怎样|哪些|吗|呢|[?？])/.test(q)||/(?:我|我的|亲友|女儿|儿子|老伴|朋友).{0,14}(?:喜欢什么|几点(?:起床|睡|醒)|什么(?:口味|习惯)|爱好|习惯|能吃辣|吃不吃辣)/.test(q);}
 module.exports={rank,concepts,recallQuestion,broad};

@@ -45,7 +45,7 @@ function createClient({env=process.env,fetchImpl=globalThis.fetch}={}){
   if(!configured())throw new c.HttpError(503,'图片模型尚未接通，可以先登记待复核记录');
   if(active>=2)throw new c.HttpError(429,'图片检查正在处理，请稍后再试');active++;
   try{
-   const response=await fetchImpl(url,{method:'POST',redirect:'error',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify({model,stream:false,max_tokens:2500,messages:[{role:'system',content:instruction},{role:'user',content:[{type:'text',text},...photos.map(p=>({type:'image_url',image_url:{url:p}}))]}]}),signal:AbortSignal.timeout(30000)});
+   const response=await require('./system-model-usage').fetchTracked('vision','openai',fetchImpl,url,{method:'POST',redirect:'error',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify({model,stream:false,max_tokens:2500,messages:[{role:'system',content:instruction},{role:'user',content:[{type:'text',text},...photos.map(p=>({type:'image_url',image_url:{url:p}}))]}]}),signal:AbortSignal.timeout(30000)});
    if(!response.ok)throw new c.HttpError(502,'图片识别服务暂时不可用，请稍后重试');
    const reader=response.body.getReader();let length=0,chunks=[];
    while(true){const {done,value}=await reader.read();if(done)break;length+=value.length;if(length>160000){await reader.cancel();throw new c.HttpError(502,'识别结果过长，请分区域拍摄');}chunks.push(Buffer.from(value));}

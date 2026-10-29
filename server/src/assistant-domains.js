@@ -141,6 +141,7 @@ function procurementQuestion(store, user, question, detail) {
   return view(text, '订货验收', '/app?tab=purchase', { pendingCount, pendingUnits, assigned }, rows, detail);
 }
 function receptionQuestion(store, user, question, date, detail) {
+  return require('./reception-availability').answer('接待记录');
   if (!c.capabilities(user).sell) return result('当前岗位没有接待工单查看权限。');
   const phone = question.match(/(?<!\d)1[3-9]\d{9}(?!\d)/)?.[0];
   let rows = receptions.list(store, user).rows.filter(row => !row.publicAssist);
@@ -182,16 +183,25 @@ function closeQuestion(store, user, question, date, detail) {
 }
 function pendingQuestion(store, user, detail) {
   const data = workbench.summary(store, user);
+  const cashRows = data.assistantCashReminders || [];
   const entries = data.owner ? Object.entries(data.reviews).filter(([, count]) => count).map(([key, count]) => [pendingLabels[key] || '待核实事项', count]) : [
     ['到期回访', data.followups], ['现金接收确认', data.cashToConfirm], ['转款确认', data.transferToConfirm],
     ['销售收款核对', data.salePaymentsToConfirm], ['本人收款异议', data.ownPaymentDisputes],
     ['指派验收', data.assignedPlans], ['学习单待审核', data.unreviewedLearning], ['工作日志待核定', data.unreviewedWork], ['赠品审批', data.giftApprovalsToReview],
   ].filter(([, count]) => count);
-  const text = data.pendingCount ? `待处理 ${data.pendingCount} 项：${entries.slice(0, detail ? entries.length : 4).map(([label, count]) => label + ' ' + count + ' 项').join('，')}${!detail && entries.length > 4 ? '，其余见待办' : ''}。` : '当前没有待处理事项。';
-  return view(text, '我的待办', '/m#pending', { pendingCount: data.pendingCount, counts: Object.fromEntries(entries) });
+  let text = data.pendingCount ? `待处理 ${data.pendingCount} 项：${entries.slice(0, detail ? entries.length : 4).map(([label, count]) => label + ' ' + count + ' 项').join('，')}${!detail && entries.length > 4 ? '，其余见待办' : ''}。` : '当前没有待处理事项。';
+  if(data.owner&&data.reports?.simpleDailyClose)text+=' 今日扎账报告未查看 '+data.reports.simpleDailyClose.count+' 条；即时现金清点和晚上正式扎账只提示报告消息，现场人员负责核对，不计入老板审核待办。';
+  if(cashRows.length)text += ' 工作助理提醒：'+cashRows.slice(0,detail?5:1).map(row=>(data.owner?row.handler+'的':'')+(row.receiptNos?.length?'收款单 '+row.receiptNos.join('、')+'（关联销售单 '+row.orderId+'）':'销售单 '+row.orderId+' 的收款待核')+' 已登记收到顾客现金 '+money(row.amount)+'，系统尚未记录交入门店现金；请核对实际去向并办理或登记差异').join('；')+'。';
+  return view(text, '我的待办', '/m#pending', { pendingCount: data.pendingCount, counts: Object.fromEntries(entries), reportUnreadCount:data.owner?data.reports?.simpleDailyClose?.count??0:null, cashReminders:cashRows.map(row=>({orderId:row.orderId,partId:row.partId,status:row.status,handler:row.handler,href:row.href})) });
 }
 function query(store, user, question, { date = c.day(), detail = false } = {}) {
   if (typeof question !== 'string' || !question.trim() || noWriteWords.test(question)) return null;
+  if(/(?:销售|收款|顾客).{0,10}(?:现金|现款).{0,12}(?:待交|未交|入库|提醒)|(?:现金|现款).{0,10}(?:待交|未交|入库).{0,10}(?:销售|收款|顾客)/.test(question)){
+    const rows=require('./assistant-cash-reminders').list(store,user),named=user.roleCode==='owner'?rows.filter(row=>question.includes(row.handler)):rows;
+    const shown=named.length?named:rows;
+    const text=shown.length?'系统尚未记录交入门店现金的收款 '+shown.length+' 笔：'+shown.slice(0,detail?8:3).map(row=>(user.roleCode==='owner'?row.handler+' · ':'')+(row.receiptNos?.length?'收款单 '+row.receiptNos.join('、')+'，关联销售单 '+row.orderId:'销售单 '+row.orderId+' 的收款待核')+' · '+money(row.amount)).join('；')+'。请按收款单核对实际去向；提醒和已读不代表完成交接。':'当前授权范围内没有这类待交现金收款单。';
+    return view(text,'销售现金待交','/sale-payments',{count:shown.length},shown,detail);
+  }
   if (/(现金|现款).{0,12}(交接|交款|交钱|上交|交了|未交|没交|接收|确认|缴存)|(?:交接|交款|交钱|未交|没交).{0,12}(现金|现款)/.test(question)) return cashQuestion(store, user, question, detail);
   if (/日结|扎账|轧账|扎帐|轧帐/.test(question)) return closeQuestion(store, user, question, date, detail);
   if (/(国补|补贴).{0,15}(结算|到账|未收|没收|待收|应收|返款|还欠|多少钱|多少)|(?:结算|到账|应收|返款).{0,12}(国补|补贴)/.test(question)) return subsidyQuestion(store, user, question, date, detail);

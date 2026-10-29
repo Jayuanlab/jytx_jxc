@@ -1,6 +1,6 @@
 'use strict';
 const c=require('./common'),social=require('./assistant-social'),products=require('./assistant-product-query'),tariffs=require('./assistant-tariff-query'),dialogue=require('./assistant-dialogue'),talk=require('./customer-talk-query');
-const internal=/资金收支|资金流水|财务流水|收支流水|交接班|现金交接|现金交款|上传学习资料|毛利|利润|成本|进价|采购价|拿货价|工资|底薪|提成|酬金|佣金|积分|奖励|红包|出勤|考勤|签到|签退|营业额|销量|账套|流水|进货|供应商|供货商|应收|应付|员工情况|员工动态|员工工作|老板简报|店内情况|店里情况|银行|银行卡账户|收款账户|串号|串码|imei|仓库|库存|销售记录|单号|订单|客户档案|客户手机号|备份|还原|导出|审批|待办|待审核|权限|口令|密码|今天.*(?:卖|收|赚|进|办了)|采购|红冲|开单|销售单|接待单|调价|改价|删除|清空/i;
+const internal=/门店微信|老板微信|老板支付宝|门店现金|信号机微信|空充|BOSS|资金账户|资金收支|资金流水|财务流水|收支流水|交接班|现金交接|现金交款|上传学习资料|毛利|利润|成本|进价|采购价|拿货价|工资|底薪|提成|酬金|佣金|积分|奖励|红包|出勤|考勤|签到|签退|营业额|销量|账套|流水|进货|供应商|供货商|应收|应付|员工情况|员工动态|员工工作|老板简报|店内情况|店里情况|银行|银行卡账户|收款账户|串号|串码|imei|仓库|库存|销售记录|单号|订单|客户档案|客户手机号|备份|还原|导出|审批|待办|待审核|权限|口令|密码|今天.*(?:卖|收|赚|进|办了)|采购|红冲|开单|销售单|接待单|调价|改价|删除|清空/i;
 const privateAnswer=dialogue.privateWords;
 const productCreate=require('./assistant-product-create');
 const policy=require('./policy-knowledge-query');
@@ -26,7 +26,7 @@ function promotionAnswer(result,items){
  return pieces.join('\n')+'\n可以先按这些资费参考，具体办理由营业员帮你核对。';
 }
 function query(store,user,payload){
- c.permit(user,'learn');const q=c.text(payload.question,'问题'),style=payload.customerReplyStyle==='mandarin'?'mandarin':'sichuan';
+ c.permit(user,'learn');const q=require('./assistant-language').normalize(c.text(payload.question,'问题'),{customer:true}),style=payload.customerReplyStyle==='mandarin'?'mandarin':'sichuan';
  // Customer mode never falls through to the ledger assistant or general search.
  if(internal.test(q)||privateAnswer.test(q)||productCreate.isRequest(q))return response(style==='sichuan'?'这项由店员在店内模式核对哈。你要咨询商品还是办理业务嘛？':'这项请店员在店内模式核对。您需要咨询商品还是办理业务？',style,{metrics:{kind:'customer-dialogue',replyStyle:style,restricted:true}});
  const entry=dialogue.find(store,q,{customer:true,answered:payload.dialogueAnswered||[],pool:payload.dialoguePool});

@@ -1,0 +1,231 @@
+/* 聚友：电子屏留白、熟悉的模块、一次提示。 */
+:root{--calm-sky:#d9edf7;--calm-paper:#f5fbff;--calm-ink:#183b55;--calm-blue:#247bb1;--calm-green:#087e68}
+html body.calm-workbench{background:#d9edf7;color:var(--calm-ink);font-family:"Microsoft YaHei","PingFang SC",sans-serif}
+html body.calm-workbench [hidden]{display:none!important}
+html body.calm-workbench :focus-visible{outline:3px solid #a75416;outline-offset:3px}
+html body.calm-workbench button.page-help-button:is([data-help-target],[data-help-all]){min-width:36px!important;width:36px!important;min-height:36px!important;height:36px!important;padding:2px!important;border-radius:50%;font-size:20px!important}
+html body.calm-workbench main{min-width:0}
+html body.calm-workbench :is(button,input,select,textarea){font-family:inherit}
+html body.calm-workbench :is(.panel,.home-module,.receipt){border-color:#c5dfeb;border-radius:22px;box-shadow:none}
+html body.calm-workbench .panel{background:var(--calm-paper)}
+html body.calm-workbench :is(.message,#status,.form-feedback):empty{display:none!important}
+/* Home: the board has its own reserved part of the screen. */
+html body.store-workbench.calm-workbench main.wrap{max-width:1420px;padding:16px 24px 32px}
+html body.store-workbench.calm-workbench .home-header{background:transparent;border:0;box-shadow:none}
+html body.store-workbench.calm-workbench #home-board-slot{height:28dvh;min-height:150px;max-height:360px;margin:12px 0;flex:0 0 28dvh}
+html body.store-workbench.calm-workbench #store-electronic-board{height:100%!important;max-height:none!important;box-sizing:border-box;min-width:0;margin:0!important;padding:14px 18px!important;border-radius:24px!important;border:1px solid #99cee5;background:#28688e!important;box-shadow:none!important;align-items:center}
+html body.store-workbench.calm-workbench #comms-board-window{min-width:0;max-height:100%!important}
+html body.store-workbench.calm-workbench #comms-board-track{max-height:100%;color:#f2fbff;line-height:1.5}
+html body.store-workbench.calm-workbench .board-copy{font-size:clamp(22px,3vw,36px)!important;color:#f2fbff}
+html body.store-workbench.calm-workbench #comms-board-open,html body.store-workbench.calm-workbench #comms-board-pause{background:#ffffff24!important;color:#fff!important;border:0!important;border-radius:50%;padding:8px!important;min-width:44px!important;min-height:44px!important;font-size:18px!important}
+html body.store-workbench.calm-workbench .hero-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+html body.store-workbench.calm-workbench .hero-actions>a{display:flex!important;flex-direction:column!important;justify-content:space-between!important;align-items:flex-start!important;aspect-ratio:auto!important;min-height:130px!important;border:0!important;border-radius:24px!important;background:#f5fbff!important;color:#183b55!important;padding:18px!important;box-shadow:none!important;gap:12px!important}
+html body.store-workbench.calm-workbench .hero-actions>a[href="/receptions"]{order:-1;background:#fff!important}
+html body.store-workbench.calm-workbench .hero-action-icon{width:42px!important;height:42px!important;background:#e4f4f0!important;color:#087e68!important;border-radius:14px!important}
+html body.store-workbench.calm-workbench .hero-action-label{font-size:24px!important;max-width:none!important;line-height:1.3}
+html body.store-workbench.calm-workbench .assistant-entry{width:auto!important;max-width:none!important;min-height:76px!important;padding:16px 20px!important;border:0!important;border-radius:20px!important;background:#247bb1!important;color:#fff!important;margin:0!important}
+html body.store-workbench.calm-workbench .assistant-entry :is(strong,span){color:inherit}
+html body.store-workbench.calm-workbench .home-frequent{gap:14px!important}
+html body.store-workbench.calm-workbench .home-frequent>a{border:0!important;border-radius:20px;background:#f5fbff!important;min-height:76px!important}
+html body.store-workbench.calm-workbench .home-modules{gap:16px}
+html body.store-workbench.calm-workbench .module-content .cards{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+html body.store-workbench.calm-workbench .module-content .card{display:flex!important;flex-direction:column;align-items:flex-start;justify-content:space-between;min-height:124px!important;padding:16px!important;gap:12px!important;border:0!important;border-radius:22px;background:#f5fbff!important;color:#183b55!important;box-shadow:none}
+html body.store-workbench.calm-workbench .module-content .card strong{font-size:22px!important;line-height:1.35}
+html body.store-workbench.calm-workbench .module-content .card .symbol{width:36px!important;height:36px!important}
+html body.store-workbench.calm-workbench .module-content .card .symbol svg{width:32px!important;height:32px!important}
+html body.store-workbench.calm-workbench .module-content .card::after{display:none}
+html body.store-workbench.calm-workbench .dashboard{gap:12px!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html body.store-workbench.calm-workbench .dashboard .stat{background:#f5fbff;border:0;border-radius:18px;min-height:72px!important;padding:12px!important}
+html body.store-workbench.calm-workbench .dashboard .stat span{font-size:18px!important}
+html body.store-workbench.calm-workbench #personal-shortcuts{order:3}
+html body.store-workbench.calm-workbench .home-overview>.assistant-entry{order:1!important}
+html body.store-workbench.calm-workbench .home-overview>.home-frequent{order:2!important}
+/* Login is a welcoming entry, with credentials and errors in one place. */
+html body.account-page.calm-workbench{min-height:100dvh;background:#d9edf7}
+html body.account-page.calm-workbench #account-main{max-width:560px;margin:0 auto;padding:clamp(24px,7dvh,90px) 20px 40px}
+html body.account-page.calm-workbench .workbench-header{display:flex;align-items:center;gap:18px;margin-bottom:30px;background:transparent}
+html body.account-page.calm-workbench .mark{display:grid;place-items:center;flex:none;width:68px;height:68px;border-radius:24px;background:#247bb1;color:#fff;font-size:34px;box-shadow:none}
+html body.account-page.calm-workbench h1{font-size:26px!important;line-height:1.4}
+html body.account-page.calm-workbench .welcome-line{font-size:16px;color:#3a6079;margin:8px 0 0;line-height:1.6}
+html body.account-page.calm-workbench .card{background:#f5fbff;border:0;border-radius:28px;padding:26px;box-shadow:none}
+html body.account-page.calm-workbench h2{display:flex;justify-content:space-between;align-items:center;margin:0 0 24px;font-size:24px!important}
+html body.account-page.calm-workbench label{font-size:18px!important;line-height:1.5;margin-bottom:20px}
+html body.account-page.calm-workbench input{font-size:20px!important;min-height:54px!important;border-radius:12px;padding:12px;background:#fff;border:1px solid #b9d4e4}
+html body.account-page.calm-workbench button{font-size:20px!important;min-height:48px!important;border-radius:12px}
+html body.account-page.calm-workbench button[type=submit]{width:100%;background:#247bb1;border:0;color:#fff;min-height:56px!important}
+html body.account-page.calm-workbench .password-field button{font-size:16px!important}
+html body.account-page.calm-workbench .message{font-size:18px!important;line-height:1.5}
+/* Reception: compact fields, clear microphone, optional details. */
+html body.calm-receptions main{max-width:1120px;margin:auto;padding:16px}
+html body.calm-receptions header{background:#d9edf7;color:#183b55;box-shadow:none;border-bottom:0}
+html body.calm-receptions .panel{padding:22px;margin-bottom:16px}
+html body.calm-receptions h2{font-size:24px!important}
+html body.calm-receptions h3{font-size:21px!important}
+html body.calm-receptions :is(label,button,input,select,textarea){font-size:18px!important;line-height:1.5}
+html body.calm-receptions :is(input,select,textarea){min-height:46px!important;border-radius:12px;background:#fff;border:1px solid #bbd6e5;padding:10px;box-sizing:border-box;max-width:100%}
+html body.calm-receptions button{min-height:44px!important;border-radius:12px;padding:9px 14px}
+html body.calm-receptions .grid{gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+html body.calm-receptions :is(small,.hint,.form-feedback){font-size:15px!important;line-height:1.6}
+html body.calm-receptions .intake-actions>button[type=submit]{background:#087e68;color:white;border:0;font-size:20px!important}
+html body.calm-receptions :is(.receipt .guidance,.reception-conversion-note){display:none!important}
+html body.calm-receptions .receipt .chips{gap:6px;flex-wrap:wrap}
+html body.calm-receptions .chip{font-size:14px!important;padding:4px 8px;border-radius:8px}
+html body.calm-receptions .reception-completion[data-complete=yes]{display:none}
+html body.calm-receptions :is(.intake-summary,.reception-follow-ups){font-size:16px!important;line-height:1.6}
+html body.calm-receptions .reception-conversion{background:#e5f4f4;border:0;border-radius:14px;padding:12px}
+html body.calm-receptions .reception-conversion>strong{font-size:16px!important}
+html body.calm-receptions .assistant-intake{border:0;border-radius:22px;background:#247bb1;color:#fff;padding:18px;margin:0 0 18px}
+html body.calm-receptions .assistant-intake .assistant-intake-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+html body.calm-receptions .assistant-intake h3{margin:0;font-size:22px!important;color:#fff}
+html body.calm-receptions .assistant-intake button{border:0;background:#fff;color:#18557a}
+html body.calm-receptions .assistant-intake button[aria-pressed=true]{background:#b42328;color:#fff}
+html body.calm-receptions .assistant-intake textarea{width:100%;background:#f5fbff;color:#183b55;min-height:100px!important;margin-top:12px}
+html body.calm-receptions .assistant-intake summary{font-size:16px;cursor:pointer;margin-top:12px}
+html body.calm-receptions .assistant-intake .voice-state{margin:10px 0 0;font-size:16px;line-height:1.5}
+html body.calm-receptions .voice-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center}
+html body.calm-receptions .voice-actions>.voice-listen-control{margin-inline-start:auto!important;flex:0 0 auto;min-height:48px;max-width:100%}
+html body.calm-receptions .version-history{border-top:1px solid #d5e5ee;margin-top:16px;padding-top:12px;font-size:16px}
+html body.calm-receptions .version-history summary{cursor:pointer;min-height:40px}
+html body.calm-receptions .version-history pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:15px;background:#ecf5fa;padding:12px;border-radius:12px}
+html body.calm-receptions .version-history article{border-top:1px solid #d5e5ee;padding:10px 0}
+html body.calm-receptions .reception-more{margin-top:12px}
+html body.calm-receptions .reception-more>summary{cursor:pointer;min-height:40px;font-size:16px}
+@media(max-width:1023px),(hover:none) and (pointer:coarse){
+ html body.store-workbench.calm-workbench.home-pager-active main.wrap{display:flex!important;grid-template-columns:none!important;gap:8px!important;padding:8px 12px!important;height:calc(100dvh - var(--mobile-action-height,0px))}
+ html body.store-workbench.calm-workbench.home-pager-active #home-board-slot{grid-row:auto;height:28dvh!important;min-height:0!important;max-height:none!important;flex:0 0 28dvh!important}
+ html body.store-workbench.calm-workbench.home-pager-active .home-account-tools>summary{min-height:36px!important;font-size:16px!important;padding:6px 12px}
+ html body.store-workbench.calm-workbench.home-pager-active .home-page-tabs [role=tab]{min-height:42px!important;border:0!important;border-radius:14px!important;font-size:18px!important;padding:8px 14px!important;background:#f5fbff!important;color:#183b55!important;box-shadow:none}
+ html body.store-workbench.calm-workbench.home-pager-active .home-page-tabs [role=tab][aria-selected=true]{background:#247bb1!important;color:#fff!important}
+ html body.store-workbench.calm-workbench.home-pager-active .home-page-status{display:none!important}
+ html body.store-workbench.calm-workbench.home-pager-active .home-page-deck{border:0}
+ html body.store-workbench.calm-workbench.home-pager-active .home-module>summary{font-size:22px!important;min-height:52px!important}
+ html body.store-workbench.calm-workbench.home-pager-active .hero-actions>a{min-height:116px!important}
+ html body.store-workbench.calm-workbench.home-pager-active .home-overview>#home-attendance:not([hidden]){order:-1!important}
+ html body.calm-receptions main{padding:10px}
+ html body.calm-receptions .panel{padding:16px}
+ html body.calm-receptions .reception-first-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-height:500px) and (orientation:landscape){
+ html body.store-workbench.calm-workbench.home-pager-active #home-board-slot{height:25dvh!important;flex-basis:25dvh!important}
+ html body.store-workbench.calm-workbench.home-pager-active .home-header .hero-top{min-height:32px!important}
+ html body.store-workbench.calm-workbench.home-pager-active .home-account-tools{display:none}
+}
+@media(prefers-reduced-motion:reduce){html body.calm-workbench *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* Personal modules are the primary surface; each account owns its composition. */
+html body.store-workbench.calm-workbench.personal-shortcuts-ready :is(.hero-actions,.home-frequent,.assistant-entry){display:none!important}
+html body.store-workbench.calm-workbench .home-overview>#personal-shortcuts{order:0!important}
+html body.store-workbench.calm-workbench #personal-shortcuts{padding:0;margin:0;border:0;background:transparent;box-shadow:none}
+html body.store-workbench.calm-workbench .ps-heading{padding:4px 2px 12px}
+html body.store-workbench.calm-workbench .ps-heading h2{font-size:22px!important;line-height:1.4}
+html body.store-workbench.calm-workbench [data-ps-manage]{font-size:16px!important;min-height:36px!important;border:0;background:#f5fbff;border-radius:12px;padding:8px 12px}
+html body.store-workbench.calm-workbench .ps-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:0}
+html body.store-workbench.calm-workbench .ps-grid a{display:flex!important;flex-direction:column;justify-content:space-between;align-items:flex-start;min-height:126px;border:0;border-radius:24px;padding:18px;color:#183b55;background:#f5fbff;text-align:left;gap:14px}
+html body.store-workbench.calm-workbench .ps-grid a strong{font-size:22px!important;line-height:1.35;overflow-wrap:anywhere}
+html body.store-workbench.calm-workbench .ps-module-icon{width:36px;height:36px;color:#247bb1}
+html body.store-workbench.calm-workbench .ps-module-icon svg{width:36px;height:36px}
+html body.store-workbench.calm-workbench .ps-grid a[href*="assistant=1"]{background:#247bb1;color:#fff}
+html body.store-workbench.calm-workbench .ps-grid a[href*="assistant=1"] .ps-module-icon{color:#fff}
+html body.store-workbench.calm-workbench .ps-grid a[href*="assistant=1"] .ps-module-icon,
+html body.store-workbench.calm-workbench .ps-grid a[href*="assistant=1"] .ps-module-icon svg{width:22px;height:22px}
+html body.store-workbench.calm-workbench[data-workbench-persona=owner] .ps-grid a:first-child{background:#fff}
+html body.store-workbench.calm-workbench[data-workbench-persona=employee] #boss-home{display:none!important}
+html body.store-workbench.calm-workbench .ps-tabs button{min-height:36px;font-size:16px!important;border:0;border-radius:12px}
+html body.store-workbench.calm-workbench .ps-tabs{margin:0 0 12px}
+@media(min-width:1100px){html body.store-workbench.calm-workbench .ps-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+html body.store-workbench.calm-workbench[data-workbench-persona=owner] .home-overview>#home-attendance{order:7!important}
+html body.store-workbench.calm-workbench #home-attendance{padding:14px!important;border-radius:18px!important;min-height:0!important;gap:10px!important}
+html body.store-workbench.calm-workbench #home-attendance-title{font-size:18px!important;line-height:1.4!important}
+html body.store-workbench.calm-workbench #home-attendance :is(p,a){font-size:16px!important;line-height:1.5!important;margin:4px 0!important}
+html body.store-workbench.calm-workbench .privacy-controls{gap:3px!important;padding:3px!important;background:#f5fbffe8!important;border-radius:12px!important}
+html body.store-workbench.calm-workbench .privacy-controls button{font-size:14px!important;min-height:32px!important;padding:4px 8px!important}
+html body.store-workbench.calm-workbench .mobile-action-dock{min-height:48px!important}
+html body.store-workbench.calm-workbench .mobile-action-dock a,html body.store-workbench.calm-workbench .mobile-action-dock button{font-size:22px!important;min-height:40px!important;padding:6px 12px!important}
+html body.store-workbench.calm-workbench .home-header .eyebrow{font-size:23px!important}
+html body.store-workbench.calm-workbench #comms-board-open{position:absolute;top:12px;left:12px;font-size:15px!important;min-height:32px!important;min-width:44px!important;border-radius:10px}
+html body.store-workbench.calm-workbench #comms-board-pause{position:absolute;bottom:12px;right:12px;font-size:16px!important;min-width:34px!important;min-height:34px!important}
+html body.store-workbench.calm-workbench #store-electronic-board{position:relative}
+html body.store-workbench.calm-workbench #comms-board-window{width:100%;padding:20px 0}
+
+html body.store-workbench.calm-workbench.home-pager-active[data-workbench-persona=owner] .home-overview>#home-attendance:not([hidden]){order:7!important}
+html body.store-workbench.calm-workbench #personal-shortcuts [data-ps-manage]{font-size:16px!important;line-height:1.4!important;min-height:36px!important}
+html body.store-workbench.calm-workbench.home-pager-active .home-header #identity{font-size:16px!important;max-width:7em!important;white-space:nowrap!important;line-height:1.4;padding:6px 8px!important}
+html body.store-workbench.calm-workbench #home-account-tools .privacy-controls{position:static!important;transform:none!important;inset:auto!important;box-shadow:none!important}
+@media(max-width:1023px),(hover:none) and (pointer:coarse){
+ html body.store-workbench.calm-workbench{--mobile-action-height:0px!important}
+ html body.store-workbench.calm-workbench>.mobile-action-dock{display:none!important}
+ html body.store-workbench.calm-workbench.home-pager-active #home-board-slot{height:25dvh!important;flex-basis:25dvh!important}
+ html body.store-workbench.calm-workbench.home-pager-active main.wrap{height:100dvh!important}
+}
+
+html body.store-workbench.calm-workbench.home-pager-active main.wrap .home-header .hero-top #identity{font-size:16px!important;line-height:1.4!important;max-width:7em!important;white-space:nowrap!important}
+html body.store-workbench.calm-workbench.home-pager-active main.wrap .home-header .hero-top .home-brand .eyebrow{font-size:22px!important;white-space:nowrap!important;line-height:1.3!important}
+html body.account-page.calm-workbench #account-main .workbench-header h1{font-size:26px!important;line-height:1.4!important}
+html body.account-page.calm-workbench #account-main .workbench-header .welcome-line{font-size:16px!important;line-height:1.6!important}
+html body.account-page.calm-workbench #account-main h2{font-size:24px!important}
+html body.account-page.calm-workbench #account-main label{font-size:18px!important;line-height:1.5!important}
+html body.account-page.calm-workbench #account-main :is(input,button){font-size:20px!important;line-height:1.4!important}
+html body.account-page.calm-workbench #account-main .password-field button{font-size:16px!important}
+html body.account-page.calm-workbench #account-main .page-help-button{font-size:20px!important;min-width:36px!important;max-width:36px!important}
+
+@media(min-width:1024px) and (hover:hover){
+ html body.store-workbench.calm-workbench main.wrap{display:flex;flex-direction:column;gap:16px}
+ html body.store-workbench.calm-workbench main.wrap>*{order:10;max-width:100%;min-width:0;box-sizing:border-box}
+ html body.store-workbench.calm-workbench main.wrap>.home-header{order:0;margin:0}
+ html body.store-workbench.calm-workbench main.wrap>#home-board-slot{order:1;margin:0}
+ html body.store-workbench.calm-workbench main.wrap>#personal-shortcuts{order:2}
+ html body.store-workbench.calm-workbench main.wrap>.hero-actions{order:2}
+ html body.store-workbench.calm-workbench main.wrap>.assistant-entry{order:3}
+ html body.store-workbench.calm-workbench main.wrap>.dashboard{order:3}
+ html body.store-workbench.calm-workbench main.wrap>.home-search{order:4}
+ html body.store-workbench.calm-workbench main.wrap>.home-module-workspace{order:5}
+ html body.store-workbench.calm-workbench main.wrap>#home-attendance{order:6}
+ html body.store-workbench.calm-workbench main.wrap>#boss-home{order:7}
+}
+html body.calm-receptions main #new-form :is(label,input,select,textarea,button){font-size:18px!important;line-height:1.5!important}
+html body.calm-receptions main :is(.assistant-intake,.receipt) :is(button,summary,label,span,small,p){font-size:16px!important;line-height:1.5!important}
+html body.calm-receptions main .assistant-intake h3{font-size:22px!important}
+html body.calm-receptions main #new-form :is(fieldset,details){border:1px solid #c6dfe9;border-radius:14px;min-width:0}
+html body.calm-receptions main #new-form legend{font-size:18px!important;line-height:1.5!important}
+html body.calm-receptions main #new-form :is(p,label)>span{font-size:18px!important}
+html body.calm-receptions main .assistant-intake-head{flex-wrap:wrap}
+html body.calm-receptions main .assistant-intake-head h3{flex:1}
+
+html body.store-workbench.calm-workbench #personal-shortcuts .ps-heading-actions{display:flex;align-items:center;gap:6px}
+html body.store-workbench.calm-workbench #personal-shortcuts .ps-directory-link{font-size:14px!important;min-height:36px;display:inline-flex;align-items:center;padding:6px 9px;border-radius:12px;background:#f5fbff;color:#185d8c;text-decoration:none;white-space:nowrap}
+html body.store-workbench.calm-workbench #personal-shortcuts [data-ps-manage]{font-size:14px!important;padding:6px 9px}
+html body.store-workbench.calm-workbench #personal-shortcuts .ps-heading h2{font-size:20px!important}
+
+html body.store-workbench.calm-workbench .home-board-placeholder{height:100%;min-height:0;overflow:auto;box-sizing:border-box;border-radius:24px;background:#d7edf5;color:#204f66;padding:28px 24px;display:flex;flex-direction:column;justify-content:center}
+html body.store-workbench.calm-workbench .home-board-placeholder strong{font-size:24px!important;line-height:1.4}
+html body.store-workbench.calm-workbench .home-board-placeholder p{font-size:clamp(22px,3vw,30px)!important;line-height:1.6;margin:0}
+@media(max-width:1023px),(hover:none) and (pointer:coarse){
+ html body.store-workbench[data-home-initial] main.wrap{display:flex!important;flex-direction:column!important;height:100dvh!important;gap:12px!important;padding:8px 12px!important;overflow:hidden}
+ html body.store-workbench[data-home-initial] main.wrap>:not(.home-header):not(#home-board-slot):not(#personal-shortcuts){display:none!important}
+ html body.store-workbench[data-home-initial] .home-header{flex:none}
+ html body.store-workbench[data-home-initial] #home-board-slot{height:25dvh!important;flex:0 0 25dvh!important}
+ html body.store-workbench[data-home-initial] #personal-shortcuts{min-height:0;overflow:auto;flex:1}
+ html body.store-workbench[data-home-initial] .home-header .eyebrow{font-size:22px!important}
+ html body.store-workbench[data-home-initial] .home-header #identity{font-size:16px!important}
+}
+
+/* Auth still loading: show the new shell, never expose the retired source layout. */
+html body.store-workbench[data-home-pending] main.wrap>:not(.home-header):not(#home-board-slot):not(#personal-shortcuts):not(.home-module-workspace){display:none!important}
+html body.store-workbench[data-home-pending] .home-module-workspace #home-overview>:not(#personal-shortcuts){display:none!important}
+html body.store-workbench[data-home-pending] .home-page-tabs{visibility:hidden}
+html body.calm-receptions .voice-preview{padding:12px 14px;background:#eef8f4;color:#204f42;border-radius:14px;margin:10px 0}
+html body.calm-receptions .voice-preview dl{margin:6px 0 0;display:grid;grid-template-columns:4em 1fr;gap:6px 10px}
+html body.calm-receptions .voice-preview dt{color:#477365}
+html body.calm-receptions .voice-preview dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+html body.calm-receptions .assistant-intake textarea{width:100%;box-sizing:border-box;resize:vertical}
+html body.calm-receptions .assistant-intake[aria-busy="true"] .voice-state{color:#fff}
+
+html body.calm-workbench.calm-receptions .assistant-intake{min-width:0!important;padding:14px!important}
+html body.calm-workbench.calm-receptions .assistant-intake .assistant-intake-head{display:grid!important;grid-template-columns:minmax(0,1fr) auto 32px!important;gap:8px!important;align-items:center!important}
+html body.calm-workbench.calm-receptions .assistant-intake .assistant-intake-head h3{font-size:21px!important;line-height:1.4!important;white-space:nowrap!important;min-width:0!important}
+html body.calm-workbench.calm-receptions .assistant-intake :is(button,summary,p,textarea){font-size:16px!important;line-height:1.5!important;word-break:normal!important}
+html body.calm-workbench.calm-receptions .assistant-intake .assistant-intake-head button{padding:8px 10px!important;min-width:0!important;white-space:nowrap!important}
+html body.calm-workbench.calm-receptions .assistant-intake .assistant-intake-head .page-help-button{width:32px!important;min-width:32px!important;padding:0!important}
+html body.calm-workbench.calm-receptions .assistant-intake textarea{font-size:18px!important;color:#183b55!important;background:#fff!important}
+html body.calm-workbench.calm-receptions .assistant-intake .voice-preview :is(strong,dt,dd){font-size:16px!important;line-height:1.5!important}

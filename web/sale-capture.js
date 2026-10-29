@@ -3,6 +3,17 @@
   let active=false;
   let sequence=0;
   let detector=null;
+  let zxingLoad=null,zxingFailed=false,zxingReader=null,zxingHints=null;
+  async function zxing(){
+    if(window.ZXing?.MultiFormatReader)return window.ZXing;
+    if(zxingFailed)return null;
+    if(!zxingLoad)zxingLoad=new Promise((resolve)=>{const script=document.createElement('script');let finished=false;const done=(ok)=>{if(finished)return;finished=true;clearTimeout(timer);if(!ok){zxingFailed=true;script.remove();}resolve(ok?window.ZXing:null);};const timer=setTimeout(()=>done(false),8000);script.src='/vendor/zxing-library.min.js?v=20261018-v121';script.async=true;script.onload=()=>done(!!window.ZXing?.MultiFormatReader);script.onerror=()=>done(false);document.head.append(script);});
+    return zxingLoad;
+  }
+  async function readLinear(pixels,width,height){
+    const lib=await zxing();if(!lib)return '';
+    try{if(!zxingReader){zxingHints=new Map();zxingHints.set(lib.DecodeHintType.TRY_HARDER,true);zxingHints.set(lib.DecodeHintType.POSSIBLE_FORMATS,[lib.BarcodeFormat.EAN_13,lib.BarcodeFormat.EAN_8,lib.BarcodeFormat.CODE_128,lib.BarcodeFormat.CODE_39,lib.BarcodeFormat.ITF,lib.BarcodeFormat.UPC_A,lib.BarcodeFormat.UPC_E]);zxingReader=new lib.MultiFormatOneDReader(zxingHints);}const luminance=new Uint8ClampedArray(width*height);for(let i=0;i<luminance.length;i++){const p=i*4;luminance[i]=pixels[p+3]===0?255:(pixels[p]+pixels[p+1]*2+pixels[p+2])>>2;}const bitmap=new lib.BinaryBitmap(new lib.HybridBinarizer(new lib.RGBLuminanceSource(luminance,width,height)));return String(zxingReader.decode(bitmap,zxingHints).getText()||'').trim();}catch{return '';}finally{zxingReader?.reset();}
+  }
   function element(id){return document.getElementById(id);}
   function status(message,error){
     const target=element('sale-scan-status');
@@ -33,7 +44,6 @@
         if(values.length && values[0].rawValue)return String(values[0].rawValue).trim();
       }catch{}
     }
-    if(typeof window.jsQR!=='function')return '';
     const width=source.videoWidth||source.naturalWidth||source.width;
     const height=source.videoHeight||source.naturalHeight||source.height;
     if(!width||!height)return '';
@@ -45,6 +55,9 @@
     if(!context)return '';
     context.drawImage(source,0,0,canvas.width,canvas.height);
     const pixels=context.getImageData(0,0,canvas.width,canvas.height);
+    const linear=await readLinear(pixels.data,pixels.width,pixels.height);
+    if(linear)return linear;
+    if(typeof window.jsQR!=='function')return '';
     const result=window.jsQR(pixels.data,pixels.width,pixels.height,{inversionAttempts:'attemptBoth'});
     return result && result.data ? String(result.data).trim() : '';
   }

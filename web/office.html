@@ -4,28 +4,29 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>聚友通信城 · 进销存</title>
-  <link rel="stylesheet" href="/office.css?v=20261011-staff-entry">
+  <link rel="stylesheet" href="/barcode-display.css?v=20261018-v121">
+  <link rel="stylesheet" href="/office.css?v=20261026-phone-model-serial-r2">
   <script src="/jsQR.js?v=20261010-clean-layout" defer></script>
-  <script src="/sale-capture.js?v=20261010-clean-layout" defer></script>
-  <script src="/office-gifts.js?v=20261012-complete" defer></script>
+  <script src="/sale-capture.js?v=20261018-v121" defer></script>
+  <script src="/office-gifts.js?v=20261018-v118" defer></script>
   <script src="/submit-voice.js?v=20261010-clean-layout" defer></script>
   <script src="/sale-feedback.js?v=20261010-clean-layout" defer></script>
   <script src="/operation-logs.js?v=20261010-clean-layout" defer></script>
-  <script src="/office-inventory.js?v=20261010-blind" defer></script>
-  <script src="/office.js?v=20261012-purchase-price-correction" defer></script>
-  <script src="/trade-documents.js?v=20261012-owner-return-approval" defer></script>
+  <script src="/office-opening-quantity.js?v=20261018-v116" defer></script>
+  <script src="/office-inventory.js?v=20261026-phone-model-serial-r2" defer></script>
+  <script src="/sale-code-resolver.js?v=20261018-v121" defer></script>
+  <script src="/office.js?v=20261026-inventory-compact-r1" defer></script>
+  <script src="/office-batch-phones.js?v=20261018-v119" defer></script>
+  <script src="/trade-documents.js?v=20261024-basic-finance-r1" defer></script>
   <script src="/system-admin.js?v=20261012-owner-return-approval" defer></script>
   <link rel="stylesheet" href="/system-admin.css?v=20261012-complete">
   <script src="/office-red.js?v=20261012-owner-return-approval" defer></script>
-  <script src="/office-pricing.js?v=20261012-complete" defer></script>
-<link rel="stylesheet" href="/mobile-nav.css?v=20261022-page-entry"><script src="/mobile-nav.js?v=20261022-page-entry" defer></script><link rel="stylesheet" href="/page-help.css?v=20261010-clean-layout"><link rel="stylesheet" href="/office-desktop.css?v=20261010-sales-list"><link rel="stylesheet" href="/ui-refresh.css?v=20261013"></head>
-<body class="office-workbench">
-  <header class="topbar">
-    <div class="brand"><span class="mark">聚</span><div><strong>聚友通信城</strong><small>门店进销存</small></div></div>
-    <div class="identity"><details class="quick-links"><summary>更多业务</summary><div class="quick-links-menu"><a href="/learning">学习单</a><a href="/receptions">客户接待单</a><a href="/subsidy">国补台账</a><a href="/carrier">移动业务结算</a><a href="/qr">商品二维码</a><a href="/brain">系统巡检</a><a href="/sale-payments">收款核对</a><a href="/close">交班结算</a><a href="/search">综合查询</a></div></details><span id="who"></span><button id="logout" type="button" hidden>退出</button></div>
-  </header>
+  <script src="/office-pricing.js?v=20261015-focus-v32" defer></script>
+<link rel="stylesheet" href="/mobile-nav.css?v=20261022-page-entry-r1"><script src="/mobile-nav.js?v=20261022-page-entry-r1" defer></script><link rel="stylesheet" href="/page-help.css?v=20261010-clean-layout"><link rel="stylesheet" href="/office-desktop.css?v=20261026-inventory-compact-r1"></head>
+<body class="office-task-page">
+  <header class="topbar"><div class="office-task-head"><a class="office-home-link" href="/m">← 返回工作台</a><span id="office-page-name" class="office-page-name">业务办理</span></div><div class="identity"><span id="who"></span><button id="logout" type="button" hidden>退出</button></div></header>
   <div class="shell">
-    <nav id="nav" aria-label="业务导航"></nav>
+    <details class="office-module-chooser"><summary>更多业务入口</summary><nav id="nav" aria-label="业务导航"></nav></details>
     <main id="main"><p class="loading">正在连接门店账套…</p></main>
   </div>
   <div id="toast" role="status" aria-live="polite"></div>

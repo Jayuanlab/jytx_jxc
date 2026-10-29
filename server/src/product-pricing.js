@@ -9,7 +9,7 @@ function request(store, user, payload) {
   const product = store.products.find((row) => row.skuId === payload.skuId);
   if (!product) throw new c.HttpError(404, "商品不存在");
   const newPrice = c.money(payload.newPrice, "新零售价");
-  if (newPrice === product.salePrice) throw new c.HttpError(400, "新零售价与当前价格相同");
+  if (newPrice === product.salePrice && product.pricePending !== true) throw new c.HttpError(400, "新零售价与当前价格相同");
   const reason = c.text(payload.reason, "调价原因");
   if (reason.length < 4 || reason.length > 500) throw new c.HttpError(400, "调价原因至少 4 字");
   if ((store.productPriceChanges || []).some((row) => row.skuId === product.skuId && row.status === "待老板审核"))
@@ -31,13 +31,14 @@ function review(store, user, payload) {
   if (row.status !== "待老板审核") throw new c.HttpError(409, "调价单已经处理");
   const decision = c.text(payload.decision, "审核结果");
   if (!["approve", "reject"].includes(decision)) throw new c.HttpError(400, "审核结果不正确");
-  const note = c.text(payload.note, "审核意见");
-  if (note.length < 2 || note.length > 500) throw new c.HttpError(400, "请写明审核意见");
+  const note = String(payload.note || "").trim();
+  if (note.length > 500) throw new c.HttpError(400, "审核备注过长");
   const product = store.products.find((item) => item.skuId === row.skuId);
   if (!product) throw new c.HttpError(409, "商品已不存在，不能调价");
   if (decision === "approve") {
     if (product.salePrice !== row.oldPrice) throw new c.HttpError(409, "商品价格已变化，请重新提交调价单");
     product.salePrice = row.newPrice;
+    product.pricePending = false;
     row.status = "已生效";
     row.effectiveAt = c.now();
   } else {

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>代充值两单关联</title><link rel="stylesheet" href="/topup-pairs.css?v=20261023-v1"><script defer src="/topup-pairs.js?v=20261023-v1"></script></head>
+<body><header><a href="/m">‹ 工作台</a><h1>代充值两单关联</h1><a href="/funds">财务中心</a></header><main>
+<p class="intro">顾客交现金，门店微信代为充值：收款单、门店付款单分别开好，再选两张原单关联。</p>
+<nav class="entry-links" aria-label="开单与查询"><a href="/app?tab=receipts">收款单</a><a href="/business-reconciliation?section=payments&amp;entry=paid">门店付款单</a><a href="/app?tab=payments">付款单查询</a></nav>
+<p id="status" role="status" aria-live="polite">正在读取原单…</p>
+<section class="panel"><div class="section-head"><h2>选择已有的两张单</h2><button id="refresh" type="button">刷新</button></div><p id="scope"></p>
+<form id="pair-form"><div class="pair-grid">
+<div class="document-side"><span class="step">01 · 收回现金</span><label>查找现金收款单<input id="receipt-search" type="search" placeholder="单号、单位或金额"></label><label>现金收款单<select id="cash-receipt" name="cashReceiptId" required><option value="">请选择现金收款单</option></select></label><div id="cash-detail" class="document-detail">选择后显示原单明细。</div></div>
+<div class="document-side"><span class="step">02 · 微信代付</span><label>查找门店微信付款单<input id="payment-search" type="search" placeholder="单号、单位或金额"></label><label>门店微信付款单<select id="wallet-receipt" name="walletReceiptId" required><option value="">请选择门店微信付款单</option></select></label><div id="wallet-detail" class="document-detail">选择后显示原单明细。</div></div>
+</div><p id="match-status" class="match-status" aria-live="polite">请分别选择两张原单。</p>
+<label>补充说明（选填）<textarea name="note" maxlength="300" rows="2"></textarea></label>
+<label>顾客充值手机号<input name="customerPhone" type="tel" inputmode="tel" pattern="1[3-9][0-9]{9}" maxlength="11" required placeholder="填写对方充值号码"></label><label class="check"><input name="confirmed" type="checkbox" required>我已核对两张原单属于同一笔代充值，金额相同。</label>
+<p class="hint">确认关联只建立两张原单的对应关系，不再生成收付款、不再次扣款。代充值按代收代付统计，不计营业收入和日常费用。</p>
+<button id="submit-pair" class="primary" type="submit" disabled>确认关联这两张单</button><button id="retry-pair" type="button" hidden>核对上次关联结果</button>
+</form></section>
+<section class="panel"><div class="section-head"><h2>已关联记录</h2><span id="pair-count"></span></div><div id="pair-list"><p>正在读取…</p></div></section>
+</main></body></html>

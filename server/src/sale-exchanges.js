@@ -17,16 +17,17 @@ function quote(store,user,payload){
   const quantity=c.quantity(input.quantity);if(quantity>item.quantity-(item.returnedQuantity||0))throw new c.HttpError(409,'退回数量超过可退数量');
   returned=c.round(returned+item.salePrice*quantity);
  }
+ const originalReturned=returned;if(payload.returnValue!=null){returned=require("./payment-accounts").cents(payload.returnValue,"退回商品作价")/100;if(returned>originalReturned)throw new c.HttpError(400,"退回作价不能超过原单商品金额");}
  const total=c.round(payload.items.reduce((sum,item)=>sum+c.quantity(item.quantity)*c.money(item.salePrice,'成交价'),0));
  const credit=Math.min(returned,total);
- return {original,returned,total,credit,difference:c.round(total-returned)};
+ return {original,originalReturned,returned,total,credit,difference:c.round(total-returned)};
 }
 function exchange(store,user,payload){
  const q=quote(store,user,payload),id=c.id('HX'),reason=c.text(payload.reason,'换货原因');
  const account=payload.account||q.original.paymentMethod;
  if(!q.original.paymentParts&&payload.payments==null&&!payload.paymentAccountId&&!require('./payment-accounts').channels.includes(account))throw new c.HttpError(400,'请选择收退款账户');
  if(q.difference<0&&payload.refundConfirmed!==true)throw new c.HttpError(400,'请确认差额已退给顾客');
- const returned=erp.returnSale(store,user,{orderId:q.original.id,items:payload.returns,reason,account,refundPayments:payload.refundPayments},{paymentCredit:q.credit});
+ const returned=erp.returnSale(store,user,{orderId:q.original.id,items:payload.returns,reason,account,refundPayments:payload.refundPayments},{paymentCredit:q.credit,customerReturnAmount:q.returned,refundAmount:Math.max(0,-q.difference),returnWarehouseId:payload.returnWarehouseId,...(payload.bossPayment?{validatedRefundParts:require("./sale-return-requests").bossRefundParts(store,user,q.original,Math.max(0,-q.difference))}:{})});
  const customer=(store.customers||[]).find(row=>row.id===q.original.customerId);
  const created=erp.sale(store,user,{items:payload.items,salespersonId:payload.salespersonId,account,payments:payload.payments,paymentAccountId:payload.paymentAccountId,accountOwnerId:payload.accountOwnerId,cashDrawerConfirmed:payload.cashDrawerConfirmed===true,customerName:q.original.customerName||'',customerPhone:customer?.phone||'',orderNote:'换货 '+id+' · 原单 '+q.original.id},{paymentCredit:q.credit});
  const sold=store.sales.find(x=>x.id===created.id);

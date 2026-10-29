@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>流水比对 · 聚友通信</title><link rel="stylesheet" href="/statement-comparisons.css?v=20261022-summary1"><script defer src="/statement-comparisons.js?v=20261022-summary1"></script></head>
+<body><header><a href="/funds">‹ 财务中心</a><a href="#history">查看之前的比对</a></header><main>
+<h1>移动业务与银行流水比对</h1><p class="intro">先核对总笔数和金额合计。汇总一致即可；有差异，再展开流水排查。</p>
+<p id="status" role="status" aria-live="polite">正在确认账号权限…</p>
+<form id="compare-form" hidden>
+<div class="sources">
+<section class="source" data-side="mobile"><h2>移动业务流水</h2><label>选择移动BOSS导出的文件<input type="file" data-file="mobile" accept=".xlsx,.xls,.csv,.tsv"></label><p class="file-status" data-file-status="mobile">支持Excel、CSV，每份最多3MB、5000笔。</p><div data-config="mobile"></div></section>
+<section class="source" data-side="bank"><h2>银行流水</h2><label>选择银行导出的文件<input type="file" data-file="bank" accept=".xlsx,.xls,.csv,.tsv"></label><p class="file-status" data-file-status="bank">选择与移动流水对应的银行交易期间。</p><div data-config="bank"></div></section>
+</div>
+<section class="period"><h2>本次比对范围</h2><div class="fields"><label>开始日期（选填）<input name="from" type="date"></label><label>结束日期（选填）<input name="to" type="date"></label><label>金额合计方式<select name="basis"><option value="absolute">按绝对金额合计</option><option value="signed">保留正负号合计</option></select></label><label>比对名称（选填）<input name="title" maxlength="100" placeholder="例如：10月22日移动业务与银行流水"></label></div><p class="hint">不填日期时比对文件内全部交易。按绝对金额合计时，银行支出 −30 元与业务金额 30 元都按 30 元计算；可在各文件下选择只看收入或支出。</p><div class="actions"><button type="submit" id="compare">比对笔数和金额</button><button type="button" class="secondary" id="save" disabled>保存本次比对</button></div></section>
+</form>
+<section id="result" aria-live="polite" hidden></section>
+<section id="history"><div class="heading"><h2>之前的比对记录</h2><button type="button" class="secondary" id="refresh-history">刷新记录</button></div><div id="history-list">正在读取…</div></section>
+</main></body></html>

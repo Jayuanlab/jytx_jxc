@@ -9,7 +9,7 @@ const payload={type:'销售',event:'今天协助销售手机并核对顾客需�
 const row=learning.create(store,trainee,payload);
 assert.equal(row.status,'待审核');
 assert.equal(learning.list(store,trainee).at(-1).id,row.id);
-assert.throws(()=>learning.review(store,trainee,{id:row.id,approve:true,points:50}),{statusCode:403});
+assert.throws(()=>learning.review(store,trainee,{id:row.id,approve:true,points:50}),/仅老板/);
 learning.review(store,owner,{id:row.id,approve:true,points:80,note:'记录具体'});
 assert.equal(row.points,80);
 assert.throws(()=>learning.review(store,owner,{id:row.id,approve:true,points:80}),/已审核/);

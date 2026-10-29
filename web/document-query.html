@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>聚友通信城 · 单据查询</title><link rel="stylesheet" href="/document-query.css?v=20261021-r2"><script src="/document-query.js?v=20261021-r2" defer></script></head>
+<body><header><a href="/m">‹ 工作台</a><h1>单据查询</h1></header><main>
+<section class="query-panel"><h2 class="ui-section-label">查询条件</h2><form id="document-query"><div class="filters">
+<label>单据类型<select name="type" id="document-type"><option value="all">全部单据</option></select></label>
+<label>单据号<input type="search" name="number" placeholder="短单号、完整单号或原单号" maxlength="100"></label>
+<details class="ui-advanced-filters"><summary>更多筛选：商品、往来单位、经办人</summary><div class="filters"><label>商品<input type="search" name="product" placeholder="商品名称、编码或串号" maxlength="100"></label>
+<label>供货商／往来单位<input type="search" name="counterparty" placeholder="输入名称，可只填部分" maxlength="100"></label>
+<label>营业员／经办人<input type="search" name="employee" placeholder="输入员工姓名或工号" maxlength="100"></label></div></details>
+<label>开始日期<input type="date" name="from"></label><label>结束日期<input type="date" name="to"></label>
+</div><div class="date-actions"><button type="button" id="today">当日</button><button type="button" id="month">本月</button><button type="button" id="all-dates">不限日期</button></div>
+<div class="query-actions"><button type="submit" class="primary" id="query-submit">查询</button><button type="reset">清空条件</button></div></form>
+<p id="query-status" role="status" aria-live="polite">选好条件后点“查询”。多个条件同时生效。</p></section>
+<h2 class="ui-section-label ui-results-label">查询结果</h2><section id="query-results" aria-label="查询结果"></section><button type="button" id="load-more" hidden>查看更多</button>
+<p class="footer-note">按北京时间筛选，包含结束日。仅显示当前门店和账号有权查看的单据。</p><a href="/search">库存与串号流转查询</a>
+</main></body></html>

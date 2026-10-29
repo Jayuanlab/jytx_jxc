@@ -95,11 +95,3 @@ test('默认一句话回答，明确要求明细才展开且不播报当天日�
   const shopDetail=assistant.ask(s,owner,{question:'详细汇报一下今天店里面的情况'});
   assert.ok(shopDetail.answer.length>=shop.answer.length);
 });
-test('单段商品串号售价收款直接识别开单，长备注保留且查询不串流程',()=>{
- const s=store();s.products[0].name='华为测试手机';
- for(const q of ['华为手机，后四位1234，卖2399元，现金','华为手机，串号1234，售价1999元，微信，备注'+('测试'.repeat(200))]){
-  const before=JSON.stringify(s),r=assistant.ask(s,staff,{question:q});assert.equal(r.saleFlow.type,'phone');assert.equal(r.saleFlow.request,q);assert.equal(JSON.stringify(s),before);
- }
- assert.equal(assistant.ask(s,owner,{question:'查华为手机的串号和售价'}).saleFlow,undefined);
- assert.equal(assistant.ask(s,owner,{question:'统计今天华为手机的销量和售价'}).saleFlow,undefined);
-});

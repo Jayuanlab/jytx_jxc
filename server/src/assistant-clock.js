@@ -9,7 +9,7 @@ function query(question,{now=Date.now(),context=null}={}) {
  const valid=context&&Number.isFinite(context.at)&&now-context.at>=0&&now-context.at<30*60000;
  const followup=valid&&q.match(new RegExp('^(?:那|那么)?('+dayWord+')(?:呢|的呢|啊|呀)?$'));
  const calendar=new RegExp('^(?:'+dayWord+')?(?:是|的)?(?:星期几|周几|礼拜几|几月几[日号]|几[日号]|多少号|什么日期|日期(?:是多少|是什么)?)(?:(?:和)?(?:星期几|周几|礼拜几))?(?:了|啊|呀|呢|吗|嘛|哟|哦|来着|你知道吗)*$').test(q);
- const time=/^(?:现在|此刻|北京)?(?:是|的)?(?:几点(?:钟)?|什么时间|时间是多少|北京时间)(?:了|啊|呀|呢|吗|嘛)*$/.test(q);
+ const time=/^(?:现在|此刻|北京)?(?:是|的)?(?:几点(?:钟)?|什么时间|时间是多少|北京时间)(?:了|啊|呀|呢|吗|嘛)*$/.test(q)||/^(?:现在|此刻|北京时间)(?:是|的)?(?:什么时候|啥时候|几时)(?:了|啊|呀|呢|吗|嘛)*$/.test(q);
  if(!calendar&&!time&&!followup)return null;
  const word=followup?.[1]||q.match(new RegExp(dayWord))?.[0]||'今天',dayOffset=offsets[word];
  const date=c.day(now+dayOffset*86400000),[year,month,day]=date.split('-').map(Number);

@@ -8,6 +8,7 @@
  const returnToLogin=()=>{if(navigating)return;navigating=true;clearCredentials();location.replace('/login');};
  const completeLogout=()=>{
   if(navigating)return;
+  window.StoreWorkContinuity?.finishNavigation({logout:true});
   const marker=Date.now()+'-'+(typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2));
   observedMarker=marker;try{localStorage.setItem(logoutMarker,marker);}catch{}
   returnToLogin();
@@ -43,12 +44,12 @@
  }
  function mount(){
   if(!document.body||controls)return;
-  const host=document.querySelector('.home-header .hero-top')||document.querySelector('.topbar')||document.querySelector('.companion-header')||document.querySelector('body > header');
-  controls=document.createElement('div');controls.className='session-controls';controls.setAttribute('role','group');controls.setAttribute('aria-label','登录账号操作');
-  const button=document.createElement('button');button.type='button';button.className='session-logout';button.textContent='退出登录';button.setAttribute('aria-label','退出登录，使用其他账号登录');
+  const home=location.pathname==='/m';const host=home?null:document.querySelector('.home-header .hero-top')||document.querySelector('.topbar')||document.querySelector('.companion-header')||document.querySelector('body > header');
+  controls=document.createElement('div');controls.className='session-controls';if(home)controls.dataset.homeFixed='1';controls.setAttribute('role','group');controls.setAttribute('aria-label','登录账号操作');
+  const button=document.createElement('button');button.type='button';button.className='session-logout';button.textContent=home?'返回登录 / 切换账号':'退出登录';button.setAttribute('aria-label','退出登录，使用其他账号登录');
   status=document.createElement('p');status.className='session-controls-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');status.hidden=true;
   controls.append(button,status);
-  if(host){host.classList.add('session-controls-host');host.append(controls);}else{controls.classList.add('session-controls-fallback');document.body.prepend(controls);}
+  if(host){host.classList.add('session-controls-host');host.append(controls);}else{controls.classList.add('session-controls-fallback');if(home)controls.classList.add('session-controls-home');document.body.prepend(controls);}
   document.body.classList.add('session-controls-ready');
   if(host?.classList.contains('topbar')){
    const measure=()=>document.documentElement.style.setProperty('--session-controls-header-height',Math.ceil(host.getBoundingClientRect().height)+'px');

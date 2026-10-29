@@ -5,7 +5,7 @@ const seeds = [
   {id:'knowledge-reception',title:'从接待开始：小事也留单',category:'接待与销售',summary:'每次接待都留下过程；有手机号可关联客户，无手机号也保留底根，积分由老板核定。',tags:['接待','手机号','底根','无效单','小事'],body:'先记录顾客来意、你做了什么、结果怎样。客户姓名和手机号尽量征得本人同意后填写；无手机号也可建接待底根，不编造号码。\n有手机号只是有效性核对的一项依据，最终有效性和奖励以店内确认结果为准。无手机号接待按基本积分规则提交核定，不自行认定已获奖励。\n未成交时写明顾客关心的问题和后续约定；后来成交时关联原接待单，保留每位员工参与的时间与内容。\n例：顾客问儿童手表，我比较了续航和定位功能，顾客要回家商量，约定周末再来。'},
   {id:'knowledge-needs',title:'先问需求，再推荐商品',category:'接待与销售',summary:'先了解用途、预算和在意的功能，提供两三个适合的选项，解释差别，让顾客自己选择。',tags:['需求','推荐','推销','选机','预算','销售技巧'],body:'先问：主要给谁用？平时最常做什么？预算大致多少？最看重续航、拍照、耐用还是方便使用？\n复述需求确认理解，再从真实可售库存选两三个合适商品。用顾客熟悉的使用场景说明差别，不夸大功能，不承诺未核实的优惠。\n顾客犹豫时问：您主要还在考虑哪一点？可以演示、查证或稍后跟进。避免催促或把高价当作唯一推荐。\n推荐理由、异议和最终选择都记在接待单，方便同事接手和后续复盘。'},
   {id:'knowledge-demo',title:'商品演示与顾客异议',category:'接待与销售',summary:'用实际演示解释价值，先听完顾客顾虑，再查证并回应；不懂的问题先核实。',tags:['演示','异议','话术','贵','便宜','不懂'],body:'先征得同意再演示顾客最在意的一两个功能。例如字体大小、拍照、儿童手表操作。演示使用样机，避免更改顾客私人资料。\n顾客说贵，先问在比较哪款、差在哪个需求，再说明可核实的配置、服务和价格差异。不要贬低其他商家。\n不确定商品参数、活动条件或办理资格时，明确说我帮您核实，不让助理编答案。核实后再给明确结论。\n成交前复述型号、容量、颜色、价格和服务范围，避免口头约定与单据不一致。'},
-  {id:'knowledge-serial',title:'选货与串号：后四位先找，完整号确认',category:'商品与库存',summary:'扫码、拍照识别或后四位都能辅助查找；后四位可能重复，出库必须确认完整串号和库存状态。',tags:['串号','后四位','扫码','库存','选货','IMEI'],body:'先按仓库、品牌、型号筛选实际库存，再扫码或输入串号。后四位只用于缩小范围，出现多条必须让人选定，不能让助理猜。\n核对完整串号、机型、容量、颜色、成色和可售状态。识别结果与实物不一致时停止确认并重新核对。\n无串号配件按商品编码或二维码和数量处理；A 手机数码仓、B 配件仓、C 移动业务仓以当前档案为准。同名移动业务物品核对 YD 标识。\n商品名称、售价和成本从当前档案读取；没有价格或货物不存在时先补档，不填估算数字充当事实。'},
+  {id:'knowledge-serial',title:'选货与串号：后四位先找，完整号确认',category:'商品与库存',summary:'扫码、拍照识别或后四位都能辅助查找；后四位可能重复，出库必须确认完整串号和库存状态。',tags:['串号','后四位','扫码','库存','选货','IMEI'],body:'先按仓库、品牌、型号筛选实际库存，再扫码或输入串号。后四位只用于缩小范围，出现多条必须让人选定，不能让助理猜。\n核对完整串号、机型、容量、颜色、成色和可售状态。识别结果与实物不一致时停止确认并重新核对。\n无串号配件按商品编码或二维码和数量处理；A 手机数码仓、B 配件仓、C 移动业务仓以当前档案为准。同名商品核对所属仓库；C仓直接建档或入库，名称按原商品显示。\n商品名称、售价和成本从当前档案读取；没有价格或货物不存在时先补档，不填估算数字充当事实。'},
   {id:'knowledge-price',title:'成交价格与改价留痕',category:'商品与库存',summary:'先使用档案零售价，再核对本单成交价；改本单价格和调整商品档案价格是两个操作，都要留依据。',tags:['售价','调价','零售价','优惠','成交价'],body:'选择商品后先看档案零售价是否带入售价框。确认顾客选购的数量和本单成交价格，再核对优惠后的应收金额。\n临时优惠只修改本单售价，填写原因；长期价格变化走商品调价流程。遵循当前权限规则，涉及审批时提交给有权限的人。\n已经完成的销售单不通过直接改历史金额来修账，应走原单关联的退货或红冲流程。\n在顾客可听见的场景，不主动播报成本、毛利或员工奖励，避免把内部核算信息当作销售话术。'},
   {id:'knowledge-gift',title:'附件与赠品的核对',category:'接待与销售',summary:'使用“附件核对”的中性提示；赠品也扣库存和成本，超限按当前规则送审，补送关联原销售单。',tags:['附件','赠品','搭配','补送','成本'],body:'成交前问营业员是否有需要一起登记的附件，不主动对顾客提示一定有赠品。哪些商品赠送，以实际承诺和批准结果为准。\n选择店内可搭配商品，核对数量、成本和库存。赠品成本计入本单核算，不能用零售价代替成本。\n毛利比例、单件成本上限以老板当前设置为准；超限提交老板或有赠品审批权限的老板娘确认，助理只提供提示。\n销售单提交后补送，另开赠品单并关联原销售单号，保留申请、审批和实际交付记录。'},
   {id:'knowledge-cash',title:'现金收款与交接：双方确认',category:'资金与交班',summary:'现金收到抽屉与交给老板是两个环节；交出人登记，实际接收人确认，未确认不能当作已交清。',tags:['现金','抽屉','交接','交款','交给老板娘','收款'],body:'现金收款先数清金额，核对销售单应收和找零，实际放入门店现金抽屉后登记。非本人实际收款时提交接收人核对，不能替别人确认收到了钱。\n交款时先清点金额，注明交给谁、现金还是存银行、交接时间及关联单据。由实际接收人确认到账或收到现金。\n未确认交接保留在待办，发现差异写原因并核对凭据，不补填虚假确认。老板或老板娘之间的转款也按实际经营用途记录。\n收款截图只是核对线索，最终以真实到账或实点现金为依据；不因截图存在就自动认定已收款。'},
@@ -33,10 +33,11 @@ function all(store) {
 function catalog(store, user, query = '') {
   c.permit(user,'learn');
   const q = brief(query).toLocaleLowerCase('zh-CN').slice(0,120);
-  const managed = all(store).sort((a,b)=>sourceRank(a)-sourceRank(b));
-  const items = managed.filter(row => row.enabled !== false && (!q || [row.title,row.category,row.summary,row.body,row.applicableScope,...row.tags,...(row.keywords||[]),...(row.customerQuestions||[]),...(row.matchKeywords||[]).flat(),...(row.sourceFiles||[]).map(f=>f.name)].join(' ').toLocaleLowerCase('zh-CN').includes(q)));
   const canManage = c.capabilities(user).manageUsers;
-  return {items,categories:[...new Set(managed.filter(row => row.enabled!==false).map(row=>row.category))],canManage,...(canManage?{manageItems:managed}:{}),note:'店内提供的现行资料优先；待核实内容不作确定报价。真实账目仍从业务单据查询。'};
+  const managed = all(store).filter(row=>row.submissionStatus!=='pending'||canManage||row.uploadedBy===user.id).sort((a,b)=>sourceRank(a)-sourceRank(b));
+  const items = managed.filter(row => row.enabled !== false && (!q || [row.title,row.category,row.summary,row.body,row.applicableScope,...row.tags,...(row.keywords||[]),...(row.customerQuestions||[]),...(row.matchKeywords||[]).flat(),...(row.sourceFiles||[]).map(f=>f.name)].join(' ').toLocaleLowerCase('zh-CN').includes(q)));
+  const authority=require('./rule-authority'),old=items.filter(r=>authority.protectedTopic(r));const current=authority.publicPolicy().rules.map(r=>({id:'active-rule-'+r.topicKey,title:r.title,summary:r.content,body:r.content,category:'当前经营规则',tags:['现行规则'],enabled:true,policyStatus:'current',version:r.version,authorityPolicyId:authority.publicPolicy().policyId}));
+  return {items:[...current,...items.filter(r=>!authority.protectedTopic(r))],historicalItems:old.map(r=>({...r,policyStatus:'historical',historyOnly:true,notice:'仅历史查询，办理以当前经营规则为准'})),categories:[...new Set(managed.filter(row => row.enabled!==false).map(row=>row.category))],canManage,canSubmit:c.capabilities(user).knowledgeSubmit,...(canManage?{manageItems:managed}:{}),note:'店内提供的现行资料优先；待核实内容不作确定报价。真实账目仍从业务单据查询。'};
 }
 function clean(value,label,max) {
   const text=c.text(value,label);
@@ -92,6 +93,9 @@ function save(store,user,payload) {
     if(body!==before.body){row.sourceBlocks=[{id:'edit-v'+row.version,kind:'paragraph',text:body}];row.tables=[];row.keywords=row.tags;row.sourceLabel='店内修订资料';row.sourceRevisionNote='原文件出处保留；正文已由老板修订，不能当作原文逐字引用。';}
     if(before.policyStatus==='needs_review'&&policyStatus==='current'){row.reviewDecision={by:user.id,name:user.name,at:stamp,status:'current',previousIssues:before.reviewIssues||[]};row.reviewIssues=[];row.asOf=c.day(stamp);}
   }
+  // Every edit creates a new version. The previous embedding may remain for audit,
+  // but is never eligible for customer retrieval until this version is reviewed.
+  if(before?.customerVisible){row.customerVisible=false;row.submissionStatus='pending';row.indexContentHash=null;}
   store.employeeKnowledge ||= [];
   const index=store.employeeKnowledge.findIndex(item=>item.id===id);
   if(index<0)store.employeeKnowledge.push(row);else store.employeeKnowledge[index]=row;
@@ -125,6 +129,7 @@ const topics=[
   ['knowledge-needs',/(?:推销|销售|需求|推荐|选机|预算)/],
 ];
 function query(store,user,question,options={}) {
+  const currentRule=require('./rule-authority').query(question,user);if(currentRule)return currentRule;
   const q=brief(question);
   const explicitCase=/^(?:请|帮我|给我)?(?:详细|具体)?(?:学习|查看|看看|调出|展开|全文|详细).{0,12}(?:办卡接待案例|销售卡案例|选号话术)/.test(q);
   if(explicitCase){
@@ -148,7 +153,7 @@ function query(store,user,question,options={}) {
   const active=all(store).filter(row=>row.enabled!==false);
   const customMatches=active.filter(row=>!row.sourceTier&&!row.builtIn&&(row.title.length>2&&q.includes(row.title)||(row.tags||[]).some(tag=>tag.length>=2&&q.includes(tag)))).sort((a,b)=>b.title.length-a.title.length);
   const match=navigation?null:directTitle||customMatches[0]||rowFor(store,topics.find(([,pattern])=>pattern.test(q))?.[0]);
-  const item=match&&match.enabled!==false?match:null;
+  if(match&&require('./rule-authority').protectedTopic(match)){const reply=require('./rule-authority').query('查看规则：'+match.title+' '+match.summary,user);if(reply)return reply;}const item=match&&match.enabled!==false?match:null;
   if(!item)return {answer:'已内置接待、销售、验收、现金交接和业务结算知识。打开学习资料，可按分类或关键词查找。',sources:[{id:'知识库',label:'业务知识与销售技巧',href:'/knowledge'}],action:{type:'navigate',label:'打开学习资料',href:'/knowledge'}};
   const detailed=/(详细|全文|展开|具体步骤)/.test(q);
   return {answer:detailed?`${item.title}：${item.body}`:item.summary,sources:[{id:item.id,label:item.title,href:'/knowledge#'+encodeURIComponent(item.id)}],action:{type:'navigate',label:'看步骤并写学习单',href:'/knowledge#'+encodeURIComponent(item.id)},metrics:{knowledge:true,articleId:item.id,version:item.version,kind:'training-guidance'}};

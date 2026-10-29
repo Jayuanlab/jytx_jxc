@@ -271,3 +271,67 @@ body.companion-page.wechat-chat .feature-choice-label span{white-space:normal;te
 
 /* Keep short family labels visible together on narrow phones. */
 @media(max-width:700px){.family-section-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;gap:6px}.family-section-tabs button{min-width:0;padding:8px 6px}}
+
+
+/* Standalone personal chat: a quiet header, full-width transcript and bottom composer. */
+body.companion-page.wechat-chat.chatting main{
+ max-width:none;width:100%;margin:0;padding:0;
+}
+body.companion-page.wechat-chat.chatting .companion-header{
+ padding:6px clamp(10px,2vw,30px);border-bottom:1px solid #d9dde0;
+}
+body.companion-page.wechat-chat.chatting .companion-header button{
+ min-height:52px;padding:5px 10px;
+}
+body.companion-page.wechat-chat.chatting #companion-home{
+ min-width:72px;background:transparent;border:0;color:#176731;font-weight:700;
+}
+body.companion-page.wechat-chat.chatting #companion-home[aria-expanded=true]{
+ background:#dceee1;border-radius:10px;
+}
+body.companion-page.wechat-chat.chatting .companion-primary-nav{
+ display:none!important;
+}
+body.companion-page.wechat-chat.chatting.features-open .companion-primary-nav{
+ display:block!important;position:fixed;z-index:8;
+ top:var(--companion-nav-top,72px);left:12px;
+ width:min(520px,calc(100vw - 24px));max-width:none;
+ max-height:calc(var(--chat-height,100dvh) - var(--companion-nav-top,72px) - 12px);
+ overflow:auto;margin:0;padding:14px;border:1px solid #becdc3;
+ border-radius:0 0 14px 14px;background:#f7f7f7;
+ box-shadow:0 14px 28px #20344b24;
+}
+body.companion-page.wechat-chat.chatting .chat-thread{
+ flex:1;min-height:0;padding:20px clamp(12px,2.5vw,38px) 28px;
+}
+body.companion-page.wechat-chat.chatting .chat-content{
+ max-width:min(95%,1100px);
+}
+body.companion-page.wechat-chat.chatting .chat-dock{
+ flex:none;width:100%;padding:8px clamp(10px,2vw,30px) max(8px,env(safe-area-inset-bottom));
+}
+body.companion-page.wechat-chat.chatting #chat-more-panel{
+ max-height:min(52dvh,520px);overflow:auto;
+}
+body.companion-page.wechat-chat.chatting #chat-more-panel .chat-toolbar{
+ margin:4px 0 14px;padding-bottom:12px;border-bottom:1px solid #d9dde0;
+}
+body.companion-page.wechat-chat.chatting #page-status:not(:empty){
+ position:absolute;z-index:6;top:var(--companion-nav-top,72px);
+ left:clamp(12px,2.5vw,38px);right:clamp(12px,2.5vw,38px);
+ width:max-content;max-width:calc(100% - 24px);margin:0;padding:8px 14px;
+ border:1px solid #d4ddd6;border-radius:10px;background:#fff;
+ box-shadow:0 5px 16px #20344b18;
+}
+@media(max-width:700px){
+ body.companion-page.wechat-chat.chatting .companion-header{gap:4px}
+ body.companion-page.wechat-chat.chatting #companion-home{min-width:60px;padding-inline:4px}
+ body.companion-page.wechat-chat.chatting .chat-thread{padding:14px 10px 20px}
+ body.companion-page.wechat-chat.chatting .chat-content{max-width:calc(100% - 50px)}
+}
+
+html.companion-embedded body.companion-page.wechat-chat.chatting #companion-home{display:inline-flex!important;align-items:center;justify-content:center}
+html.companion-embedded body.companion-page.wechat-chat.chatting{width:100%;max-width:none;margin:0!important;padding:0!important}
+html.companion-embedded body.companion-page.wechat-chat.chatting .companion-header{max-width:none;width:100%;box-sizing:border-box}
+body.companion-page.wechat-chat.chatting .companion-header .companion-workbench-return{grid-column:1/-1;justify-self:start;display:flex;align-items:center;min-height:36px;font-size:16px;line-height:1.4;padding:2px 0;white-space:nowrap}
+html.companion-embedded .companion-workbench-return{display:none!important}

@@ -1,5 +1,6 @@
 const saleInput = require('../../web/assistant-sale-input');
 const c = require('./common');
+const staffRoster = require('./staff-roster');
 const erp = require('./erp');
 const inventoryDetails = require('./inventory-details');
 const search = require('./search');
@@ -16,9 +17,11 @@ const assistantNavigation = require('./assistant-navigation');
 const assistantSupervision = require('./assistant-supervision');
 const employeeKnowledge = require('./employee-knowledge');
 const assistantSocial = require('./assistant-social');
+const workUtterances = require('./assistant-work-utterances');
 const assistantProducts = require('./assistant-product-query');
 const assistantProductCreate = require('./assistant-product-create');
 const assistantRecords = require('./assistant-record-query');
+const assistantOperations = require('./assistant-operations');
 const serialStatus = require('./assistant-serial-status');
 const assistantTariffs = require('./assistant-tariff-query');
 const assistantDialogue = require('./assistant-dialogue');
@@ -423,18 +426,20 @@ function attendance(store, user, payload = {}) {
     return attendanceFeedback({...attendanceView(store, row, at), lastFieldwork: fieldworkView(work, at)}, action, repeated ? 'already-finished' : 'recorded', work.endAt, at);
   }
   if (action === 'fieldwork-start') {
-    const location = fieldworkText(payload.location, '村名或外勤地点', true, 200), workContent = fieldworkText(payload.workContent, '外勤工作内容');
+    const location = fieldworkText(payload.location, '村名或外勤地点', true, 200), workContent = fieldworkText(payload.workContent, '外勤工作事项', true);
     if (active[0]) {
       if (active[0].location !== location || active[0].workContent !== workContent) throw new c.HttpError(409, '已有其他进行中的外勤，请先结束后再开始新的外勤');
       return attendanceFeedback({...attendanceView(store, activeAttendance, at), lastFieldwork: fieldworkView(active[0], at)}, action, 'already-active', active[0].startAt, at);
     }
-    if (current?.checkOutAt) throw new c.HttpError(409, '今天已经签退，不能重新开始外勤；请先核对出勤记录');
-    let row = current;
+    const resumed = !!current?.checkOutAt;
+    if (resumed && (!Number.isFinite(Date.parse(current.checkOutAt)) || Date.parse(current.checkOutAt) > Date.parse(at))) throw new c.HttpError(409, '原签退时间异常，请先核对后再开始外勤');
+    let row = resumed ? null : current;
     const autoCheckIn = !row;
     if (!row) {
-      row = {id: c.id('AT'), userId: user.id, name: user.name, date, checkInAt: at, checkOutAt: null, checkInLocation: locationRecord('fieldwork')};
+      row = {id: c.id('AT'), userId: user.id, name: user.name, date, checkInAt: at, checkOutAt: null, checkInLocation: locationRecord('fieldwork'),
+        ...(resumed ? {resumesAfterAttendanceId: current.id} : {})};
       (store.attendance ||= []).unshift(row);
-      c.audit(store, user, 'attendance:checkin', row.id + ' · 下村外勤自动签到');
+      c.audit(store, user, 'attendance:checkin', row.id + (resumed ? ' · 签退后重新开始外勤；原班次保留' : ' · 下村外勤自动签到'));
     }
     const work = {id: c.id('FW'), attendanceId: row.id, userId: user.id, name: user.name, date: row.date,
       location, workContent, startAt: at, endAt: null, autoCheckIn, startLocation: locationRecord('fieldwork')};
@@ -472,7 +477,25 @@ function getAttendance(store, user, date = c.day()) {
   const roster = privileged ? store.users.filter((row) => row.status === 'active' && row.roleCode !== 'owner' && !row.assistantCustomerOnly && row.roleCode !== 'personal-assistant') : [];
   const signed = new Set(rows.map((row) => row.userId));
   const active = (store.attendanceFieldwork || []).filter((row) => !row.endAt && (privileged || row.userId === user.id)).map((row) => fieldworkView(row, at));
+  // Shared attendance news contains only time and work status. Detailed rows and GPS stay role scoped.
+  const names = new Map((store.users || []).filter(row => row.status === 'active' && !row.assistantCustomerOnly && !['owner', 'customer-assistant', 'personal-assistant'].includes(row.roleCode)).map(row => [row.id, row.name]));
+  const teamAttendanceEvents = [];
+  const event = (userId, kind, eventAt, label = '') => {
+    if (!names.has(userId) || !eventAt || c.day(eventAt) !== date) return;
+    teamAttendanceEvents.push({userId, name: names.get(userId), kind, at: eventAt, label});
+  };
+  for (const row of store.attendance || []) {
+    event(row.userId, 'checkin', row.checkInAt);
+    event(row.userId, row.autoCheckout ? 'auto-checkout' : 'checkout', row.checkOutAt);
+  }
+  for (const row of store.attendanceFieldwork || []) {
+    event(row.userId, 'fieldwork-start', row.startAt, row.location || '');
+    event(row.userId, 'fieldwork-end', row.endAt, row.location || '');
+  }
+  teamAttendanceEvents.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
   return {date, rows, activeFieldwork: active, privileged, expected: roster.length,
+    staffSchedule: staffRoster.view(store, user, date, at),
+    teamAttendanceEvents: teamAttendanceEvents.slice(0, 30),
     locationSettings: attendanceLocationSettings(store), canManageLocationSettings: user.roleCode === 'owner', locationPolicy: {...attendanceLocationPolicy},
     spotCheckSettings: attendanceSpotCheckSettings(store),
     spotCheckRequests: (store.attendanceLocationRequests || []).filter((request) => (privileged || request.userId === user.id) && (request.date === date || ['pending', 'expired'].includes(request.status))).slice(-100).reverse().map((request) => attendanceSpotCheckRequestView(request, at)),
@@ -549,7 +572,20 @@ function salesSummary(store, user, date, question = '') {
   const returns = visibleReturns(store, user).filter((row) => c.day(row.createdAt) === date);
   let text = !s.orderCount && !s.returnAmount ? `${spokenDay(date)}没有销售记录。` : `${spokenDay(date)}销售 ${s.orderCount} 单，销售额 ${money(s.salesAmount)}。`;
   if (s.returnAmount) text += `退货 ${money(s.returnAmount)}，净销售额 ${money(s.netSales)}。`;
-  if (wantsDetail(question) && (s.orderCount || s.returnAmount)) {
+  const briefing = /汇报|报告|销售情况|销售业绩|成绩如何/.test(question);
+  if (briefing && (s.orderCount || s.returnAmount)) {
+    const grouped = new Map();
+    for (const row of rows) for (const item of row.items || []) {
+      const key = item.skuId || item.name || '未命名商品';
+      const entry = grouped.get(key) || {name:item.name || '未命名商品',quantity:0};
+      entry.quantity += Number(item.quantity || 0);
+      grouped.set(key,entry);
+    }
+    const products = [...grouped.values()].filter(x => x.quantity > 0);
+    if (products.length) text += '成交商品：' + products.slice(0,6).map(x => x.name + ' ' + x.quantity + ' 件').join('；') + (products.length > 6 ? '；其余见销售原单' : '') + '。';
+    if (c.capabilities(user).profit) text += '销售毛利 ' + money(s.adjustedGrossProfit) + '。';
+    text += '按本账套已录入销售、退货单统计；实际到账另以收款核对为准。';
+  } else if (wantsDetail(question) && (s.orderCount || s.returnAmount)) {
     const parts=[s.receivedAmount && `已登记收款 ${money(s.receivedAmount)}`,c.capabilities(user).profit && `销售毛利 ${money(s.adjustedGrossProfit)}`].filter(Boolean);
     if (parts.length) text += parts.join('，') + '。';
   }
@@ -626,6 +662,14 @@ function attendanceAnswer(store, user, date) {
   const outside = data.rows.filter((row) => row.fieldwork.length).map((row) => `${row.name}：${workText(row)}；工作 ${row.workMinutes} 分钟（含外勤），其中外勤 ${row.fieldworkMinutes} 分钟`).join('。');
   return answer(`${date}在职员工 ${data.expected} 人，已签到 ${signedPeople.size} 人，已签退 ${[...signedPeople].filter(id => !workingPeople.has(id)).length} 人。${names}${outside ? '下村外勤：' + outside + '。' : ''}未登记不等于缺勤；需人工核对请假和实际在岗。`, user,
     [source('出勤记录',date,'/assistant'), ...data.rows.map((row) => source(`${row.name}签到`, row.id, '/assistant'))]);
+}
+function scheduleAnswer(store, user, date) {
+  const data = staffRoster.view(store, user, date);
+  const assignments = data.entries.filter(row => row.status === 'work');
+  const describe = row => `${row.name} ${row.startTime}—${row.endTime}${row.post === 'frontdesk' ? '（营业前台、计划现金保管）' : row.post === 'mobile' ? '（手机柜台）' : row.post ? `（${row.post}）` : ''}${row.closeoutSubmitter ? '、计划扎账交接提交人' : ''}`;
+  const planned = assignments.length ? `排班安排：${assignments.map(describe).join('；')}。` : '尚无当日值班安排。';
+  const actual = date === data.today ? `实际当前签到：${data.liveToday.length ? data.liveToday.map(row => `${row.name}（${row.place === 'fieldwork' ? `外勤${row.fieldworkLocation ? '：' + row.fieldworkLocation : ''}` : '店内'}）`).join('、') : '无人处于已签到未签退状态'}。` : '';
+  return answer(`${date}${planned}${actual}排班责任不代表现金已交接或扎账已提交；实际办理仍看原单。`, user, [source('当日值班与实际打卡', date, '/attendance')]);
 }
 function briefing(store, user, date, question = '') {
   if (user.roleCode !== 'owner') return answer('全店简报仅老板可查看。', user);
@@ -715,7 +759,7 @@ function businessIntent(store, question) {
   const saleForm = /(?:开|建|做|填|出).{0,6}(?:销售)?单|录单|下单|生成销售草稿|帮我卖|卖一台|卖一件/.test(question);
   const shortSelection = /^(?:顾客|客户|用户|买家)(?:已经|刚刚)?(?:定|订了|选好了|确定了)[。！!？?]?$/.test(question);
   const saleStage = /(售出|卖出|成交|卖了|卖掉|销售了|买了|购买了|要了|想要|需要|选好了|选定了|选中了|挑好了|确定了|确认了|(?:顾客|客户|用户|买家).{0,4}要)/.test(question) || isPhoneReservation(question);
-  const subject = /手机|智能机|功能机|二手机|华为|荣耀|OPPO|vivo|苹果|iPhone|小米|红米|三星|一加|realme|魅族|中兴|努比亚/i.test(question) || store.products.some((p) => p.active !== false && productMentioned(store,p,question));
+  const subject = /手机(?!号|号码)|智能机|功能机|二手机|华为|荣耀|OPPO|vivo|苹果|iPhone|小米|红米|三星|一加|realme|魅族|中兴|努比亚/i.test(question) || store.products.some((p) => p.active !== false && productMentioned(store,p,question));
   if (/(订货单|采购单|接待单)/.test(question)) return 'other';
   if (stock && lookup) return 'inventory';
   const parsed=saleInput.analyze(question);
@@ -733,14 +777,15 @@ function saleDraft(store, user, question) {
   if (/^(?:顾客|客户|用户|买家)(?:已经|刚刚)?(?:定|订了|选好了|确定了)[。！!？?]?$/.test(question)) return answer('顾客选定或预订了什么商品？请说商品名称或型号，例如“华为手机”。我会再确认是预订还是已成交。',user,[],{saleFlow:{type:'product',request:question}});
   const parsedSale=saleInput.analyze(question);
   const namedPhones=store.products.filter(p=>p.active!==false&&inventoryDetails.phone(p)&&productMentioned(store,p,question));
-  if (/手机/.test(question) || saleInput.singlePhoneSale(question) || /记.{0,6}销售|登记.{0,6}销售/.test(question) || namedPhones.length || (parsedSale.saleRequest&&parsedSale.serialToken)) {
-    const reservation=isPhoneReservation(question);
-    return answer(reservation ? '这可能只是预订。先确认顾客是否已经成交并准备交付；如果只是预订，应记接待跟进单，不能当作已销售扣库存。' : '我来按顺序帮你准备销售单。先说这台手机串号的后四位；如果有重号，我会让你选准确的那台。', user,
+  if (/手机(?!号|号码)/.test(question) || saleInput.singlePhoneSale(question) || /记.{0,6}销售|登记.{0,6}销售/.test(question) || namedPhones.length || (parsedSale.saleRequest&&parsedSale.serialToken)) {
+    const reservation=isPhoneReservation(question),serial=parsedSale.serialToken;
+    return answer(reservation ? '这可能只是预订。先确认顾客是否已经成交并准备交付；如果只是预订，应记接待跟进单，不能当作已销售扣库存。' : serial ? '已识别串号'+(serial.length===4?'尾号 ':' ')+serial+'。我会先核对是否仍可售，再准备销售单；已售串号不能重复开单。' : '我来按顺序帮你准备销售单。先说这台手机串号的后四位；如果有重号，我会让你选准确的那台。', user,
       [source('所属仓库存', '可售串码', '/app?tab=inventory')], {saleFlow:{type:'phone',request:question,reservation,candidateSkuIds:namedPhones.length?namedPhones.map(p=>p.skuId):undefined}});
   }
   const candidates = store.products.filter((p) => p.active !== false && productMentioned(store, p, question)).sort((a,b) => b.name.length - a.name.length);
+  if (/配件/.test(question) && candidates.length > 20 && !candidates.some(p => p.name?.length >= 2 && question.includes(p.name))) return answer('我知道您要记一笔配件销售。请说具体配件名称或型号；也可打开销售单选择商品，核对售价与收款后提交。', user, [source('销售开单','选配件','/app?tab=sales')], {action:{type:'navigate',label:'打开配件销售单',href:'/app?tab=sales'}});
   if (!candidates.length) return answer('可以打开空白销售单。请在单据中选择商品、顾客和收款账户，核对后再提交；目前没有从这句话识别出具体商品。', user, [source('销售开单','新建','/app?tab=sales')], { action: { type:'navigate', label:'打开销售单', href:'/app?tab=sales' } });
-  if (candidates.length > 1) return answer(`匹配到多个商品：${candidates.slice(0,5).map((p) => p.name).join('、')}。请在销售单里选择准确商品并核对串码。`, user, [source('销售开单','选商品','/app?tab=sales')], {action:{type:'navigate',label:'到销售单选商品',href:'/app?tab=sales'}});
+  if (candidates.length > 1) return answer(`匹配到多个商品：${candidates.slice(0,5).map((p) => p.name).join('、')}。请在销售单里选择准确商品、规格、售价和收款${candidates.some(p=>inventoryDetails.tracked(p))?'，串码商品还要核对串码':''}。`, user, [source('销售开单','选商品','/app?tab=sales')], {action:{type:'navigate',label:'到销售单选商品',href:'/app?tab=sales'}});
   const p = candidates[0];
   const stock = store.inventory.filter((row) => row.skuId === p.skuId && (row.warehouseId || 'wh-sale') === (p.warehouseId || 'wh-sale'));
   const available = p.stockManaged === false ? null : stock.reduce((sum,row) => sum + Number(row.quantity || 0), 0);
@@ -758,7 +803,7 @@ function generalSearch(store, user, question) {
   try {
     const result = search.search(store, user, new URLSearchParams({q:term}));
     const rows = Object.entries(result.results).flatMap(([kind,values]) => values.slice(0,4).map((row) => ({kind,row})));
-    if (!rows.length) return answer(identifier ? `没有找到这条编号的可见记录，请核对编号或点综合查询。` : '这句话还没识别清楚。你是想查库存、查单据、办业务，还是学习操作？可以说具体商品、单号或任务。', user, [source('功能与学习入口','帮助','/assistant')], {unresolved:true});
+    if (!rows.length) return answer(identifier ? `没有找到这条编号的可见记录，请核对编号或点综合查询。` : '当前可见的综合查询记录中没有匹配结果。', user, [source('综合查询','查看记录',`/search?q=${encodeURIComponent(term)}`)], {unresolved:true});
     const kinds = {inventory:'库存',sales:'销售单',purchases:'采购单',suppliers:'供货商',movements:'库存流水',receipts:'收支流水'};
     return answer(`找到 ${rows.length} 条可见记录（每类最多展示4条）：${rows.slice(0,10).map(({kind,row}) => `${kinds[kind]||kind} ${row.name || row.product || row.id || row.sourceId}`).join('；')}。请点来源进入综合查询核对完整内容。`, user,
       rows.slice(0,10).map(({kind,row}) => source(kinds[kind]||kind, row.id || row.skuId || row.name, `/search?q=${encodeURIComponent(term)}`)));
@@ -780,7 +825,8 @@ function normalizeSpokenQuestion(value) {
     .replace(/^(?:(?:嗯|啊|那个|哎|喂)[，,、\s]*){1,3}/g, '')
     .replace(/机子/g, '手机')
     .replace(/(?:还有没得|还有没有|有没得|有货没得|有货没有|有现货没得)/g, '还有货吗')
-    .replace(/(?:看中了|相中了|看上了|看中|相中|看上)/g, '选好了');
+    .replace(/(?:看中了|相中了|看上了|看中|相中|看上)/g, '选好了')
+    .replace(/(?:计下|记下)(?:来)?/g, '记一下');
   return spoken || value.trim();
 }
 function askOnce(store, user, payload) {
@@ -788,6 +834,7 @@ function askOnce(store, user, payload) {
   if (spokenQuestion.length > 1500) throw new c.HttpError(400, '问题不能超过1500字');
   const question = normalizeSpokenQuestion(spokenQuestion);
   const date = dateOf(question);
+  if (/(排班|值班|谁(?:在|来)?上班|谁在店内|谁在外勤|谁负责(?:前台|手机柜台|现金|扎账|当班)|现金保管|扎账.{0,4}提交人)/.test(question) && !/(怎么|如何|设置|修改|安排一下|调整)/.test(question)) return scheduleAnswer(store,user,date);
   const productCreate = assistantProductCreate.query(store,user,question);
   if (productCreate) return answer(productCreate.answer,user,productCreate.sources,productCreate);
   // Explicit payment-page navigation must not ask for a phone serial. A stated phone keeps serial reconciliation priority.
@@ -797,6 +844,35 @@ function askOnce(store, user, payload) {
   const serialResult=serialStatus.query(store,user,question,payload.context);
   if(serialResult)return answer(serialResult.answer,user,serialResult.sources,serialResult);
   if(saleInput.receptionRequest(question))return receptionDraft(user,question);
+  // Explicit work questions must use current records before a saved Q&A or
+  // social reply can match the same wording. Recognition itself never grants access.
+  const workIntent=workUtterances.classify(question);
+  if(workIntent){
+    const q=workIntent.question;
+    if(workIntent.kind==='staff-work'){
+      if(workIntent.requiresDay)return answer('请说要查哪一天，例如“今天到店多少人”。我会按当天接待单统计，不把多天数据当作今天。',user);
+      if(workIntent.requiresName&&!(store.users||[]).some(row=>row.name&&question.includes(row.name)))return answer('请说营业员的姓名和日期，例如“今天唐春华从早到晚做了什么”。',user);
+      const result=assistantOperations.query(store,user,q,{date,context:payload.context});
+      return result?answer(result.answer,user,result.sources,result):answer('这项工作查询正在调试中，请到工作台核对原单。',user);
+    }
+    if(workIntent.kind==='screen'){
+      const result=assistantOperations.query(store,user,q,{date,context:payload.context});
+      return result?answer(result.answer,user,result.sources,result):answer('显示屏指令正在调试中，请打开电子屏管理核对当前内容。',user,[source('电子屏管理','入口','/m?panel=electronic-screen')]);
+    }
+    if(workIntent.kind==='sales-brief')return salesSummary(store,user,date,q);
+    if(workIntent.kind==='attendance')return attendanceAnswer(store,user,date);
+    if(workIntent.kind==='stock')return inventoryAnswer(store,user,q);
+    if(workIntent.kind==='supplier'){
+      if(!c.capabilities(user).supplierView)return answer('当前岗位没有供货商档案查看权限。',user);
+      const suppliers=(store.suppliers||[]).filter(row=>row.active!==false);
+      return answer(suppliers.length?'当前可用供货商 '+suppliers.length+' 家：'+suppliers.slice(0,12).map(row=>row.name).join('、')+(suppliers.length>12?'；其余见供货商档案':'')+'。':'当前没有可用的供货商档案。',user,[source('供货商档案','全部','/app?tab=suppliers')]);
+    }
+    if(workIntent.kind==='pending'){
+      const w=workbench.summary(store,user);
+      if(user.roleCode==='owner')return answer('目前待老板处理 '+w.pendingCount+' 项：'+(Object.entries(w.reviews||{}).filter(([,count])=>count).map(([key,count])=>(require('./assistant-domains').pendingLabels[key]||'其他待办')+' '+count+' 项').join('；')||'暂无')+'。请在老板看台逐项打开原单。',user,[source('老板看台','待我处理','/boss-overview')]);
+      return answer('你当前待处理 '+w.pendingCount+' 项，其中到期回访 '+w.followups+' 项、待确认销售款 '+w.salePaymentsToConfirm+' 项、待验收订货 '+w.assignedPlans+' 项。',user,[source('本人工作台待办','待办','/m')]);
+    }
+  }
   const dialogue = assistantDialogue.find(store,spokenQuestion);
   if (dialogue && !dialogue.slot) { const reply=assistantDialogue.manual(dialogue,payload.customerReplyStyle); return answer(reply.answer,user,reply.sources,reply); }
   if (dialogue?.slot?.startsWith('tariff:')) { const result=assistantTariffs.query(store,user,'我想办张手机卡',{customerReplyStyle:payload.customerReplyStyle,profile:payload.tariffProfile,awaiting:payload.tariffAwaiting}); if(result)return answer(result.answer,user,result.sources,result); }
@@ -804,6 +880,8 @@ function askOnce(store, user, payload) {
   if (social) return answer(social.answer,user,social.sources,social);
   if (/(助理说法|操作说法|教助理|助理听不懂|指令设置)/.test(question)) return settingsGuide(user,'assistant');
   if (/(同义词|商品别名|商品叫法|商品词库)/.test(question)) return settingsGuide(user,'product');
+  const operations = assistantOperations.query(store,user,question,{date,context:payload.context});
+  if (operations) return answer(operations.answer,user,operations.sources,operations);
   const records = assistantRecords.query(store,user,question);
   if (records) return answer(records.answer,user,records.sources,records);
   const entry = assistantNavigation.findEntry(store,user,question);
@@ -862,7 +940,7 @@ function askOnce(store, user, payload) {
     if (!c.capabilities(user).allSales && staff.id!==user.id) return answer('当前岗位没有查看其他营业员销量的权限。',user);
     return salesVolume(store,user,date,question,staff.id);
   }
-  if (/(卖了什么|售出什么|卖了哪些|售出哪些|卖了没有|售出没有|有没有卖|是否卖了)/.test(question)) return salesItemsAnswer(store,user,date,question);
+  if (/(卖了什么|售出什么|售出了什么|销售了什么|卖了哪些|售出哪些|卖了没有|售出没有|有没有卖|是否卖了)/.test(question)) return salesItemsAnswer(store,user,date,question);
   const businessMeaning = businessIntent(store,question);
   if (businessMeaning === 'sale') return saleDraft(store,user,question);
   if (/(出勤|考勤|签到|签退|到岗|上班人数|下村|外勤)/.test(question)) return attendanceAnswer(store,user,date);
@@ -870,11 +948,16 @@ function askOnce(store, user, payload) {
   if (businessMeaning === 'inventory') return inventoryAnswer(store,user,question);
   if (/(销量|销售数量|卖出数量|售出数量|(?:卖|售出).{0,6}(?:多少|几).{0,3}(?:台|件|个))/.test(question)) return salesVolume(store,user,date,question);
   if (/(手机|智能机|功能机|二手机)/.test(question) && /(卖|销售|售出|退货|多少台)/.test(question) && /(多少|几台|数量|统计)/.test(question)) return salesVolume(store,user,date,question);
-  if (/(销售额|营业额|卖了多少|成交多少|今日经营|今天经营)/.test(question)) return salesSummary(store,user,date,question);
+  if (/(销售额|营业额|卖了多少|售出多少|销售了多少|成交多少|今日经营|今天经营|销售情况|销售业绩|(?:汇报|报告).{0,12}(?:销售|卖货)|(?:销售|卖货).{0,8}(?:汇报|报告)|成绩如何)/.test(question)) return salesSummary(store,user,date,question);
   if (/(毛利|利润|成本)/.test(question)) {
     if (!c.capabilities(user).profit && !c.capabilities(user).cost) return answer('当前岗位没有成本或毛利查看权限。', user);
     if (!c.capabilities(user).profit) return answer('当前岗位没有毛利查看权限；可查询授权范围内的商品成本档案。', user);
     return salesSummary(store,user,date,question);
+  }
+  if (/^(?:查|看|列出|显示)(?:一下|全部|所有|所有的)?(?:供货商|供应商)(?:名单|列表|档案)?[。！!？?\s]*$/.test(question)) {
+    if (!c.capabilities(user).supplierView) return answer('当前岗位没有供货商档案查看权限。',user);
+    const suppliers=(store.suppliers||[]).filter(x=>x.active!==false);
+    return answer(suppliers.length ? '当前可用供货商 '+suppliers.length+' 家：'+suppliers.slice(0,12).map(x=>x.name).join('、')+(suppliers.length>12?'；其余请打开供货商档案':'')+'。' : '当前没有可用的供货商档案。',user,[source('供货商档案','全部','/app?tab=suppliers')]);
   }
   if (/(库存|串号|串码|仓库|还有货)/.test(question)) return inventoryAnswer(store,user,question);
   if (/(待办|待审核|待确认|要处理)/.test(question)) {
@@ -883,7 +966,7 @@ function askOnce(store, user, payload) {
   }
   return generalSearch(store,user,question);
 }
-function ask(store,user,payload) {
+function askTurn(store,user,payload) {
   const spoken=c.text(payload.question,'问题');
   if(spoken.length>1500)throw new c.HttpError(400,'问题不能超过1500字');
   if(payload.mode!==undefined&&!['store','customer'].includes(payload.mode))throw new c.HttpError(400,'请选择店内或顾客模式');
@@ -891,12 +974,20 @@ function ask(store,user,payload) {
   const context=mode==='customer'?(payload.context?.mode==='customer'?payload.context:null):(payload.context?.mode==='customer'?null:payload.context);
   const clock=assistantClock.query(spoken,{context:context?.userId===user.id&&context.mode===mode?context.clock:null});
   if(clock)return {...answer(clock.answer,user,[],clock),mode,context:{...assistantContext.create(spoken,user,clock),mode,clock:clock.metrics.clockContext},followups:[]};
+  if(mode==='store'){const model=require('./store-accounting-model').query(store,user,assistantContext.resolve(spoken,context,user).question);if(model)return {...answer(model.answer,user,model.sources,model),mode,context:{...assistantContext.create(spoken,user,model),mode},followups:[]};}
+  if(mode==='store'){const finance=require('./assistant-finance').assistant(store,user,assistantContext.resolve(spoken,context,user).question);if(finance)return {...answer(finance.answer,user,finance.sources,finance),mode,context:{...assistantContext.create(spoken,user,finance),mode},followups:[]};}
+  if(mode==='store'){const screen=require('./assistant-screen').query(store,user,spoken,{context});if(screen){const reply=answer(screen.answer,user,screen.sources,screen);return {...reply,mode,context:{...assistantContext.create(spoken,user,reply),mode},followups:[]};}}
   const resolved=assistantContext.resolve(spoken,context,user);
   const request={...payload,question:resolved.question,tariffProfile:resolved.profile,tariffAwaiting:resolved.awaiting,dialogueAnswered:resolved.dialogueAnswered,dialoguePool:resolved.dialoguePool};
   const result=mode==='customer'?assistantCustomer.query(store,user,request):assistantDialogue.customize(store,askOnce(store,user,request),payload.customerReplyStyle,{answered:resolved.dialogueAnswered||[],pool:resolved.dialoguePool});
   const followups=(Array.isArray(result.followups)?result.followups:assistantContext.followups(resolved.question,result)).slice(0,8).map(row=>typeof row==='string'?{label:row,question:row}:row).filter(row=>row&&typeof row.question==='string'&&row.question.length<=240).map(row=>({label:String(row.label||row.question).slice(0,60),question:row.question}));
   return {...result,mode,context:{...assistantContext.create(resolved.question,user,result),mode},followups};
 }
+function ask(store,user,payload){const continuity=require('./assistant-continuity'),raw=String(payload.question||''),mode=user.assistantCustomerOnly===true||user.roleCode==='customer-assistant'?'customer':payload.mode||'store';if(mode!=='store')return askTurn(store,user,payload);const candidate=payload.context,context=candidate?.mode==='customer'||!continuity.valid(candidate,user)||continuity.independent(raw,candidate)?null:candidate;return continuity.attach(askTurn(store,user,{...payload,context}),raw,context,user);}
 module.exports = { ask, attendance, getAttendance, tickAttendanceSpotChecks, submitReport, reports, reviewReport };
 
 
+
+
+// v78: only a newly saved checkout invalidates existing branch sessions.
+module.exports.attendance=require('./attendance-access').wrapAttendance(require('./attendance-session-cutoff').wrapAttendance(module.exports.attendance));

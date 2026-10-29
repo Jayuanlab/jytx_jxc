@@ -156,8 +156,8 @@ function salesQuery(store,user,q,products,suppliers,wh,staff,customer){
  // The opened list must show the same filter as the answer.
  if(products.length>1){const brand=brands.find(b=>norm(q).includes(norm(b)));if(brand)params.set('q',brand);else if(specificLabel(products,q))params.set('q',specificLabel(products,q));}
  if(customer)params.set('q',customer);
- const totals=report.totals,label=time.label+(customer?customer:staff?staff.name:products.length?'所查商品':'')+'销售';
- let text=totals.orderCount?label+' '+totals.orderCount+' 单，净售 '+totals.netQuantity+' 件，总价 '+money(totals.netAmount)+(wantsProfit?'，毛利 '+(totals.netProfit==null?'成本资料待核对':money(totals.netProfit)):'')+'。':label+'没有符合条件的记录。';
+ const totals=report.totals,label=time.label+(customer?(/^1[3-9]\d{9}$/.test(customer)?'该手机号顾客':customer):staff?staff.name:products.length?(/手机/.test(q)&&products.every(details.phone)?'手机':'所查商品'):'')+'销售';
+ let text=totals.orderCount?label+' '+totals.orderCount+' 单，净售 '+totals.netQuantity+' 件，总价 '+money(totals.netAmount)+(wantsProfit?'，毛利 '+(totals.netProfit==null?'成本资料待核对':money(totals.netProfit)):'')+'。':customer?'没有查到你有权限查看的该顾客销售单。':label+'没有符合条件的记录。';
  const rank=/哪个|哪家|排名|最好|最多|比较|排行/.test(q)&&/供货商|供应商/.test(q);
  if(rank){
   if(!caps.supplierView)return denied('当前岗位没有供货商销售排名查看权限。');
@@ -179,13 +179,16 @@ function query(store,user,question){
  let products=entities((store.products||[]).filter(p=>p.active!==false),q,{product:true}),suppliers=entities(store.suppliers||[],q,{supplier:true}),wh=warehouse(q);
  const visible=store.sales.filter(o=>c.capabilities(user).allSales||(o.salespersonId||o.operatorId)===user.id);
  const customer=[...new Set(visible.flatMap(o=>[o.customerName,o.customerPhone]).filter(v=>v&&v!=='散客'))].sort((a,b)=>String(b).length-String(a).length).find(v=>norm(q).includes(norm(v))||norm(q).includes(norm(String(v).replace(/^演示/,''))));
+ const askedPhone=q.match(/(?:顾客|客户)?(?:手机号|手机号码|电话号码|电话)[^0-9]{0,4}(1[3-9]\d{9})(?!\d)/)?.[1];
+ if(askedPhone&&/(?:销售单|销售记录|购买记录|买过|买了什么)/.test(q))return salesQuery(store,user,q,[],[],null,null,askedPhone);
  const staff=entities((store.users||[]).filter(u=>u.status==='active'),q).sort((a,b)=>b.name.length-a.name.length)[0];
  const askedBrand=brands.find(b=>norm(q).includes(norm(b)));
  if(askedBrand&&!products.length)return result('没有查到'+askedBrand+'的商品档案，不能把全店数据当作这个品牌回答。','record-query',{metrics:{matchedCount:0,unknownProduct:true}});
  const model=q.match(/(?:华为|荣耀|oppo|vivo|小米|红米|苹果|iphone|三星|一加|realme|魅族|中兴|努比亚)\s*(?:的|手机)?\s*((?:畅享|nova|mate|pura|reno|[a-z]+)\s*\d+(?:\s*(?:pro|ultra|plus))?)/i)?.[1];
  if(model&&!products.some(p=>[p.name,p.thirdType,p.externalCode].some(v=>norm(v).includes(norm(model)))))return result('没有查到型号 '+model+' 的商品档案，请核对型号。','record-query',{metrics:{matchedCount:0,unknownProduct:true}});
  if(/这台|这款|那个手机/.test(q)&&!products.length&&!/\d{4,}/.test(q))return result('请告诉我这台手机的型号或串号后四位。','record-query',{metrics:{needsClarification:true}});
- if(!products.length&&/手机/.test(q)&&/销售|销量|卖|毛利|利润/.test(q))products=(store.products||[]).filter(details.phone);
+ if(/(?:手机|智能机|功能机|二手机)/.test(q)&&/(?:买了什么|卖了什么|售出什么|售出了什么|销售了什么)/.test(q))products=(store.products||[]).filter(details.phone);
+ else if(!products.length&&/手机/.test(q)&&/销售|销量|卖|毛利|利润/.test(q))products=(store.products||[]).filter(details.phone);
  const number=q.match(/(?<!\d)(\d{14,18}|\d{4})(?!\d)/)?.[1];
  const serial=number&&(/串号|串码|imei|手机|\d{4}.*哪台/i.test(q))&&/查|看|找|哪|谁|进货|供货|供应|售价|多少钱|卖给|卖了|进价|进货价|成本|毛利|利润/.test(q);
  if(serial)return serialQuery(store,user,q,number);

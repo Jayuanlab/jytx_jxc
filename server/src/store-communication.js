@@ -1,5 +1,6 @@
 const c = require('./common');
 const schedule=require('./announcement-schedule');
+const MAX_ACTIVE_ANNOUNCEMENTS=require('./store-accounting-model.json').screenContentPolicy.maxActive;
 const DEFAULTS=['欢迎上班，今天也辛苦啦！','开单前核对商品、串号和售价。','收款请当场核实，现金点清再入抽屉。'];
 function permit(user){if(!user||user.status!=='active'||user.assistantCustomerOnly||user.customerOnly||user.roleCode==='customer-assistant')throw new c.HttpError(403,'店内消息仅限在职员工查看');}
 function staff(store){return scopedUsers(store).filter(u=>u.status==='active');}
@@ -20,7 +21,7 @@ function summary(store,user){
  const latest=incoming.reduce((newest,row)=>!newest||row.sequence>newest.sequence?row:newest,null);
  const preview=r=>({id:r.id,sequence:r.sequence,senderId:r.senderId,sender:r.sender,peerId:threadOf(r,user,store),content:r.cloudCleanedAt?'':r.content,attachments:attachmentMetadata(r),payloadHash:r.payloadHash||null,cloudCleaned:!!r.cloudCleanedAt,createdAt:r.createdAt,unread:!messageReceipt(store,r,user.id).read});
  const previews=candidates.slice(0,5).map(preview),latestReceived=latest?preview(latest):null;
- const at=Date.now();return {serverTime:new Date(at).toISOString(),scope:messageScope(user),imageLimits:MESSAGE_IMAGE_LIMITS,nextAnnouncementChangeAt:schedule.nextChange(store.storeAnnouncements||[],at),userId:user.id,unread:[...counts.values()].reduce((a,b)=>a+b,0),unreadByPeer:Object.fromEntries(counts),previews,latestReceived,announcements:announcements(store,at).slice(0,10),defaults:DEFAULTS,canPublish:c.capabilities(user).screenEdit};
+ const at=Date.now();return {serverTime:new Date(at).toISOString(),scope:messageScope(user),imageLimits:MESSAGE_IMAGE_LIMITS,nextAnnouncementChangeAt:schedule.nextChange(store.storeAnnouncements||[],at),userId:user.id,unread:[...counts.values()].reduce((a,b)=>a+b,0),unreadByPeer:Object.fromEntries(counts),previews,latestReceived,announcements:announcements(store,at).slice(0,MAX_ACTIVE_ANNOUNCEMENTS),defaults:DEFAULTS,screenSlides:require('./screen-live').feed(store,at),canPublish:c.capabilities(user).screenEdit};
 }
 function list(store,user,peer='all',before='',showHistory=false,withdrawAfter=0){
  peer=peerId(store,user,peer);withdrawAfter=Number(withdrawAfter);if(!Number.isSafeInteger(withdrawAfter)||withdrawAfter<0)throw new c.HttpError(400,'消息更新位置不正确');let cursor=Infinity;if(before!==''){cursor=Number(before);if(!Number.isSafeInteger(cursor)||cursor<1)throw new c.HttpError(400,'消息翻页位置不正确');}
@@ -72,7 +73,7 @@ function announcementBody(payload){
 }
 function publish(store,user,payload){
  permit(user);c.permit(user,'screenEdit');const fields=announcementBody(payload);
- store.storeAnnouncements||=[];if(store.storeAnnouncements.filter(r=>r.active).length>=10)throw new c.HttpError(409,'最多保留10条播放内容，请先收起旧通知');
+ store.storeAnnouncements||=[];if(store.storeAnnouncements.filter(r=>r.active).length>=MAX_ACTIVE_ANNOUNCEMENTS)throw new c.HttpError(409,'最多保留'+MAX_ACTIVE_ANNOUNCEMENTS+'条播放内容，请先收起旧通知');
  const row={id:c.id('NOTICE'),sequence:(store.storeAnnouncements.at(-1)?.sequence||0)+1,...fields,revision:0,active:true,authorId:user.id,author:user.name,createdAt:c.now()};
  store.storeAnnouncements.push(row);c.audit(store,user,'announcement:publish',{id:row.id,...fields});return row;
 }

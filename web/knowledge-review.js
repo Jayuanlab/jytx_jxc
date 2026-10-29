@@ -107,11 +107,14 @@ function feedbackRow(row,canReview){
 async function loadFeedback(append=false,keepStatus=false){
  const version=++feedbackLoadVersion;
  try{
-  const query=new URLSearchParams({status:R('feedback-filter').value,offset:append?feedbackNextOffset||0:0}),data=await feedbackApi('/api/assistant/feedback?'+query);
+  const focusedId=new URLSearchParams(location.search).get('feedback'),query=new URLSearchParams({status:focusedId?'全部':R('feedback-filter').value,offset:focusedId?0:append?feedbackNextOffset||0:0});if(focusedId)query.set('id',focusedId);const data=await feedbackApi('/api/assistant/feedback?'+query);
   if(version!==feedbackLoadVersion)return;
   R('feedback-pending').textContent='待审核 '+data.pendingCount+' 条';feedbackReviewRows=append?[...feedbackReviewRows,...data.rows]:data.rows;feedbackNextOffset=data.nextOffset;
-  R('feedback-list').replaceChildren(...feedbackReviewRows.map(row=>feedbackRow(row,data.canReview)));
-  R('feedback-more').hidden=data.nextOffset==null;if(!keepStatus)R('feedback-review-status').textContent=data.total?'共 '+data.total+' 条；点开记录处理。':'这里暂时没有记录。';
+  const focusedFeedbackId=new URLSearchParams(location.search).get('feedback');
+  const visible=focusedFeedbackId?feedbackReviewRows.filter(row=>row.id===focusedFeedbackId):feedbackReviewRows;
+  R('feedback-list').replaceChildren(...visible.map(row=>feedbackRow(row,data.canReview)));
+  if(focusedFeedbackId){R('feedback-filter').disabled=true;const focused=R('feedback-list').querySelector('.feedback-item');if(focused){focused.open=true;focused.scrollIntoView({block:'start'});R('feedback-review-status').textContent='这里只显示这一条工作助理纠错。';}else R('feedback-review-status').textContent='这条原单不存在或当前账号不可见，请返回待办刷新。';let back=R('feedback-focus-back');if(!back){back=document.createElement('a');back.id='feedback-focus-back';back.href='/knowledge-review#answer-feedback';back.textContent='查看全部纠错记录';R('feedback-review-status').after(back)}}
+  R('feedback-more').hidden=!!focusedFeedbackId||data.nextOffset==null;if(!keepStatus&&!focusedFeedbackId)R('feedback-review-status').textContent=data.total?'共 '+data.total+' 条；点开记录处理。':'这里暂时没有记录。';
  }catch(error){if(version===feedbackLoadVersion)R('feedback-review-status').textContent='加载失败：'+error.message}
 }
 async function initFeedback(){
@@ -125,3 +128,4 @@ if(R('feedback-reload'))R('feedback-reload').onclick=()=>loadFeedback();
 if(R('feedback-filter'))R('feedback-filter').onchange=()=>loadFeedback();
 if(R('feedback-more'))R('feedback-more').onclick=()=>loadFeedback(true);
 initFeedback();
+

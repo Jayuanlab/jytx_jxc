@@ -1,5 +1,6 @@
 'use strict';
 const {createHmac,randomUUID,timingSafeEqual}=require('node:crypto');
+const modelUsage=require('./system-model-usage');
 const MAX_BYTES=128*1024, MAX_REPLY=8000, SESSION_TTL=30*60*1000;
 class ChatError extends Error {constructor(code){super(code);this.code=code;}}
 function configuration(env){
@@ -68,14 +69,14 @@ function createClient({env=process.env,fetchImpl=globalThis.fetch,now=Date.now}=
    active++;const sessionId=valid(previous,id,cfg)?previous.sessionId:randomUUID();
    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),cfg.timeout);
    try{
-    const response=await fetchImpl(cfg.url,{method:'POST',redirect:'error',signal:controller.signal,headers:{Authorization:'Bearer '+cfg.key,'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({message:message.trim(),sessionId,stream:false})});
+    const response=await modelUsage.fetchTracked('work-chat','custom',fetchImpl,cfg.url,{method:'POST',redirect:'error',signal:controller.signal,headers:{Authorization:'Bearer '+cfg.key,'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({message:message.trim(),sessionId,stream:false})});
     if(!response.ok){await response.body?.cancel().catch(()=>{});throw new ChatError('http-'+response.status);}
     let result=parseResponse(await readBody(response),response.headers.get('content-type')||'',sessionId);
     // A purchase classifier must not replace consultation. Check the independent knowledge endpoint.
     if((result.intent==='deal'||!result.hits.some(hit=>hit.score>=0.7)&&/号卡|手机卡|电话卡|流量|数据包|套餐|资费|宽带|办卡|验证码|身份证/.test(message))&&new URL(cfg.url).pathname==='/api/public/chat'){
      try{
       const searchUrl=new URL(cfg.url);searchUrl.pathname='/api/public/knowledge-search';
-      const lookup=await fetchImpl(searchUrl.href,{method:'POST',redirect:'error',signal:controller.signal,headers:{Authorization:'Bearer '+cfg.key,'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({q:/流量包|数据包/.test(message)?'单独加个流量包好多钱':message.trim(),source:'mobile',topK:5})});
+      const lookup=await modelUsage.fetchTracked('knowledge-search','custom',fetchImpl,searchUrl.href,{method:'POST',redirect:'error',signal:controller.signal,headers:{Authorization:'Bearer '+cfg.key,'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({q:/流量包|数据包/.test(message)?'单独加个流量包好多钱':message.trim(),source:'mobile',topK:5})});
       if(lookup.ok&&/application\/json/i.test(lookup.headers.get('content-type')||'')){
        const search=JSON.parse(await readBody(lookup));
        const entries=search.success===true&&Array.isArray(search.entries)?search.entries:[];

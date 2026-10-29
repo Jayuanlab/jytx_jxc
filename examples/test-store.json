@@ -1,0 +1,33 @@
+{
+  "storeName": "聚友通信城（测试账套）",
+  "supplierModelVersion": 2,
+  "users": [
+    { "id": "demo-owner", "name": "测试老板", "role": "老板", "roleCode": "owner", "status": "active", "permissions": ["opening_balance:import"] },
+    { "id": "demo-manager", "name": "测试店长", "role": "店长", "roleCode": "manager", "status": "active", "permissions": [] },
+    { "id": "demo-clerk", "name": "测试店员", "role": "店员", "roleCode": "employee", "status": "active", "permissions": ["sale:create", "sale:return"] },
+    { "id": "demo-warehouse", "name": "测试仓管", "role": "仓管", "roleCode": "warehouse", "status": "active", "permissions": ["purchase:create", "stock:adjust"] }
+  ],
+  "suppliers": [
+    { "id": "demo-supplier-a", "name": "示例手机供货商", "contact": "虚构联系人 A", "note": "仅供测试，请勿用于真实对账", "openingRecorded": false },
+    { "id": "demo-supplier-b", "name": "示例配件供货商", "contact": "虚构联系人 B", "note": "仅供测试，请勿用于真实对账", "openingRecorded": false }
+  ],
+  "products": [
+    { "skuId": "demo-phone-001", "externalCode": "DEMO-PHONE-001", "name": "示例手机 128GB", "shortName": "示例手机", "type": "智能手机", "subType": "演示品牌", "thirdType": "128GB", "unit": "台", "stockManaged": true, "trackSerial": true, "active": true, "salePrice": 1999, "costPrice": 1500 },
+    { "skuId": "demo-phone-002", "externalCode": "DEMO-PHONE-002", "name": "示例手机 256GB", "shortName": "示例手机", "type": "智能手机", "subType": "演示品牌", "thirdType": "256GB", "unit": "台", "stockManaged": true, "trackSerial": true, "active": true, "salePrice": 2599, "costPrice": 2000 },
+    { "skuId": "demo-cable-001", "externalCode": "DEMO-CABLE-001", "name": "Type-C 快充线", "type": "配件", "subType": "数据线", "unit": "条", "stockManaged": true, "trackSerial": false, "active": true, "salePrice": 39, "costPrice": 12 },
+    { "skuId": "demo-charger-001", "externalCode": "DEMO-CHARGER-001", "name": "30W 充电器", "type": "配件", "subType": "充电器", "unit": "个", "stockManaged": true, "trackSerial": false, "active": true, "salePrice": 89, "costPrice": 38 },
+    { "skuId": "demo-case-001", "externalCode": "DEMO-CASE-001", "name": "透明手机壳", "type": "配件", "subType": "保护壳", "unit": "个", "stockManaged": true, "trackSerial": false, "active": true, "salePrice": 29, "costPrice": 6 },
+    { "skuId": "demo-screen-001", "externalCode": "DEMO-SCREEN-001", "name": "维修屏幕材料", "type": "维修", "subType": "材料", "unit": "块", "stockManaged": true, "trackSerial": false, "active": true, "salePrice": 320, "costPrice": 180 },
+    { "skuId": "demo-card-001", "externalCode": "DEMO-CARD-001", "name": "示例通信号卡", "type": "号卡", "subType": "套餐", "unit": "张", "stockManaged": true, "trackSerial": false, "active": true, "salePrice": 50, "costPrice": 1 },
+    { "skuId": "demo-service-001", "externalCode": "DEMO-SERVICE-001", "name": "贴膜服务", "type": "服务", "unit": "次", "stockManaged": false, "trackSerial": false, "active": true, "salePrice": 30, "costPrice": 0 }
+  ],
+  "inventory": [
+    { "skuId": "demo-phone-001", "warehouseId": "wh-sale", "warehouseName": "销售仓", "quantity": 2, "costPrice": 1500, "stockValue": 3000, "serials": [{ "no": "DEMO-IMEI-000000000001", "status": "可售", "costPrice": 1500 }, { "no": "DEMO-IMEI-000000000002", "status": "可售", "costPrice": 1500 }] },
+    { "skuId": "demo-phone-002", "warehouseId": "wh-sale", "warehouseName": "销售仓", "quantity": 1, "costPrice": 2000, "stockValue": 2000, "serials": [{ "no": "DEMO-IMEI-000000000003", "status": "可售", "costPrice": 2000 }] },
+    { "skuId": "demo-cable-001", "warehouseId": "wh-sale", "warehouseName": "销售仓", "quantity": 20, "costPrice": 12, "stockValue": 240, "serials": [] },
+    { "skuId": "demo-charger-001", "warehouseId": "wh-sale", "warehouseName": "销售仓", "quantity": 8, "costPrice": 38, "stockValue": 304, "serials": [] },
+    { "skuId": "demo-case-001", "warehouseId": "wh-sale", "warehouseName": "销售仓", "quantity": 15, "costPrice": 6, "stockValue": 90, "serials": [] },
+    { "skuId": "demo-screen-001", "warehouseId": "wh-sale", "warehouseName": "销售仓", "quantity": 3, "costPrice": 180, "stockValue": 540, "serials": [] },
+    { "skuId": "demo-card-001", "warehouseId": "wh-sale", "warehouseName": "销售仓", "quantity": 10, "costPrice": 1, "stockValue": 10, "serials": [] }
+  ]
+}

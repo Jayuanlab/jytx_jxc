@@ -11,7 +11,7 @@ applyTestBatch(store, batch);
 const owner = store.users.find((u) => u.roleCode === "owner");
 const employee = store.users.find((u) => u.roleCode === "employee");
 const accessory = batch.products.find((p) => !p.trackSerial && p.quantity >= 2);
-const sale = erp.sale(store, employee, { account: "现金", cashDrawerConfirmed: true, items: [{ skuId: accessory.skuId, quantity: 1, salePrice: accessory.salePrice }] });
+const sale = erp.sale(store, employee, { account: "现金", items: [{ skuId: accessory.skuId, quantity: 1, salePrice: accessory.salePrice }] });
 let preview = shift.snapshot(store, employee);
 assert.equal(preview.salesCount, 1);
 assert.equal(preview.expectedCash, sale.amount);

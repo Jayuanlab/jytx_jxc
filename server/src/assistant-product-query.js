@@ -153,4 +153,4 @@ function query(store, user, question, options = {}) {
   if (unpriced.length) text += `另有 ${unpriced.length} 款未设零售价，需店员核价。`;
   return response(text, { sources, table: { title: '在库商品零售价', columns: [{ key: 'name', label: '商品' }, { key: 'salePrice', label: '零售价' }, { key: 'availableQuantity', label: '可售台数' }, { key: 'warehouseName', label: '仓库' }], rows: metrics.recommendations.map(item => ({ name: item.name, salePrice: money(item.salePrice), availableQuantity: item.availableQuantity, warehouseName: item.warehouseName })) } });
 }
-module.exports = { query };
+module.exports = { query, budgetOf, spokenMoney };

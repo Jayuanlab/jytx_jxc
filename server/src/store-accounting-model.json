@@ -1,0 +1,1686 @@
+{
+  "id": "store-accounting-model",
+  "version": "2026-10-27.6",
+  "name": "聚友通信账务业务与数据模型",
+  "timezone": "Asia/Shanghai",
+  "currency": "CNY",
+  "purpose": "详细记录每天的真实资金流水与业务往来，规范营业员及时登记、及时入账和每日核对的习惯，以可追溯的漏记、补录、更正、差异与复核记录支持员工考核。",
+  "authority": {
+    "businessPolicy": "老板在本次会话明确确认的经营规则及现行系统规则",
+    "externalFacts": "移动BOSS、银行等来源的原始导出及其文件哈希、原行号",
+    "humanEntries": "保留营业员原填写内容，可通过证据关联纠正识别",
+    "amountUnit": "新模型统一使用整数分；现有元字段在边界换算，不批量改写历史",
+    "sourceMutation": "改账通过原业务处理器和更正事件执行",
+    "activeRuleSource": "独立现行规则版本、停用账本及服务器执行代码校验",
+    "storeWalletNaming": "现行名称门店微信；历史名称信号机微信仅用于识别同一账户和查询原记录，不另建账户或重记资金。"
+  },
+  "models": [
+    {
+      "id": "business",
+      "name": "业务模型",
+      "purpose": "定义销售、采购、库存、收付、移动业务的边界、参与者和单据关系"
+    },
+    {
+      "id": "data",
+      "name": "数据模型",
+      "purpose": "统一实体、主键、关联、门店隔离及原始数据与计算结果"
+    },
+    {
+      "id": "accounting",
+      "name": "账务模型",
+      "purpose": "按原业务形成销售账、库存账、资金账和往来账，分别计算数量、成本、应收应付与实际收付"
+    },
+    {
+      "id": "rules",
+      "name": "规则模型",
+      "purpose": "用有编号、版本和适用范围的确定规则判断，规则不依赖大模型"
+    },
+    {
+      "id": "evidence",
+      "name": "凭证与证据模型",
+      "purpose": "保存原文件、外部来源、原行号、完整号、原填写值和证据认可关系"
+    },
+    {
+      "id": "matching",
+      "name": "对账与身份匹配模型",
+      "purpose": "先汇总笔数金额，必要时通过完整号、尾号或唯一日期金额对应真实原流水"
+    },
+    {
+      "id": "workflow",
+      "name": "处理流程模型",
+      "purpose": "定义自动核算、证据识别、差异处理、复核和锁账的状态转换"
+    },
+    {
+      "id": "permissions",
+      "name": "职责与权限模型",
+      "purpose": "分别记录营业员、实际账户持有人、复核人、老板和数字大脑的办理职责"
+    },
+    {
+      "id": "exceptions",
+      "name": "异常与追溯模型",
+      "purpose": "保留重复、歧义、差额、冲正、原单变化及失败重试的原因和处理链"
+    },
+    {
+      "id": "metrics",
+      "name": "核对指标与验收模型",
+      "purpose": "定义笔数金额、库存守恒、余额变动及每项能力的通过标准"
+    }
+  ],
+  "entities": [
+    {
+      "id": "organization",
+      "name": "账套与门店",
+      "storage": [
+        "erp_tenants",
+        "erp_branches"
+      ],
+      "scope": "tenant+branch",
+      "keys": [
+        "tenantId",
+        "branchId"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "user",
+      "name": "员工与职责",
+      "storage": [
+        "users"
+      ],
+      "scope": "tenant",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "roleCode",
+        "status",
+        "permissions",
+        "branchIds"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "party",
+      "name": "往来对象",
+      "storage": [
+        "suppliers",
+        "customers",
+        "fundParties"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "kind",
+        "name"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "paymentAccount",
+      "name": "收付款账户",
+      "storage": [
+        "paymentAccounts",
+        "cash-vault.account",
+        "named-fund-accounts.ownerBanks"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "name",
+        "channel",
+        "accountScope",
+        "ownerId",
+        "verifierId",
+        "custodyLocation",
+        "active"
+      ],
+      "custodyPolicy": "门店现金、门店微信均为门店资产；ownerId不绑定个人。暂存人、账户核对人与个人实际接收分别记录。只有内部交接单由指定接收人本人确认，才记录该人的实际接收。",
+      "status": "existing",
+      "virtualBankPolicy": "老板银行卡按真实在职老板ID派生稳定账户标识；仅定义账户身份，不生成余额或资金流水。"
+    },
+    {
+      "id": "product",
+      "name": "商品SKU",
+      "storage": [
+        "products"
+      ],
+      "scope": "branch",
+      "keys": [
+        "skuId"
+      ],
+      "fields": [
+        "externalCode",
+        "name",
+        "warehouseId",
+        "stockManaged",
+        "trackSerial",
+        "salePrice"
+      ],
+      "archivePolicy": "在现有运行账套中，skuId及externalCode永久保留，不允许任何角色物理删除或用期初重建覆盖。已建档商品直接编辑只能改名称；调价走审核单，停用和恢复走状态流程，停用后仍可查询。维修工费等服务项目仍是商品档案，stockManaged=false，不产生实物库存。独立新系统的空账套可以首次建账，旧账套及备份必须保留。",
+      "status": "existing"
+    },
+    {
+      "id": "inventory",
+      "name": "库存余额",
+      "storage": [
+        "inventory"
+      ],
+      "scope": "branch",
+      "keys": [
+        "warehouseId",
+        "skuId"
+      ],
+      "fields": [
+        "quantity",
+        "stockValue",
+        "costPrice",
+        "costingMethod",
+        "costSources"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "serialUnit",
+      "name": "串号实物",
+      "storage": [
+        "erp_serial_units",
+        "inventory.serials"
+      ],
+      "scope": "tenant",
+      "keys": [
+        "serial_no"
+      ],
+      "fields": [
+        "branchId",
+        "inventory_key",
+        "status",
+        "purchaseId",
+        "purchaseItemId",
+        "originSkuId"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "stockMovement",
+      "name": "出入库流水",
+      "storage": [
+        "movements",
+        "stockTransfers"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "sourceId",
+        "skuId",
+        "warehouseId",
+        "quantity",
+        "cost",
+        "createdAt"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "sale",
+      "name": "销售单",
+      "storage": [
+        "sales",
+        "sales.items"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id",
+        "items.id"
+      ],
+      "fields": [
+        "amount",
+        "items",
+        "paymentParts",
+        "receivedAmount",
+        "pendingAmount",
+        "operatorId",
+        "createdAt"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "purchase",
+      "name": "订货与采购入库",
+      "storage": [
+        "procurementPlans",
+        "purchases",
+        "purchases.items"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "supplierId",
+        "items",
+        "amount",
+        "createdAt"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "return",
+      "name": "退货与更正",
+      "storage": [
+        "saleReturnRequests",
+        "saleReturns",
+        "purchaseReturnRequests",
+        "purchaseReturns",
+        "costAdjustments"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "orderId",
+        "items",
+        "amount",
+        "originalAmount",
+        "cost",
+        "status"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "cashDocument",
+      "name": "收付款原单",
+      "storage": [
+        "otherIncome",
+        "expenses",
+        "supplierCash",
+        "paymentRequests"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "amount",
+        "date",
+        "counterparty",
+        "reference",
+        "paymentParts",
+        "operatorId"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "receipt",
+      "name": "资金收付流水",
+      "storage": [
+        "receipts"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "kind",
+        "sourceId",
+        "partId",
+        "amount",
+        "account",
+        "paymentAccountId",
+        "accountOwnerId",
+        "reference",
+        "transactionDate",
+        "originalReceiptId",
+        "isReversal"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "receivablePayable",
+      "name": "应收应付及核销",
+      "storage": [
+        "supplierEntries",
+        "supplierSettlements",
+        "supplierCash",
+        "govSubsidyClaims",
+        "mobileCoinClaims"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "sourceId",
+        "partyId",
+        "supplierId",
+        "amount",
+        "remaining",
+        "status"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "carrierBusiness",
+      "name": "移动业务及分月酬金",
+      "storage": [
+        "carrierServices",
+        "carrierServices.schedule",
+        "carrierServices.schedule.events",
+        "cardBusinesses"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "externalOrderNo",
+        "serviceDate",
+        "transactionAmount",
+        "schedule",
+        "employeeId",
+        "commissionProductId",
+        "commissionProductSnapshot",
+        "commissionRuleSnapshot"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "platformEvent",
+      "name": "空充平台余额事件",
+      "storage": [
+        "airRechargeEvents",
+        "airFundingOrders"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "kind",
+        "businessDate",
+        "amount",
+        "paidAmount",
+        "cashReceived",
+        "bankRef",
+        "reference",
+        "serialType",
+        "serialTail5",
+        "platformRef"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "walletExchange",
+      "name": "门店微信换现关联",
+      "storage": [
+        "walletCashExchanges"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "cashReceiptId",
+        "walletReceiptId",
+        "paymentAccountId",
+        "amount",
+        "noAdditionalReceipt"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "verification",
+      "name": "收付款核实与业务复核",
+      "storage": [
+        "moneyVerifications",
+        "businessReconciliations",
+        "cashHandovers",
+        "fundTransfers"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "receiptId",
+        "sourceId",
+        "version",
+        "status",
+        "verifiedAmount",
+        "events"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "dailyClose",
+      "name": "即时扎账记录",
+      "storage": [
+        "dailyCloseouts"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "date",
+        "cashierId",
+        "reviewerId",
+        "snapshot",
+        "manual",
+        "actualCash",
+        "expectedCash",
+        "cashDifference",
+        "walletActualBalance",
+        "walletDifference",
+        "status"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "statementComparison",
+      "name": "外部流水汇总比对",
+      "storage": [
+        "statementComparisons"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id",
+        "fingerprint"
+      ],
+      "fields": [
+        "options",
+        "mobile",
+        "bank",
+        "countDifference",
+        "amountDifferenceCents",
+        "status",
+        "createdBy"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "sourceFile",
+      "name": "原始证据文件",
+      "storage": [
+        "erp_files"
+      ],
+      "scope": "tenant",
+      "keys": [
+        "sha256"
+      ],
+      "fields": [
+        "content"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "statementRow",
+      "name": "外部流水原行",
+      "storage": [
+        "原文件按所选工作表和映射解析"
+      ],
+      "scope": "branch",
+      "keys": [
+        "sourceSha256",
+        "sheet",
+        "row"
+      ],
+      "fields": [
+        "externalReference",
+        "referenceType",
+        "referencePrecision",
+        "date",
+        "amountCents",
+        "note"
+      ],
+      "status": "extension"
+    },
+    {
+      "id": "evidenceLink",
+      "name": "真实流水认可关联",
+      "storage": [
+        "statementEvidenceLinks（建议新增）"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "statementComparisonId",
+        "sourceSha256",
+        "sheet",
+        "row",
+        "sourceCollection",
+        "sourceId",
+        "receiptId",
+        "originalReference",
+        "externalReference",
+        "matchMethod",
+        "ruleVersion",
+        "factsFingerprint",
+        "decision",
+        "acceptedAt",
+        "acceptedBy"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "accountingRun",
+      "name": "数字大脑账务核对批次",
+      "storage": [
+        "accountingRuns（建议新增）"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "date",
+        "modelVersion",
+        "sourceFingerprint",
+        "salesSummary",
+        "inventorySummary",
+        "financeSummary",
+        "checks",
+        "exceptions",
+        "createdAt"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "exceptionCase",
+      "name": "异常处理单",
+      "storage": [
+        "inventoryLossCases",
+        "businessReconciliations",
+        "statementComparison差异；统一exceptionCases为扩展"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "ruleId",
+        "sourceRefs",
+        "reason",
+        "severity",
+        "assigneeId",
+        "status",
+        "events"
+      ],
+      "status": "extension"
+    },
+    {
+      "id": "ruleDefinition",
+      "name": "规则定义与版本",
+      "storage": [
+        "store-accounting-model.json",
+        "现有各业务处理器"
+      ],
+      "scope": "system+branch",
+      "keys": [
+        "id"
+      ],
+      "fields": [
+        "model",
+        "name",
+        "condition",
+        "effect",
+        "implementation",
+        "handlers"
+      ],
+      "versionSource": "模型顶层version；运行批次统一记录规则版本属于后续集成",
+      "status": "model"
+    },
+    {
+      "id": "auditEvent",
+      "name": "办理与更正追溯",
+      "storage": [
+        "operationLogs",
+        "requestRecords",
+        "erp_outbox",
+        "各单据events"
+      ],
+      "scope": "branch",
+      "keys": [
+        "id；请求使用userId+path+key"
+      ],
+      "fields": [
+        "operatorId",
+        "action",
+        "detail",
+        "createdAt",
+        "digest",
+        "result"
+      ],
+      "status": "existing"
+    },
+    {
+      "id": "storeWalletFundingRequest",
+      "name": "门店微信充值申请",
+      "storage": [
+        "storeWalletFundingRequests"
+      ],
+      "scope": "tenant+branch",
+      "keys": [
+        "id",
+        "displayNo",
+        "destinationAccountId",
+        "paymentReceiptId",
+        "receivedReceiptId"
+      ],
+      "status": "active"
+    }
+  ],
+  "relationships": [
+    [
+      "organization",
+      "1:N",
+      "sale",
+      "同门店业务"
+    ],
+    [
+      "organization",
+      "1:N",
+      "inventory",
+      "同门店库存"
+    ],
+    [
+      "user",
+      "1:N",
+      "sale",
+      "operatorId"
+    ],
+    [
+      "party",
+      "1:N",
+      "purchase",
+      "supplierId"
+    ],
+    [
+      "product",
+      "1:N",
+      "inventory",
+      "skuId"
+    ],
+    [
+      "inventory",
+      "1:N",
+      "serialUnit",
+      "inventory_key"
+    ],
+    [
+      "sale",
+      "1:N",
+      "stockMovement",
+      "sourceId"
+    ],
+    [
+      "purchase",
+      "1:N",
+      "stockMovement",
+      "sourceId"
+    ],
+    [
+      "sale",
+      "1:N",
+      "receipt",
+      "sourceId+kind"
+    ],
+    [
+      "cashDocument",
+      "1:N",
+      "receipt",
+      "sourceId+partId"
+    ],
+    [
+      "paymentAccount",
+      "1:N",
+      "receipt",
+      "paymentAccountId"
+    ],
+    [
+      "receipt",
+      "1:N",
+      "verification",
+      "receiptId"
+    ],
+    [
+      "receipt",
+      "1:N",
+      "receipt",
+      "originalReceiptId；退款/冲正关联原实际流水"
+    ],
+    [
+      "receipt",
+      "2:1",
+      "walletExchange",
+      "cashReceiptId+walletReceiptId"
+    ],
+    [
+      "sourceFile",
+      "1:N",
+      "statementRow",
+      "sha256+sheet+row"
+    ],
+    [
+      "statementComparison",
+      "N:2",
+      "sourceFile",
+      "mobile.file.sha256+bank.file.sha256"
+    ],
+    [
+      "statementRow",
+      "1:N",
+      "evidenceLink",
+      "原行证据可关联多个业务组成，但自动认可要求唯一"
+    ],
+    [
+      "evidenceLink",
+      "N:1",
+      "receipt",
+      "已有资金流水；不重复生成资金流水"
+    ],
+    [
+      "accountingRun",
+      "1:N",
+      "exceptionCase",
+      "本次检查的差异"
+    ],
+    [
+      "dailyClose",
+      "N:1",
+      "accountingRun",
+      "保存提交时核对快照；目标关联"
+    ],
+    [
+      "ruleDefinition",
+      "1:N",
+      "auditEvent",
+      "处理时记录规则版本"
+    ]
+  ],
+  "rules": [
+    {
+      "id": "R01",
+      "model": "accounting",
+      "name": "业务、实物、资金分别记",
+      "condition": "一笔经营业务涉及销售/采购、库存或实际收付",
+      "effect": "原业务单据关联库存流水、资金流水和往来；销售额、应收和实收分别计算",
+      "implementation": "existing",
+      "handlers": [
+        "erp.js",
+        "normal-workflow.js",
+        "business-reconciliation.js"
+      ]
+    },
+    {
+      "id": "R02",
+      "model": "data",
+      "name": "门店隔离与幂等",
+      "condition": "写入或重复提交",
+      "effect": "在账套和门店作用域内事务处理，同userId+path+key只执行一次",
+      "implementation": "existing",
+      "handlers": [
+        "capacity/postgres.js",
+        "application.js"
+      ]
+    },
+    {
+      "id": "R03",
+      "model": "accounting",
+      "name": "付款账户按业务与实际使用人区分",
+      "condition": "登记门店日常付款或老板发放营业员红包",
+      "effect": "门店普通付款单只能选择门店现金或启用的门店微信；红包通过老板专用发放流程使用老板本人微信，关联红包原单及核定金额，不扣门店微信、不重复记支出；该例外不能通过普通付款请求启用",
+      "implementation": "existing",
+      "handlers": [
+        "payment-accounts.js",
+        "financial-documents.js",
+        "normal-payment-registration.js",
+        "order-red-packets.js"
+      ]
+    },
+    {
+      "id": "R04",
+      "model": "accounting",
+      "name": "门店微信独立核算及用途",
+      "condition": "账户为门店微信",
+      "effect": "门店微信用于门店小额支付和现金兑换，属于门店资金。由营业员使用并实看核对；按具体账户ID汇总真实收付，与具体资金账户、老板微信、空充BOSS分开，老板红包不占用该账户。",
+      "implementation": "existing",
+      "handlers": [
+        "wallet-daily.js",
+        "daily-close.js"
+      ]
+    },
+    {
+      "id": "R05",
+      "model": "accounting",
+      "name": "代充值分别开两张原单并手动关联",
+      "condition": "顾客拿现金，兑换门店微信扫码充话费",
+      "effect": "分别人工开门店现金收款单和门店微信付款单，选择代充值后手动关联。收现金与微信实际付款各记一笔；不计经营收入费用，未关联列待关联；关联不造流水、不再次扣款，备注不参与分类和记账。",
+      "implementation": "existing",
+      "handlers": [
+        "business-purpose.js",
+        "financial-documents.js",
+        "normal-payment-registration.js",
+        "wallet-cash-exchanges.js"
+      ]
+    },
+    {
+      "id": "R06",
+      "model": "evidence",
+      "name": "门店微信以复核锁定账面结余递推",
+      "condition": "核对门店微信这个具体账户的余额",
+      "effect": "仅对门店微信以上次已复核、已锁定的账面结余递推，加真实收款减真实付款及已确认内部交出。实看只核差额，不覆盖账面；缺基准待建立，首次单独核实签认，不代填180.13元。老板微信、具体资金账户与空充BOSS余额分别核算。",
+      "implementation": "existing",
+      "handlers": [
+        "wallet-daily.js"
+      ]
+    },
+    {
+      "id": "R07",
+      "model": "matching",
+      "name": "先比对汇总",
+      "condition": "两份流水使用选定的同一期间、方向和金额口径",
+      "effect": "交易笔数和金额合计均相同即汇总通过；有差异再展开明细",
+      "implementation": "existing",
+      "handlers": [
+        "statement-comparisons.js"
+      ]
+    },
+    {
+      "id": "R08",
+      "model": "metrics",
+      "name": "解析错误不能当作零",
+      "condition": "金额/日期无法识别或数据为空",
+      "effect": "提示具体原行，不认可为汇总一致，不保存错误结果",
+      "implementation": "existing",
+      "handlers": [
+        "statement-comparisons.js"
+      ]
+    },
+    {
+      "id": "R09",
+      "model": "evidence",
+      "name": "真实外部证据优先",
+      "condition": "营业员填写与实际原流水不一致",
+      "effect": "保留原填写，通过可追溯证据关联实际流水；允许完整号、尾号或唯一事实定位",
+      "implementation": "planned",
+      "handlers": [
+        "statement-identities.js（本版参考实现）"
+      ]
+    },
+    {
+      "id": "R10",
+      "model": "matching",
+      "name": "尾号唯一才认可",
+      "condition": "已录流水只保存尾号",
+      "effect": "同来源、日期及金额一致，正反向候选均唯一时认可；相同尾号的不同完整号不能合并",
+      "implementation": "planned",
+      "handlers": [
+        "statement-identities.js（本版参考实现）"
+      ]
+    },
+    {
+      "id": "R11",
+      "model": "matching",
+      "name": "填写有误仍按唯一事实认可",
+      "condition": "流水号缺失或有笔误",
+      "effect": "外部证据与内部记录在业务范围、日期、金额、资金方向上正反向唯一对应才认可；多候选转待查",
+      "implementation": "planned",
+      "handlers": [
+        "statement-identities.js（本版参考实现）"
+      ]
+    },
+    {
+      "id": "R12",
+      "model": "evidence",
+      "name": "编号按字符串保存",
+      "condition": "外部流水号含前导零、长数字、尾号或掩码",
+      "effect": "保留原值和位数，长数字不得转浮点数；Excel已损失精度时提示重导文本流水号",
+      "implementation": "planned",
+      "handlers": [
+        "statement-identities.js（本版参考实现）"
+      ]
+    },
+    {
+      "id": "R13",
+      "model": "accounting",
+      "name": "证据认可不增加资金",
+      "condition": "外部流水对应已有收付款",
+      "effect": "增加认可关联或核实状态，沿用原receiptId；实际入账和库存动作只由原业务处理器执行",
+      "implementation": "planned",
+      "handlers": [
+        "statementEvidenceLinks（目标）",
+        "money-verifications.js"
+      ]
+    },
+    {
+      "id": "R14",
+      "model": "accounting",
+      "name": "应收不等于到账",
+      "condition": "移动酬金、国补、销售应收和预付款",
+      "effect": "预计、已确认应收、实际到账及核销分层记录；银行证据不直接证明已经收货",
+      "implementation": "existing",
+      "handlers": [
+        "carrier-rentals.js",
+        "gov-subsidy.js",
+        "suppliers.js"
+      ]
+    },
+    {
+      "id": "R15",
+      "model": "accounting",
+      "name": "库存与成本守恒",
+      "condition": "入库、出库、退货、调拨或成本调整",
+      "effect": "数量和串号状态一致，源仓减等于目标仓增；按本库存实际成本方法追溯，不强制改用统一成本法",
+      "implementation": "existing",
+      "handlers": [
+        "fifo-costs.js",
+        "inventory-transfers.js",
+        "inventory-details.js"
+      ]
+    },
+    {
+      "id": "R16",
+      "model": "accounting",
+      "name": "退货、退款与冲正分开",
+      "condition": "发生退换货或已记账金额有误",
+      "effect": "退货关联原销售和实物，退款关联原实际收款；冲正追加反向记录并保留原单",
+      "implementation": "existing",
+      "handlers": [
+        "sale-return-requests.js",
+        "red-reversals.js",
+        "payment-accounts.js"
+      ]
+    },
+    {
+      "id": "R17",
+      "model": "workflow",
+      "name": "账务闭合需核对所需环节",
+      "condition": "日结、交班或业务结案",
+      "effect": "简易扎账记录真实报数、系统快照、具体时间、差额与提交人身份，差错可待查；同一时段无新增业务数据且无新备注禁止重复提交；核对人按登录身份记录，单人值班可自核并留值班证据，老板再审核。独立账本锁定仍按原核对流程处理，不用报数伪造实收或覆盖原流水。",
+      "implementation": "existing",
+      "handlers": [
+        "daily-close.js",
+        "closeouts.js",
+        "business-reconciliation.js"
+      ]
+    },
+    {
+      "id": "R18",
+      "model": "permissions",
+      "name": "证据认可与人工职责分开留痕",
+      "condition": "数字大脑取得唯一真实流水证据",
+      "effect": "可自动认可证据对应关系，记录系统身份和规则版本；不伪造营业员实点、持有人亲自确认、实际付款或老板签认",
+      "implementation": "planned",
+      "handlers": [
+        "statementEvidenceLinks（目标）",
+        "money-verifications.js",
+        "daily-close.js"
+      ]
+    },
+    {
+      "id": "R19",
+      "model": "exceptions",
+      "name": "锁定账期通过更正处理",
+      "condition": "原业务被红冲、证据变化或已锁定账期发生差异",
+      "effect": "使旧证据关联失效并列明原因，走原更正流程；不直接覆盖已锁定的原金额",
+      "implementation": "existing+extension",
+      "handlers": [
+        "daily-close.js",
+        "red-reversals.js",
+        "statementEvidenceLinks（目标）"
+      ]
+    },
+    {
+      "id": "R20",
+      "model": "rules",
+      "name": "大模型可用性不影响核心账务",
+      "condition": "大模型不可用",
+      "effect": "日常开单、收付款、库存核算、门店微信核对、扎账和流水汇总比对由确定代码执行，不依赖大模型；尾号证据自动写回仍待接入，不影响已有人工办理入口",
+      "implementation": "existing",
+      "handlers": [
+        "statement-comparisons.js",
+        "guardian.js",
+        "erp.js"
+      ]
+    },
+    {
+      "id": "R21",
+      "model": "rules",
+      "name": "用户最新规则优先",
+      "condition": "旧文档、示例、模型输出与已确认新规则冲突",
+      "effect": "采用本版明确确认的规则，运行时继续执行实际权限、事实检查与幂等；未确定的阈值保持可配置或待核实",
+      "implementation": "model",
+      "handlers": [
+        "store-accounting-model.json"
+      ]
+    },
+    {
+      "id": "R22",
+      "model": "accounting",
+      "name": "门店资金与个人实收分离",
+      "condition": "门店现金、门店微信登记、核对或内部交接",
+      "effect": "账户归门店。核对不改变归属；仅指定接收人本人确认有效内部交接后计个人实收，待确认及驳回不计，不新增营业收入或费用。",
+      "implementation": "existing",
+      "handlers": [
+        "account-ownership.js",
+        "cash-handovers.js",
+        "cash-custody.js",
+        "funds-network.js",
+        "fund-party-ledgers.js"
+      ]
+    },
+    {
+      "id": "R23",
+      "model": "accounting",
+      "name": "资金收付与经营收入费用分开",
+      "condition": "代充值两张收付款原单",
+      "effect": "根据显式businessPurpose及真实原单关联核算；收款增加现金、付款减少门店微信，关联本身不动余额，不凭备注生成付款。",
+      "implementation": "existing",
+      "handlers": [
+        "business-purpose.js",
+        "wallet-cash-exchanges.js",
+        "erp.js"
+      ]
+    },
+    {
+      "id": "R24",
+      "name": "新规则生效与旧版永久停用",
+      "effect": "同一主题新规则生效后旧版永远停用，只供历史查询；备份恢复不改当前规则，旧代码与重建模型不得越过独立生效序号、停用账本及执行校验",
+      "status": "implemented"
+    },
+    {
+      "id": "R25",
+      "model": "accounting",
+      "name": "具体资金账户分项结账",
+      "condition": "收款、付款、门店现金存入老板银行卡及每日结账",
+      "effect": "不再以聚合支付作为现行账户或统一核对项。每个真实资金账户分别列收付、内部交接、账务更正及净变动。门店现金存入老板银行卡以指定老板本人确认的内部交接为准；待确认单列，不计营业收入费用。未核实的渠道标为具体账户待核，不自动归并到老板银行卡；历史合并字段只读保留，不用于新单复核或锁定。",
+      "implementation": "existing",
+      "handlers": [
+        "named-fund-accounts.js",
+        "daily-close.js",
+        "cash-handovers.js",
+        "assistant-data-snapshot.js"
+      ]
+    },
+    {
+      "id": "R26",
+      "model": "workflow",
+      "name": "门店微信当日增减必须分别核对",
+      "condition": "当日扎账提交、补正、复核、锁账",
+      "effect": "门店微信原始增加和减少流水逐笔留存并可展开查询。简易扎账仅报现场实看、系统数和差额，待查可提交；实看不覆盖账面。原详细锁账仍走独立核对。",
+      "implementation": "existing",
+      "handlers": [
+        "wallet-daily.js",
+        "daily-close.js"
+      ]
+    },
+    {
+      "id": "R27",
+      "name": "扫码支付与老板账户入账",
+      "definition": "收款方式统一称扫码支付，具体渠道保留微信或支付宝，到账账户分别为明确的老板微信或老板支付宝，不能将渠道与账户混用，也不能与门店微信备用资金合并。原经办营业员收到付款消息后本人确认，按原单分笔金额只入账一次，保存本人和时间，保留核对流程；不为这次收款确认重复推送老板，原成交消息保留。现金转存老板银行卡属于内部交接，指定老板本人确认收到后计入老板银行卡。扫码到账和已确认现金转存都属于老板账户资金增加，但内部交接不重复计算营业收入。未明确归属的渠道保持待核。更早已处理历史账只查询。",
+      "policy": "scan-payment-owner-account-v1"
+    },
+    {
+      "id": "R28",
+      "name": "扫码支付汇总与逐项明细查询",
+      "definition": "扫码支付汇总是收款方式汇总，保留微信支付宝渠道、实际到账账户、原单、经办人、金额和红冲更正明细；不与具体资金账户重复相加，不把红冲当实际付款。所有当日对账项目必须有对应明细查询，BOSS期初、当日变动、期末分别追溯依据，未知账户不猜归属。现金转存老板银行由营业员仅填金额提交，已配置唯一在职老板时系统定向给该老板本人核对；提交不代表收到，只有指定老板本人确认实际收到后才减少门店现金、增加老板银行卡，不计新的营业收入或费用。不自动代填金额、不自动提交、不自动确认。",
+      "policy": "closeout-details-scan-summary-v1"
+    },
+    {
+      "id": "R29",
+      "name": "回答前记忆与电子屏起草",
+      "definition": "工作助理先按当前账号和来源版本读取有效规则记忆，再生成回答；永久停用或失效的旧规则不能带入。记忆可提供上下文，不能代替权限、单据校验或发布确认。从身份介绍切到电子屏等明确业务时重置旧话题，不把旧身份问题继承为新主题。老板要求更新电子屏并增加问候、成交鼓励、笑话和卡通元素时直接起草可核对的文案，保留修订证据和确认按钮；未确认不发布，不伪称已制作或播放动画。权限不足仍拒绝修改。",
+      "policy": "memory-before-answer-screen-draft-v1"
+    },
+    {
+      "id": "R30",
+      "name": "当日中途扎账",
+      "definition": "营业期间随时、多次核对当天累计流水，只承接已核实期初，当日多次累计快照不相加；记录现金时点、实点、差额及双人复核，不混入其他日期业务、不转钱、不覆盖余额。营业结束后人工选择正式扎账，供以后查询。",
+      "policy": "store-cash-checkpoint-v2"
+    },
+    {
+      "id": "R31",
+      "name": "即时扎账固定今日",
+      "definition": "办理页固定北京时间今天，不提供选日；当日扎账查询提供日期范围，历史原单处理保留原营业日。按当天累计与已核实期初核对，不因扎账产生资金转移。",
+      "policy": "instant-day-close-today-v1"
+    },
+    {
+      "id": "R32",
+      "name": "内转与最新模型修复",
+      "definition": "门店现金与门店微信互转以两笔等额反向流水记录；顾客扫码换现金进入扫码汇总，现金交出关联，不计损益。代充值仍两张人工单，关联必须记录顾客号码。本人确认现金实收进入门店抽屉；补正承接核实期初，查询与办理分开，临时正式类型明确保存。",
+      "policy": "model-consistency-repair-v1"
+    },
+    {
+      "id": "R33",
+      "model": "data",
+      "name": "运行账套商品档案永久保留",
+      "condition": "已有商品档案后的编辑、停用、期初导入或系统查询",
+      "effect": "任何角色不得物理删除或整体覆盖已有档案；商品编码和SKU保持稳定，直接编辑只允许改名称；调价、停用与恢复走独立流程；服务项目仍属档案，停用档案可查询。空的新账套可首次建账，原账套与备份保留。",
+      "implementation": "existing",
+      "handlers": [
+        "erp.js",
+        "product-status.js",
+        "product-pricing.js",
+        "office.js",
+        "product-archive-integrity.js",
+        "repository.js",
+        "capacity/postgres.js",
+        "store-backups.js"
+      ],
+      "policy": "product-archive-retention-v1"
+    },
+    {
+      "id": "R34",
+      "model": "accounting",
+      "name": "资金申请分流与门店微信充值",
+      "condition": "办理红包、BOSS空充、门店微信充值申请或内转交接",
+      "effect": "共用入口、原单及账本不合并；申请不记收付。门店微信补入由老板本人登记实际转出，指定人员本人核实到账才记转入，按内部流转，不计销售或费用，不重复记账。",
+      "implementation": "active",
+      "handlers": [
+        "store-wallet-funding-requests.js",
+        "order-red-packets.js",
+        "air-funding-orders.js",
+        "internal-store-transfers.js"
+      ]
+    },
+    {
+      "id": "R35",
+      "model": "workflow",
+      "name": "单据归口及订货付款收货分工",
+      "condition": "统一单据入口或办理采购",
+      "effect": "各类单据按用途归口，权限与原单不合并；营业员订货，实际向供货商付款后登记采购付款单作为该笔往来财务依据；进货单据实记录收货，关联订货及原付款，收货不另造已付事实。财务待核项分步完善，不以界面归口代替对账完成。",
+      "implementation": "active",
+      "handlers": [
+        "document-center.js",
+        "suppliers.js",
+        "normal-payment-registration.js"
+      ]
+    },
+    {
+      "id": "R36",
+      "model": "workflow",
+      "name": "老板批量批复与个人实收边界",
+      "condition": "数字大脑、我的待办及批量处理普通业务与移动酬金登记",
+      "effect": "普通业务允许老板勾选批量批复；退换货、红冲、现金交接及内部交接仍逐笔由老板审批，实际到账只能由有权的实际接收人确认。营业员收到顾客现金进入门店现金，不等于老板本人收到。移动业务登记核对与每月结算单比对、实际到账三者独立；未配置酬金保持未知，不能填零或推算已到账。批量使用原处理器、逐条版本和证据校验，保留原单及留痕。",
+      "implementation": "active",
+      "handlers": [
+        "batch-review.js",
+        "carrier-business-review.js",
+        "business-reconciliation.js",
+        "carrier-rentals.js",
+        "sale-fund-responsibility.js"
+      ],
+      "policy": "owner-batch-business-review-v1"
+    },
+    {
+      "id": "R37",
+      "model": "workflow",
+      "name": "当日扎账单统一办理与查询",
+      "condition": "临时现金清点及营业结束正式扎账",
+      "effect": "一个当日扎账单入口及办理页面，明确选择临时或正式，统一查询。临时只核现金时点，不自动转正式；正式保留全账户、BOSS、双人复核和老板次日锁账。历史CL/DC原单按原编号与处理器保留，不迁移覆盖、不相加、不发生资金转移。",
+      "implementation": "active",
+      "handlers": [
+        "daily-close.js",
+        "closeouts.js",
+        "daily-compact.js",
+        "personal-shortcuts.js"
+      ],
+      "policy": "unified-day-close-entry-v1"
+    },
+    {
+      "id": "R38",
+      "model": "data",
+      "name": "库存一级分类交集查询",
+      "condition": "库存查询选择一级分类、品牌、仓库或供货商",
+      "effect": "所有已建一级分类动态读取，来自完整目录及全部原档案，包含空分类、零库存及当前仅服务的分类。分类名称复用商品档案正式目录及规范化，不另造别名；不写死类别清单。是否管理库存按每个SKU实际stockManaged判断，不能用维修等分类名称判断；同分类可有实物和服务，新增实物有库存即进入查询。分类与品牌、仓库、来源供货商取交集，改分类清除不相容品牌。先选条件再点查询，空条件可查全部正库存；未知来源数量待核，不改档案、库存、成本、原单或账本。",
+      "implementation": "active",
+      "handlers": [
+        "product-categories.js",
+        "inventory-bootstrap.js",
+        "office-inventory.js"
+      ],
+      "policy": "inventory-category-query-v1"
+    },
+    {
+      "id": "R39",
+      "model": "accounting",
+      "name": "门店现金微信小额等额互转",
+      "condition": "新增小额门店现金与门店微信等额转换",
+      "effect": "单一门店互转单，两个门店账户，整数分0.01至300元；经办核实确认后原子记录一出一入，老板只收消息、不审批。不计损益，不改历史两单；红冲仍须老板逐笔办理。",
+      "implementation": "active",
+      "handlers": [
+        "store-transfer.js",
+        "assistant-capabilities.js",
+        "rule-authority.js"
+      ],
+      "policy": "store-cash-wallet-transfer-v1"
+    },
+    {
+      "id": "R40",
+      "model": "data",
+      "name": "销售清单分类、状态及独立分页",
+      "condition": "销售清单按时间、营业员、供货商、一级分类／品牌及单据状态查询",
+      "effect": "一级分类和品牌／二级分类复用完整商品档案目录及规范化，原SKU和单据不变。商品销售／维修与移动业务独立分页，明细直接展示不折叠。时间沿原销售开单时间与移动业务业务日期口径，退货／红冲条件依据原销售截至查询时已处理状态，含部分退货，保留原单入口；查实际处理单据在退换货和红冲原入口。所有统计明确按所选条件，原权限、FIFO来源、成本调整、赠品及退货金额保留。移动预计酬金与销售毛利分开，未配置规则显示未知而非0；移动业务毛利另待完善。",
+      "implementation": "active",
+      "handlers": [
+        "sales-list.js",
+        "capacity/sales-list.js",
+        "assistant-capabilities.js"
+      ],
+      "policy": "sales-list-independent-pages-v1"
+    }
+  ],
+  "workflows": [
+    {
+      "id": "sourceToBooks",
+      "name": "原业务形成账务",
+      "states": [
+        "业务草稿",
+        "原业务已登记",
+        "库存/资金/往来已按原处理器变动",
+        "自动核算与差异检查",
+        "已核对或待查"
+      ],
+      "guard": "无原业务或实际收付证据时不补造交易"
+    },
+    {
+      "id": "externalSummary",
+      "name": "外部流水汇总核对",
+      "states": [
+        "选择原文件",
+        "映射并解析",
+        "按期间及方向筛选",
+        "笔数金额汇总",
+        "汇总一致或有差异",
+        "保存结果和原文件"
+      ],
+      "guard": "无解析错误且有效笔数大于零"
+    },
+    {
+      "id": "evidenceRecognition",
+      "name": "已录流水识别",
+      "states": [
+        "保留原填写",
+        "检索完整号/尾号/日期金额",
+        "检查正反向唯一性",
+        "认可真实流水或待查",
+        "保存证据关联",
+        "原单变化则旧关联失效"
+      ],
+      "guard": "领域、日期、金额和必要方向一致；原单有效；来源可追溯；同一证据不重复认可"
+    },
+    {
+      "id": "dailyClose",
+      "name": "即时扎账",
+      "states": [
+        "待领取复核",
+        "复核中",
+        "待老板签认",
+        "已锁定",
+        "已解锁",
+        "已提交",
+        "已提交·待查"
+      ],
+      "branches": [
+        "已驳回",
+        "已撤回",
+        "已被后次替代"
+      ],
+      "guard": "简易报数允许差额待查、多次保存且不转钱、不锁账；原详细锁账仍执行现金与门店微信独立核对、身份和真实流水新鲜度校验。"
+    },
+    {
+      "id": "exception",
+      "name": "差异闭环",
+      "states": [
+        "已发现",
+        "已分派",
+        "已核实原因",
+        "已补证或提交原业务更正",
+        "重新核算",
+        "已解决"
+      ],
+      "guard": "原因、经手人和原凭证关联齐全"
+    }
+  ],
+  "permissions": [
+    {
+      "actor": "营业员",
+      "actions": [
+        "登记实际经营业务",
+        "录入流水或尾号",
+        "上传职责范围内证据",
+        "提交现金实点与门店微信实看余额"
+      ],
+      "enforcement": "以common.capabilities和各原业务处理器的当前权限为准；银行文件入口仍需finance权限"
+    },
+    {
+      "actor": "实际账户持有人",
+      "actions": [
+        "办理本人付款",
+        "核实本人真实到账及交接"
+      ],
+      "enforcement": "核实身份与accountOwnerId一致，特定老板代理流程单独留痕"
+    },
+    {
+      "actor": "复核营业员",
+      "actions": [
+        "核对他人扎账单",
+        "填差异说明"
+      ],
+      "enforcement": "与提交人不同"
+    },
+    {
+      "actor": "老板",
+      "actions": [
+        "查看全部经营账务",
+        "核定例外",
+        "签认锁账和解锁",
+        "更正规则与授权"
+      ],
+      "enforcement": "按现有owner权限及原业务校验执行"
+    },
+    {
+      "actor": "数字大脑",
+      "actions": [
+        "按原单计算账务",
+        "执行确定规则",
+        "识别证据对应关系",
+        "形成汇总和差异",
+        "建议或调用有权限的原业务动作"
+      ],
+      "enforcement": "系统办理身份、规则版本、源数据指纹与委托人权限单独记录；不借用人类身份"
+    }
+  ],
+  "metrics": [
+    {
+      "id": "M01",
+      "name": "流水汇总一致",
+      "formula": "mobile.count == bank.count AND mobile.amountCents == bank.amountCents AND parseErrors == 0"
+    },
+    {
+      "id": "M02",
+      "name": "库存数量",
+      "formula": "期初数量 + 有效入库 - 有效出库 = 当前数量；串号商品的可售实物数 = 当前数量"
+    },
+    {
+      "id": "M03",
+      "name": "调拨守恒",
+      "formula": "源仓减少数量/成本 = 目标仓增加数量/成本"
+    },
+    {
+      "id": "M04",
+      "name": "门店微信余额",
+      "formula": "上次已复核已锁定账面结余 + 此后真实收款 - 此后真实付款及确认交出 = 应有余额；实看 - 应有 = 差额；无合格基准为未知，不以实看补齐"
+    },
+    {
+      "id": "M05",
+      "name": "现金核对",
+      "formula": "使用cash-basis.js当前口径；账面应点与独立实点比较，现金位置与收入分开"
+    },
+    {
+      "id": "M06",
+      "name": "证据唯一认可",
+      "formula": "一个外部原行对一个有效内部候选且该候选只被一个原行采用；date/amount/direction/domain一致"
+    },
+    {
+      "id": "M07",
+      "name": "重复处理保护",
+      "formula": "相同请求或相同证据关联重试，不增加第二份业务、库存或资金流水"
+    },
+    {
+      "id": "M08",
+      "name": "账务认可覆盖",
+      "formula": "已认可行数、尾号认可行数、唯一事实认可行数、歧义行数、待查行数分别展示；不与汇总通过状态混淆"
+    },
+    {
+      "id": "M09",
+      "name": "商品档案完整性",
+      "formula": "发布前后已有skuId与externalCode集合不减少、不重分配；商品档案总数与在用加停用之和相等；采购、销售、维修、库存引用的skuId都能找到原档案"
+    }
+  ],
+  "constraints": [
+    "现有运行账套的商品档案不可物理删除或被期初覆盖；新系统空账套首次建账与现有账套分开",
+    "租户和门店作用域不可跨越",
+    "同租户串号唯一",
+    "金额计算使用整数分",
+    "完整流水号与尾号分别存储",
+    "来源、账户、经手人、往来对象分别记录",
+    "不因金额相同就跨业务合并",
+    "汇总通过不等于自动逐笔确认",
+    "外部原文件和内部原填写记录均保留",
+    "模型不导入私人无关消费",
+    "规则变更有版本，重算不覆盖历史快照"
+  ],
+  "implementation": {
+    "existing": "销售、库存、资金及往来原处理器；每日扎账；门店微信核对；外部流水汇总比对",
+    "modelDeliverable": "十类模型、实体映射、规则、状态机、指标和可执行身份匹配参考实现",
+    "planned": "外部证据自动认可写回、统一accountingRuns、数字大脑全流程账务编排；必须经过对应集成和回归后标记已上线"
+  },
+  "staffAssessmentScope": {
+    "principles": [
+      "以实际业务、登记时间、责任人及复核证据为依据",
+      "及时记录与实际到账分别记录",
+      "补录更正保留原值与原因",
+      "未知真实发生时间不伪造迟报时长",
+      "未明确的时限、责任与考核阈值保持待定，不自动处罚或扣款"
+    ],
+    "status": "本次明确模型定义；不新增自动处罚或薪酬扣减规则"
+  },
+  "changeReview": {
+    "required": true,
+    "models": [
+      "business",
+      "data",
+      "accounting",
+      "rules",
+      "evidence",
+      "matching",
+      "workflow",
+      "permissions",
+      "exceptions",
+      "metrics"
+    ],
+    "checks": [
+      "商品档案SKU及编码集合、服务档案、在用与停用查询完整，关联引用均可追溯",
+      "现行规则与模型定义一致",
+      "入口、接口、字段、账户身份与权限同步",
+      "流水、余额、对账、结账与智能体取数同步",
+      "历史保留及旧规则停用",
+      "源数据不改写，变更前后金额逐项核对"
+    ],
+    "unverifiedChanges": "必须列明未完成的关联改造，不得宣称已完整上线"
+  },
+  "effectiveScope": {
+    "fromBusinessDate": "2026-10-22",
+    "policy": "本次具体资金账户分项与门店微信增加减少分别必核，适用于10月22日起的营业日；已处理好的更早历史账只保留，不批量重算、不重做、不因本次发布改写。"
+  },
+  "fundNaming": {
+    "collectionMethods": {
+      "scan_payment": "扫码支付",
+      "cash": "现金"
+    },
+    "channels": [
+      "微信",
+      "支付宝",
+      "银行卡",
+      "云闪付",
+      "和包商户"
+    ],
+    "destinationAccounts": [
+      "老板微信",
+      "老板支付宝",
+      "老板银行卡"
+    ],
+    "storeAccounts": [
+      "门店现金",
+      "门店微信"
+    ],
+    "internalTransfer": "现金转存老板银行",
+    "identity": "收款方式、支付渠道、到账账户、资金归属分别存储；不按口语名称猜账户",
+    "dailyCloseLayout": [
+      "选择营业日",
+      "核对账户",
+      "实点门店现金",
+      "提交复核"
+    ],
+    "scanSummary": "扫码支付汇总（收款方式报表，不是资金账户）"
+  },
+  "storeCashWalletTransfer": {
+    "policy": "store-cash-wallet-transfer-v1",
+    "collection": "storeCashWalletTransfers",
+    "accounts": [
+      "门店现金",
+      "门店微信"
+    ],
+    "maxCents": 30000,
+    "approval": "经办核对实际方向金额后确认入账；老板只收信息、不审批。现金交给个人、存老板银行卡及红冲仍按原职责逐笔确认。",
+    "posting": "经办确认时同一事务等额两边；门店资金净额零，不确认老板个人实收",
+    "legacy": "原两单和关联保留，不补记、不转换、不重算",
+    "checks": [
+      "现金和微信余额逐项增减",
+      "资金流水两分录同原单",
+      "锁定营业日禁止登记或红冲",
+      "不产生顾客应收应付或收入费用利润",
+      "原单号和幂等请求不重记",
+      "老板消息指向原互转单，无新增待审批"
+    ]
+  },
+  "salesListQuery": {
+    "categorySource": "product-categories.list/pathOf",
+    "firstLoad": "optionsOnly",
+    "details": "expanded",
+    "pagination": "sale/repair and mobile independent",
+    "originalFilters": "保留业务类型、仓库、营业员、供货商、关键词及供货商销量视图；逐SKU下拉换为一级分类、品牌／二级分类",
+    "returnStatus": "normal/returned/red/returns_red，保持原销售日期筛选口径，原单记录保留",
+    "mobileProfit": "尚未合并，用户明确后续完善",
+    "unknownCommission": "未配置笔数单列，不能以0代替未知",
+    "models": [
+      "business",
+      "data",
+      "accounting",
+      "rules",
+      "evidence",
+      "matching",
+      "workflow",
+      "permissions",
+      "exceptions",
+      "metrics"
+    ]
+  },
+  "screenContentPolicy": {
+    "maxActive": 20,
+    "scope": "本门店电子屏播放目录",
+    "source": "用户已确认每次变更上屏，保留现有已确认正文",
+    "permissions": "沿用screenEdit，逐条确认；不自动收起或覆盖旧内容",
+    "playback": "时段和笑话间隔仍用现行策略；新增正文增加一次轮播长度",
+    "validation": "第11至20条可保存、摘要与播放源完整，第21条拒绝，原内容与业务账本不改"
+  },
+  "navigationBoundaries": {
+    "basicData": {
+      "label": "基础资料管理",
+      "stableModuleId": "module-master-data",
+      "path": "/master-data",
+      "areas": {
+        "personnel": "/master-data#personnel-management",
+        "parties": "/master-data#party-basics",
+        "other": "/master-data#other-basics"
+      },
+      "scope": "商品及分类、人员、供货商及其他往来单位、平台、仓库、账户、移动业务名称的原档案及维护；不展示余额或执行结算"
+    },
+    "finance": {
+      "label": "往来单位结算",
+      "paths": [
+        "/app?tab=suppliers",
+        "/funds"
+      ],
+      "scope": "付款、退款、预付、抵扣、期初、往来调整、补差、采购退货、原单、核销及对账；不在财务页内建档或改档"
+    },
+    "invariants": [
+      "保留全部原功能及既有常用编号",
+      "不移动或重建商品、人员、往来单位、账户或账本",
+      "同一主体沿用原ID，财务按原权限办理",
+      "单据归类纳入财务中心，原单据独立办理；旧泛归口分组已改为基础资料管理",
+      "入口改动不授予新增权限、不产生业务写入"
+    ]
+  },
+  "supplierExchange": {
+    "business": "供货商换货，独立于销售换货和供货商外调",
+    "data": "supplierExchanges为不可删除父单，出库、分批入库、串号、成本层、差价往来和实际流水均指向父单",
+    "accounting": "原成本CO、换出抵价O、换回成本N分别记录；差价N-O；估值差额O-CO不计销售毛利；未收齐不生成已结差价或完成状态",
+    "rules": "supplier-exchange-paired-stock-v1",
+    "evidence": "批准、供货商接货人、交货凭证、验收凭证和差价流水分别留存",
+    "matching": "真实商品和仓库、完整串号、每次验收数量逐一核对",
+    "workflow": "申请→老板批准→交货→验收收齐→差价账户核实；当面交换原子出入库",
+    "responsibility": "经办人或老板操作实物；仅老板批准；实际账户有权核实人办理差价",
+    "exceptions": "库存变更、重复串号、超额验收和重复提交拒绝；交货后保留原单不能撤销",
+    "acceptance": "双角色、两种交货方式、多件商品、FIFO/串号、差价正负与零、重试、失败回滚和授权查询验证"
+  },
+  "receptionSuspension": {
+    "business": "客户接待与相关领取暂停，实际业务独立办理",
+    "data": "旧receptions、customers、links、积分及音频不删除不覆盖",
+    "accounting": "已核定工资积分和真实收付库存不变；历史金融冲回继续",
+    "rules": "reception-suspended-v1",
+    "evidence": "原单、原始填写、录音及版本保留",
+    "matching": "充值沿用手机号匹配顾客，不生成接待",
+    "workflow": "停用接待新建、编辑、领取、审核、跟进及录音上传",
+    "permissions": "老板与营业员均不能绕过关闭接口，正常业务权限不变",
+    "exceptions": "旧链接显示停用，旧页面提交明确拒绝，不伪称已处理",
+    "acceptance": "双角色入口/后端/待办/助理、充值副本资金等价、历史账套摘要检查"
+  },
+  "businessChangeSettlement": {
+    "business": "独立业务变更退款，老板批准，实际退款与移动结算分别办理",
+    "data": "原税前额、代扣税、净额分别记录，原流水不覆盖，负向代扣关联原单",
+    "accounting": "净入和包=税前结算－2.5%代扣；净增业绩=和包净额－顾客实退款；税不得重复计费用或现金支出",
+    "rules": "business-change-carrier-withheld-v1",
+    "evidence": "实际支付凭证、到账凭证、移动代扣结算编号及旧单更正前值和操作人",
+    "matching": "必须同一原申请、同一和包账户；金额相等仅为差额线索不能自动补账",
+    "workflow": "申请→批准→实际退款→净到账和代扣核实→如有老板垫付则实际结算→闭合",
+    "permissions": "老板核定及和包代扣，员工仅本人退款及跟进，未办阶段持续提醒实际责任人",
+    "exceptions": "原税前到账未扣税不能假核清；重复代扣、换现金或微信账户、越权及金额错误拒绝",
+    "acceptance": "真实账号数据副本、重复及越权、现金/微信/老板垫付、旧单净额更正、双角色未闭合待办和旧记录保护"
+  },
+  "ownerCloseoutEntry": {
+    "business": "老板代录实际人员实点报数",
+    "data": "新增快照，不覆盖历史；报数人和代录人分列",
+    "accounting": "只读当时账面并保存实点数字，不改变资金流水",
+    "rules": "owner-actual-count-entry-v1",
+    "evidence": "确认实点数字、说明、代录时间和双方身份",
+    "matching": "实际有效人员档案，原营业日和账面快照",
+    "workflow": "老板新建报数→店内人员核对→报告及原审核流程",
+    "permissions": "仅老板代录，员工限本人；老板代录不能同时自核",
+    "exceptions": "缺报数人、未确认、无新业务且无新说明拒绝",
+    "acceptance": "老板与员工输入、现金准确扣减后新快照、旧单摘要一致、重复与越权拒绝"
+  },
+  "walletOwnerBaseline": {
+    "business": "门店微信备用金首次真实结余基准，随后自动递推",
+    "data": "walletBookBaselines按原账户ID追加一次；时点、余额及覆盖流水快照完整留存",
+    "accounting": "基准不生成收付款或收入；已含流水不重复累计；新收支与已确认交出递推",
+    "rules": "wallet-owner-confirmed-baseline-v2",
+    "evidence": "老板明确确认今日实际余额及依据，不从报告自动取数",
+    "matching": "唯一启用门店微信；原名称信号机微信继续关联；备用金仅为员工别称",
+    "workflow": "核实实际结余及已有收支→老板建立基准→当天与后日自动计算→正常实数核对",
+    "permissions": "只允许有效老板建立；员工读取计算结果，不能设基准；后端复核身份",
+    "exceptions": "重复建立、覆盖原基准、来源变化、基准前补录均拦截或待核；旧差额报告保留",
+    "acceptance": "无收支、跨天、收付款、交接、重复、越权、补录、来源变更、历史保护、助理检索与数字大脑检查"
+  },
+  "carrierProductCommission": {
+    "business": "新录入的新业务必须明确清单具体产品及档位后才可确定预计酬金；原单不自动补齐或改写",
+    "data": "保存产品ID、产品名称、来源文件SHA256、工作表与行范围、资费原文、基础酬金、首期偏移、期数及采用版本快照",
+    "accounting": "预计酬金、移动确认、实际到账分层；资费不是酬金，预计不直接生成现金流水、销售毛利或员工工资",
+    "rules": "carrier-product-commission-20261028-v1；22项次月起4期、年包系列7项次月1期；原清单年约版5×4保持原定义",
+    "evidence": "金额来自用户提供xlsx主表基础酬金列；返还起月及年包一次返清来自老板本次确认；保留原文件备份与SHA256",
+    "matching": "按清单产品ID精确匹配，同名近似档位不混用；新开卡、补卡、终端合约不能直接套用新业务产品清单",
+    "workflow": "员工选实际产品→录入时预览总额及月份→提交时服务端重算并固化→老板核对登记→按移动月结单确认→按真实到账登记",
+    "permissions": "原员工登记及本人查询；老板按原权限核对；结算确认和到账沿用finance权限；服务端检查实际账号和业务类型",
+    "exceptions": "未知产品、伪造角色或错业务类型拒绝；清单外业务保留待配置；旧49单及审核指纹不改；结算未确认不允许登记到账",
+    "acceptance": "29项独立金额核算、四期与一次返清、跨年和闰月、实际老板与经办员工授权副本问答、界面预览、原账及工资未变、独立发布守卫"
+  }
+}

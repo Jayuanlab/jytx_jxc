@@ -1,0 +1,261 @@
+/* Phone screen type scale. Every large token is exactly 1.25 × its standard token. */
+@layer store-readable {
+  @media screen and (max-width: 700px) {
+    :root {
+      --mobile-type-body: 16px;
+      --mobile-type-aux: 13px;
+      --mobile-type-control: 16px;
+      --mobile-type-title: 22px;
+      --mobile-type-group: 18px;
+      --mobile-type-metric: 26px;
+    }
+    html.task-text-large {
+      --mobile-type-body: 20px;
+      --mobile-type-aux: 16.25px;
+      --mobile-type-control: 20px;
+      --mobile-type-title: 27.5px;
+      --mobile-type-group: 22.5px;
+      --mobile-type-metric: 32.5px;
+    }
+    /* These personal pages started unusually large. Bring both modes into a usable pair. */
+    body.companion-page.mobile-type-active {
+      --mobile-type-body: 24px;
+      --mobile-type-aux: 18px;
+      --mobile-type-control: 22px;
+      --mobile-type-title: 24px;
+      --mobile-type-group: 22px;
+      --mobile-type-metric: 28px;
+    }
+    html.task-text-large body.companion-page.mobile-type-active {
+      --mobile-type-body: 30px;
+      --mobile-type-aux: 22.5px;
+      --mobile-type-control: 27.5px;
+      --mobile-type-title: 30px;
+      --mobile-type-group: 27.5px;
+      --mobile-type-metric: 35px;
+    }
+    body.family-page.mobile-type-active {
+      --mobile-type-body: 22px;
+      --mobile-type-aux: 18px;
+      --mobile-type-control: 22px;
+      --mobile-type-title: 26px;
+      --mobile-type-group: 22px;
+      --mobile-type-metric: 26px;
+    }
+    html.task-text-large body.family-page.mobile-type-active {
+      --mobile-type-body: 27.5px;
+      --mobile-type-aux: 22.5px;
+      --mobile-type-control: 27.5px;
+      --mobile-type-title: 32.5px;
+      --mobile-type-group: 27.5px;
+      --mobile-type-metric: 32.5px;
+    }
+
+    html body.mobile-type-active {
+      font-size: var(--mobile-type-body) !important;
+      line-height: 1.5 !important;
+    }
+    html body.mobile-type-active:not(.receipt-page) :is(div, p, li, td, th, span, a, label, summary, strong, b, em, code, dd, dt, output, time) {
+      font-size: var(--mobile-type-body) !important;
+      line-height: 1.5 !important;
+      overflow-wrap: anywhere;
+    }
+    html body.mobile-type-active:not(.receipt-page) :is(small, .muted, .hint, .guidance, .note, .caption, .meta, .date, .time, .timestamp, .record-meta, .record-date, .row-meta, .field-note, .page-note, .sub, .screen-note, .context, .footnote) {
+      font-size: var(--mobile-type-aux) !important;
+      line-height: 1.5 !important;
+    }
+    html body.mobile-type-active:not(.receipt-page) :is(h1, .heading h1) {
+      font-size: var(--mobile-type-title) !important;
+      line-height: 1.3 !important;
+      overflow-wrap: anywhere;
+    }
+    html body.mobile-type-active:not(.receipt-page) :is(h2, h3, .card h2, .receipt h3) {
+      font-size: var(--mobile-type-group) !important;
+      line-height: 1.35 !important;
+      overflow-wrap: anywhere;
+    }
+    html body.mobile-type-active:not(.receipt-page) :is(button, input:not([type="checkbox"]):not([type="radio"]), select, textarea, .primary, .secondary, .danger) {
+      font-size: var(--mobile-type-control) !important;
+      line-height: 1.4 !important;
+      min-width: 0;
+      max-width: 100%;
+    }
+    html body.mobile-type-active:not(.receipt-page) :is(.stat strong, .sale-sheet-summary strong, .metric, .amount-total) {
+      font-size: var(--mobile-type-metric) !important;
+      line-height: 1.2 !important;
+    }
+    html body.mobile-type-active:not(.receipt-page) :is(input, textarea)::placeholder { font-size: inherit !important; opacity: 1; }
+
+    /* Home has its own stylesheet and used several 10–13px labels. */
+    html body.home-workspace.mobile-type-active .top {
+      display: grid !important;
+      grid-template-columns: 36px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 6px 8px;
+    }
+    html body.home-workspace.mobile-type-active .top .brand { grid-column: 1; grid-row: 1; }
+    html body.home-workspace.mobile-type-active .top .identity { grid-column: 2; grid-row: 1; min-width: 0; }
+    html body.home-workspace.mobile-type-active .top .account { grid-column: 3; grid-row: 1; }
+    html body.home-workspace.mobile-type-active .top .mobile-large-all-toggle { grid-column: 1 / -1; grid-row: 2; justify-self: end; }
+    html body.home-workspace.mobile-type-active .identity small { font-size: var(--mobile-type-aux) !important; }
+    html body.home-workspace.mobile-type-active .search { flex-wrap: nowrap !important; }
+    html body.home-workspace.mobile-type-active .search input { flex: 1 1 auto; width: 0 !important; min-height: 48px; }
+    html body.home-workspace.mobile-type-active .search button { flex: 0 0 auto; }
+    html body.home-workspace.mobile-type-active :is(.summary, .summary span, .module small, .assist small, .preview small) { font-size: var(--mobile-type-aux) !important; }
+    html body.home-workspace.mobile-type-active :is(.quick, .module, .assist, .priority button, .screen-head, .summary) { min-width: 0; flex-wrap: wrap; }
+    html.task-text-large body.home-workspace :is(.priority, .modules) { grid-template-columns: minmax(0, 1fr) !important; }
+    html.task-text-large body.home-workspace .module { border-right: 0 !important; border-bottom: 1px solid #e3e9f0 !important; }
+    html.task-text-large body.home-workspace .module:last-child { border-bottom: 0 !important; }
+    html.task-text-large body.home-workspace .shortcuts { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    html.task-text-large body.home-workspace .assistants { grid-template-columns: minmax(0, 1fr) !important; }
+    html.task-text-large body.home-workspace .screen-window { height: auto !important; max-height: 200px; overflow-y: auto; }
+    html.task-text-large body.home-workspace .screen-track { animation: none !important; }
+    html.task-text-large body.home-workspace .screen-track p { height: auto !important; min-height: 0 !important; }
+
+    /* Kitty keeps a compact header and leaves room for the conversation. */
+    html body.kitty-page.mobile-type-active #app > header {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 4px 8px;
+      padding: 10px 12px;
+    }
+    html body.kitty-page.mobile-type-active #app > header .brand { grid-column: 1; grid-row: 1; min-width: 0; }
+    html body.kitty-page.mobile-type-active #app > header .cat { font-size: var(--mobile-type-metric) !important; }
+    html body.kitty-page.mobile-type-active #app > header .mobile-large-all-toggle { grid-column: 2; grid-row: 1; }
+    html body.kitty-page.mobile-type-active #app > header .home { grid-column: 1; grid-row: 2; }
+    html body.kitty-page.mobile-type-active #app > header #next { grid-column: 2; grid-row: 2; }
+    html body.kitty-page.mobile-type-active :is(.sub, #status, .switch, .preview) { font-size: var(--mobile-type-aux) !important; }
+    html body.kitty-page.mobile-type-active #messages { min-height: 0; }
+    html body.kitty-page.mobile-type-active #inputrow { flex-wrap: wrap; }
+    html body.kitty-page.mobile-type-active #inputrow textarea { flex: 1 1 100%; }
+
+    /* Paper remains a faithful print preview; only screen controls use the shared scale. */
+    html body.receipt-page.mobile-type-active .receipt-controls :is(p, a, span, label, legend, strong, b) {
+      font-size: var(--mobile-type-body) !important;
+      line-height: 1.5 !important;
+    }
+    html body.receipt-page.mobile-type-active .receipt-controls h1 { font-size: var(--mobile-type-title) !important; line-height: 1.3 !important; }
+    html body.receipt-page.mobile-type-active .receipt-controls :is(button, input, select) { font-size: var(--mobile-type-control) !important; }
+    html body.receipt-page.mobile-type-active :is(.receipt-screen-status, .receipt-print-help) { font-size: var(--mobile-type-body) !important; line-height: 1.5 !important; }
+    html body.receipt-page.mobile-type-active .receipt-controls { display: flex; flex-wrap: wrap; gap: 8px; }
+    html body.receipt-page.mobile-type-active .receipt-controls > div:first-child { order: 1; flex: 1 1 100%; }
+    html body.receipt-page.mobile-type-active .receipt-controls > .mobile-large-all-toggle { order: 2; }
+    html body.receipt-page.mobile-type-active .receipt-controls > .receipt-tools { order: 3; flex: 1 1 100%; }
+    html body.receipt-page.mobile-type-active .receipt-tools { flex-wrap: wrap; }
+
+    /* Inventory on a phone: compact rows without hiding the serial. */
+    html body.mobile-type-active .shell #main :is(.inventory-group, .inventory-subgroup) > summary {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      gap: 0 8px !important;
+      min-width: 0;
+      overflow: visible !important;
+      white-space: normal !important;
+    }
+    html body.mobile-type-active .shell #main :is(.inventory-group, .inventory-subgroup) > summary strong {
+      grid-column: 1;
+      grid-row: 1;
+      min-width: 0;
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+      overflow-wrap: anywhere;
+    }
+    html body.mobile-type-active .shell #main :is(.inventory-group, .inventory-subgroup) > summary span {
+      grid-column: 1;
+      grid-row: 2;
+      min-width: 0;
+      margin-left: 0 !important;
+      color: #526783;
+      font-size: var(--mobile-type-aux) !important;
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+    }
+    html body.mobile-type-active .shell #main :is(.inventory-group, .inventory-subgroup) > summary::after {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      align-self: center;
+      font-size: var(--mobile-type-control) !important;
+    }
+    html body.mobile-type-active .shell #main .inventory-phone-row > summary {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) max-content 12px !important;
+      gap: 0 3px !important;
+      padding: 7px 4px !important;
+      min-width: 0;
+      white-space: nowrap !important;
+    }
+    html body.mobile-type-active .shell #main .inventory-phone-row > summary .inventory-phone-name {
+      grid-column: 1;
+      grid-row: 1;
+      min-width: 0;
+      overflow: visible !important;
+      text-overflow: clip !important;
+      white-space: normal !important;
+      font-size: 15px !important;
+      line-height: 1.35 !important;
+      overflow-wrap: anywhere;
+    }
+    html body.mobile-type-active .shell #main .inventory-phone-row > summary .inventory-phone-serial {
+      grid-column: 2;
+      grid-row: 1;
+      max-width: none !important;
+      width: auto;
+      min-width: 0;
+      overflow: visible !important;
+      text-overflow: clip !important;
+      white-space: nowrap !important;
+      overflow-wrap: normal !important;
+      word-break: normal !important;
+      text-align: left !important;
+      font-size: 12px !important;
+      line-height: 1.35 !important;
+    }
+    html body.mobile-type-active .shell #main .inventory-phone-row > summary .inventory-phone-row-toggle {
+      grid-column: 3;
+      grid-row: 1;
+      align-self: center;
+      justify-self: end;
+    }
+    html.task-text-large body.mobile-type-active .shell #main .inventory-phone-row > summary .inventory-phone-name { font-size: 18.75px !important; }
+    html.task-text-large body.mobile-type-active .shell #main .inventory-phone-row > summary .inventory-phone-serial { font-size: 15px !important; }
+
+    .mobile-large-all-toggle {
+      min-height: 44px !important;
+      padding: 6px 10px !important;
+      border: 1px solid #9bb4d7 !important;
+      border-radius: 8px !important;
+      background: #eef4ff !important;
+      color: #1649ad !important;
+      font-size: var(--mobile-type-control) !important;
+      font-weight: 700 !important;
+      white-space: nowrap !important;
+      flex: 0 0 auto;
+    }
+  }
+  @media screen and (max-width: 360px) {
+    :root { --mobile-type-title: 21px; }
+    html.task-text-large { --mobile-type-title: 26.25px; }
+    html body.home-workspace.mobile-type-active .search {
+      display: grid !important;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0 8px;
+    }
+    html body.home-workspace.mobile-type-active .search svg { grid-column: 1; grid-row: 1; }
+    html body.home-workspace.mobile-type-active .search input { grid-column: 2; grid-row: 1; width: 100% !important; }
+    html body.home-workspace.mobile-type-active .search button { grid-column: 2; grid-row: 2; justify-self: end; }
+    html body.mobile-type-active .shell #main .inventory-phone-row > summary .inventory-phone-name { font-size: 14px !important; }
+    html body.mobile-type-active .shell #main .inventory-phone-row > summary .inventory-phone-serial { font-size: 11px !important; }
+    html.task-text-large body.mobile-type-active .shell #main .inventory-phone-row > summary .inventory-phone-name { font-size: 17.5px !important; }
+    html.task-text-large body.mobile-type-active .shell #main .inventory-phone-row > summary .inventory-phone-serial { font-size: 13.75px !important; }
+  }
+  @media screen and (max-width: 340px) {
+    html body.mobile-type-active .shell #main .inventory-phone-row > summary .inventory-phone-name { font-size: 12px !important; }
+    html body.mobile-type-active .shell #main .inventory-phone-row > summary .inventory-phone-serial { font-size: 10px !important; }
+    html.task-text-large body.mobile-type-active .shell #main .inventory-phone-row > summary .inventory-phone-name { font-size: 15px !important; }
+    html.task-text-large body.mobile-type-active .shell #main .inventory-phone-row > summary .inventory-phone-serial { font-size: 12.5px !important; }
+  }
+}
+@media print { .mobile-large-all-toggle { display: none !important; } }

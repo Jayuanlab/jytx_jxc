@@ -7,6 +7,7 @@ function original(store,payload){
  const collection=kind==='sale'?store.sales:kind==='other_income'?(store.otherIncome||[]):store.expenses;
  const row=collection.find(x=>x.id===sourceId);
  if(!row||row.redOf||row.amount<=0)throw new c.HttpError(404,'可红冲的原单不存在');
+ if(kind==='sale'&&row.mobileActivityId)throw new c.HttpError(409,'活动机销售需先核对移动公司和包退款与门店返用户支出，暂不能按普通销售红冲');
  if(row.redReversedBy)throw new c.HttpError(409,'原单已经红冲');
  const payments=store.receipts.filter(x=>x.kind===kind&&x.sourceId===row.id);
  if(kind!=='sale'&&!payments.length)throw new c.HttpError(409,'原单缺少对应资金流水，暂不能自动红冲');
@@ -52,7 +53,7 @@ function review(store,user,payload){
    const reversal={id:c.id(kind==='expense'?'EXR':'SKR'),type:'红冲：'+row.type,amount:-row.amount,redOf:row.id,requestId:item.id,reason:item.reason,operatorId:user.id,operator:user.name,createdAt:c.now()};
    (kind==='expense'?store.expenses:store.otherIncome).push(reversal);
    if(Math.round(Math.abs(payments.reduce((sum,p)=>sum+p.amount,0))*100)!==Math.round(row.amount*100))throw new c.HttpError(409,'原单实际资金合计异常，请先核实');
-   const cashRows=payments.map(p=>({id:c.id('RC'),kind:kind==='expense'?'expense_red':'other_income_red',sourceId:reversal.id,originalReceiptId:p.id,...require('./payment-accounts').snapshot(p),...(p.partId?{originalPartId:p.partId}:{}),amount:-p.amount,operatorId:user.id,createdAt:reversal.createdAt}));
+   const cashRows=payments.map(p=>({id:c.id('RC'),kind:kind==='expense'?'expense_red':'other_income_red',sourceId:reversal.id,originalReceiptId:p.id,...require('./payment-accounts').snapshot(require('./account-ownership').project(store,p)),...(p.partId?{originalPartId:p.partId}:{}),amount:-p.amount,operatorId:user.id,createdAt:reversal.createdAt}));
    store.receipts.push(...cashRows);row.redReversedBy=reversal.id;item.reversalId=reversal.id;item.reversalReceiptId=cashRows[0].id;item.reversalReceiptIds=cashRows.map(x=>x.id);
   }
   item.status='已红冲';
@@ -62,3 +63,4 @@ function review(store,user,payload){
  require('./feishu-notices').notice(store,'expense-red-review:'+item.id,'单据红冲'+item.status,{id:item.id,summary:'原单 '+(item.sourceId||item.expenseId)+'；'+note});return item;
 }
 module.exports={list,sources,request,review};
+module.exports.review=require("./master-data").wrapRed(module.exports.review);

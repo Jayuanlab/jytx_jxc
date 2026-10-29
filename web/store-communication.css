@@ -150,6 +150,33 @@ body.messages-mini-collapsed .page-help-floating{bottom:calc(116px + env(safe-ar
 #store-messages .comms-message>small,#store-messages.is-message-only .comms-message>small,
 #store-messages #comms-notice-view .comms-notice>small{font-size:var(--comms-frame-meta-size,var(--comms-reading-meta-size))!important;line-height:1.5!important;color:#40556f!important}
 #store-messages #comms-notice-view .comms-notice>strong{font-size:max(28px,var(--comms-reading-size))!important;line-height:1.4!important;color:var(--comms-reading-color)!important}
+
+/* Electronic screen settings have one list and one focused editor. */
+#store-messages .comms-screen-toolbar{position:sticky;top:-10px;z-index:2;display:flex;align-items:center;gap:14px;max-width:960px;margin:0 auto 18px;padding:12px 4px;background:#fff;border-bottom:2px solid #d4e2f3}
+#store-messages.is-screen-view .comms-head #comms-size{display:none!important}
+#store-messages.is-screen-view .comms-head #comms-close{display:inline-flex!important;align-items:center;justify-content:center;flex:none;font-weight:700;color:#174b91;background:#fff;border-color:#8dadd4}
+#store-messages .comms-screen-toolbar>div{flex:1;min-width:0}
+#store-messages .comms-screen-toolbar strong{display:block;color:#183553}
+#store-messages .comms-screen-toolbar small{color:#40556f}
+#store-messages #comms-managed-section,#store-messages #comms-announcements,#store-messages #comms-publish-section,#store-messages #comms-history-section{max-width:960px;margin-left:auto;margin-right:auto}
+#store-messages #comms-managed-section h3{margin:0 0 14px}
+#store-messages #comms-managed{display:grid;gap:12px}
+#store-messages #comms-managed .comms-notice{margin:0;padding:18px;border-left:5px solid #3572b7;background:#f7faff}
+#store-messages #comms-managed .comms-notice.important{border-left-color:#bf842c;background:#fff9ea}
+#store-messages .comms-screen-state{display:inline-block;margin-bottom:8px;padding:3px 10px;border-radius:999px;background:#e5f4ec;color:#20613e;font-weight:700}
+#store-messages .comms-screen-state.is-scheduled{background:#eaf2ff;color:#315787}
+#store-messages .comms-screen-card-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+#store-messages .comms-screen-card-actions button{margin-top:0}
+#store-messages:not(.is-screen-editing) #comms-publish-section{display:none!important}
+#store-messages.is-screen-editing :is(#comms-managed-section,#comms-announcements,#comms-history-section){display:none!important}
+#store-messages.is-screen-editing #comms-publish-section{display:block!important;margin-top:0;border:0;border-radius:0;padding:0}
+#store-messages:is(.is-screen-editing,.is-screen-entry) .comms-tabs{display:none!important}
+#store-messages.is-screen-editing #comms-publish-title{display:block;list-style:none;pointer-events:none;font-weight:750;color:#183553}
+#store-messages.is-screen-editing #comms-publish-title::-webkit-details-marker{display:none}
+#store-messages.is-screen-editing .comms-screen-toolbar #comms-notice-add{display:none!important}
+#store-messages.is-screen-editing .comms-screen-toolbar small{display:none}
+#store-messages .comms-screen-toolbar small.error{color:#a51d2d}
+@media(max-width:700px){#store-messages .comms-screen-toolbar{flex-wrap:wrap;gap:8px}#store-messages .comms-screen-toolbar>div{order:-1;flex-basis:100%}#store-messages .comms-screen-toolbar button{flex:1}#store-messages .comms-screen-card-actions button{flex:1}}
 #store-messages .comms-reading-controls{flex:none;margin:0;padding:5px 10px;border-top:1px solid #d4e2f3;border-bottom:1px solid #d4e2f3;background:#f6f9ff;max-height:240px;overflow:auto}
 #store-messages .comms-reading-controls>summary{min-height:42px!important;padding:5px 2px!important;font-size:22px!important;font-weight:700;line-height:1.4!important;color:#1c416f;cursor:pointer}
 #store-messages .comms-reading-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;padding:4px 0}

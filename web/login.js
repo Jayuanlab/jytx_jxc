@@ -54,6 +54,7 @@ async function load() {
     message('status-message','');
     $('login-panel').hidden = true;
     $('account-panel').hidden = false;
+    if (location.hash === '#account-panel') requestAnimationFrame(() => document.getElementById('account-panel').scrollIntoView({ block: 'start' }));
     $('signed-in').textContent = accountData.user.name + ' · ' + (accountData.user.roleCode === 'owner' ? '最高管理者' : accountData.user.role);
     $('self-form').elements.username.value = accountData.credential?.username || '';
     $('old-password-label').hidden = !accountData.credential;
@@ -102,7 +103,7 @@ $('login-form').addEventListener('submit', async (event) => {
       body: JSON.stringify(Object.fromEntries(new FormData(form))),
     });
     clearPasswords();
-    location.href = signedIn.user?.personalAssistantOnly ? '/companion' : next;
+    location.href = signedIn.user?.personalAssistantOnly ? '/companion' : new URLSearchParams(location.search).has('next') ? next : '/attendance';
   } catch (error) {
     message('login-message', error.message);
     button.disabled = false;

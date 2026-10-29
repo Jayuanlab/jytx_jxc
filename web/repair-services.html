@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>维修服务 · 聚友通信城</title>
+  <link rel="stylesheet" href="/repair-services.css?v=20261019-gift-payroll-r1">
+  <link data-payment-splits-style="1" rel="stylesheet" href="/payment-splits.css?v=20261019-r1">
+  <script defer src="/payment-splits.js?v=20261019-r1"></script>
+  <script defer src="/repair-services.js?v=20261019-gift-payroll-r1"></script>
+</head>
+<body>
+  <nav class="return-bar" aria-label="返回导航"><a href="/m">← 返回工作台</a></nav>
+  <header><div><h1>维修服务</h1><p>服务收费、实际耗材和收款分开核对</p></div></header>
+  <main>
+    <section class="panel" id="project-panel">
+      <div class="section-head"><h2>维修服务项目</h2><button id="new-project" type="button">新增服务项目</button></div>
+      <p class="hint">刷机、换屏工费等服务项目只建一次档案，不占库存。每次维修再填写实际收费和所用实物。</p>
+      <form id="project-form" hidden>
+        <div class="grid">
+          <label>项目名称 <b>必填</b><input name="name" maxlength="80" required placeholder="例如：手机换屏工费"></label>
+          <label>维修分类 <b>必填</b><select id="project-category" required></select></label>
+          <label>计量单位 <b>必填</b><input name="unit" maxlength="10" value="次" required></label>
+          <label>预设售价（选填）<input name="salePrice" type="number" min="0" step="0.01" placeholder="开维修单时仍可按实际收费填写"></label>
+        </div>
+        <p id="project-status" role="status"></p>
+        <div class="actions"><button id="cancel-project" type="button">取消</button><button type="submit">确认建档并生成编码</button></div>
+      </form>
+    </section>
+    <section class="panel" id="entry-panel">
+      <div class="section-head"><h2>登记本次维修</h2><a href="/app?tab=products">维护服务项目与耗材档案 ›</a></div>
+      <p class="hint">每次维修记一笔服务。换屏选择实际耗用的屏幕；刷机等无耗材项目确认无耗材。服务本身不计库存。</p>
+      <form id="repair-form">
+        <div class="grid">
+          <label>维修项目 <b>必填</b><select name="serviceSkuId" id="service" required><option value="">正在读取…</option></select></label>
+          <label>本次收费（元） <b>必填</b><input name="fee" id="fee" type="number" min="0" step="0.01" required></label>
+          <label>顾客称呼（选填）<input name="customerName" maxlength="40" autocomplete="off"></label>
+          <label>顾客手机号（选填）<input name="customerPhone" type="tel" inputmode="numeric" maxlength="11" autocomplete="off"></label>
+        </div>
+        <div id="empty-service" class="empty-service" role="status" hidden><strong>还没有维修服务项目档案。</strong><span id="empty-service-message"></span><button id="open-service-project" type="button" hidden>现在新增维修项目</button></div>
+        <fieldset><legend>实际耗用的实物</legend>
+          <p class="hint">维修耗材和随维修赠送的实物都在这里登记，按实际出库成本计算；赠品零售价不计收入。</p>
+          <label class="material-search-label">快速搜索耗材<input id="material-search" type="search" autocomplete="off" placeholder="输入商品名称、编码或仓库"></label>
+          <p id="material-search-status" class="hint" role="status"></p>
+          <div class="material-pick"><select id="material"><option value="">选择耗材与仓库</option></select><select id="material-usage" aria-label="材料用途"><option value="repair">维修耗材</option><option value="gift">随维修赠品</option></select><input id="material-quantity" type="number" min="1" step="1" value="1" aria-label="耗材数量"><button id="add-material" type="button">加入材料</button></div>
+          <div id="materials" class="materials"></div>
+          <label class="check"><input id="no-materials" type="checkbox"> 本次维修确认无耗材和赠品</label>
+        </fieldset>
+        <label class="full">维修说明／设备情况（选填）<textarea name="note" rows="3" maxlength="500" placeholder="如设备型号、故障、维修内容、零收费原因"></textarea></label>
+        <section class="payment"><h3>本次收款安排</h3><div id="payment-parts"></div></section>
+        <div id="review" class="review" hidden></div>
+        <p id="entry-status" role="status"></p>
+        <div class="actions"><button id="preview" type="button">核对维修单</button><button id="submit" type="submit" disabled>确认提交</button></div>
+      </form>
+    </section>
+    <section class="panel"><div class="section-head"><h2>维修服务台账</h2><button id="refresh" type="button">刷新</button></div><p class="hint">这里汇总维修销售单和经核实改归维修的原销售单；收款状态以原单核对为准。原单已扣的实物不会再次出库，待核定提成仍须老板按维修标准核定。</p><div id="records">正在读取…</div></section>
+  </main>
+</body>
+</html>

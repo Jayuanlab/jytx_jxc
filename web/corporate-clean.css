@@ -1,0 +1,264 @@
+/* Corporate Clean. Native CSS equivalents of the supplied design tokens.
+   This first layer is intentional: legacy important layers cannot reintroduce
+   the former palette. Large-text preferences and functional display stay intact. */
+@layer corporate-clean {
+ html:has(body.corporate-clean){background:#f8fafc!important}
+ body.corporate-clean {
+  --cc-blue:#2563eb;--cc-blue-hover:#1d4ed8;--cc-focus:#3b82f6;
+  --cc-bg:#f8fafc;--cc-paper:#fff;--cc-soft:#f9fafb;--cc-line:#e5e7eb;
+  --cc-ink:#111827;--cc-text:#4b5563;--cc-muted:#6b7280;
+  --cc-shadow:0 1px 2px rgb(15 23 42 / .06);
+  --cc-shadow-hover:0 4px 8px rgb(15 23 42 / .08);
+  --calm-sky:var(--cc-bg);--calm-paper:var(--cc-paper);--calm-ink:var(--cc-ink);--calm-blue:var(--cc-blue);
+  --store-bg:var(--cc-bg);--store-surface:var(--cc-paper);--store-ink:var(--cc-ink);--store-border:var(--cc-line);--store-blue:var(--cc-blue);
+  --ink:var(--cc-ink);--muted:var(--cc-text);--blue:var(--cc-blue);--deep:var(--cc-blue);--line:var(--cc-line);--paper:var(--cc-paper);--bg:var(--cc-bg);--soft:#eff6ff;
+  margin:0;background:var(--cc-bg)!important;color:var(--cc-ink)!important;
+  font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Arial,sans-serif!important;
+  font-size:var(--read-body,16px)!important;line-height:1.6!important;
+  color-scheme:light;font-synthesis:none;-webkit-tap-highlight-color:rgb(37 99 235 / .1);
+ }
+ body.corporate-clean *,body.corporate-clean *::before,body.corporate-clean *::after {
+  box-sizing:border-box;transition-duration:150ms!important;transition-timing-function:ease-out!important;
+  animation-duration:200ms!important;animation-timing-function:ease-out!important;
+ }
+ body.corporate-clean :is(main,.shell,.wrap,.layout,.panel,.card,section,form,article,nav,header,aside){min-width:0}
+ body.corporate-clean :is(h1,h2,h3,h4){color:var(--cc-ink)!important;letter-spacing:-.02em;font-weight:600!important;text-wrap:balance}
+ body.corporate-clean h1{font-size:var(--read-title,28px)!important;line-height:1.35!important}
+ body.corporate-clean :is(h2,h3){font-size:var(--read-group,20px)!important;line-height:1.45!important}
+ body.corporate-clean :is(p,li,label,td,th,dd,dt){line-height:1.6!important}
+ body.corporate-clean p{max-inline-size:75ch}
+ body.corporate-clean :is(.muted,.hint,.guidance,.note,.rail-intro,.rail-footer,.evidence,.turn-label,.data-note,.dc-caption){color:var(--cc-muted)!important}
+ body.corporate-clean :is(.hint,.guidance,.note){white-space:normal!important;text-overflow:clip!important;overflow-wrap:anywhere}
+ body.corporate-clean a{color:var(--cc-blue-hover);text-underline-offset:3px}
+ body.corporate-clean :is(button,input,select,textarea){font-family:inherit!important}
+ body.corporate-clean :is(button,[role="button"],a.primary,a.secondary,.btn,.button){
+  border:1px solid #d1d5db!important;border-radius:8px!important;
+  background:#fff!important;background-image:none!important;color:var(--cc-blue-hover)!important;
+  box-shadow:var(--cc-shadow)!important;font-weight:600!important;
+  transition-property:transform,box-shadow,background-color,border-color,color!important;
+ }
+ body.corporate-clean :is(button,.btn,.button){min-height:var(--read-control,44px)!important;padding:10px 16px!important}
+ body.corporate-clean :is(button.primary,button[type="submit"],a.primary,.button.primary,.assistant-entry,#send,[data-ps-save]){
+  background:var(--cc-blue)!important;border-color:var(--cc-blue)!important;color:#fff!important;
+ }
+ body.corporate-clean :is(button,[role="button"],a.primary,a.secondary,.btn,.button):active:not(:disabled):not([aria-disabled="true"]){
+  transform:translateY(0) scale(.98)!important;box-shadow:var(--cc-shadow)!important;
+ }
+ body.corporate-clean :is(button,input,select,textarea,a,summary,[tabindex],[role="button"]):focus-visible{
+  outline:2px solid var(--cc-focus)!important;outline-offset:2px!important;
+ }
+ body.corporate-clean :is(button:disabled,[aria-disabled="true"]){
+  background:#f3f4f6!important;border-color:var(--cc-line)!important;color:#6b7280!important;
+  opacity:1!important;cursor:not-allowed!important;transform:none!important;box-shadow:var(--cc-shadow)!important;
+ }
+ body.corporate-clean :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="hidden"]),select,textarea){
+  border:1px solid #d1d5db!important;border-radius:8px!important;background:var(--cc-soft)!important;
+  color:var(--cc-ink)!important;box-shadow:none!important;padding:10px 12px!important;
+  max-width:100%;min-width:0;min-height:var(--read-control,44px)!important;
+  transition-property:border-color,box-shadow,background-color!important;
+ }
+ body.corporate-clean :is(input,textarea)::placeholder{color:#6b7280!important;opacity:1}
+ body.corporate-clean :is(input,select,textarea):focus-visible{border-color:var(--cc-focus)!important;background:#fff!important}
+ body.corporate-clean :is(input[readonly],input:disabled,textarea[readonly],select:disabled){background:#f3f4f6!important;color:#4b5563!important}
+ body.corporate-clean :is(input[type="checkbox"],input[type="radio"]){accent-color:var(--cc-blue);flex-shrink:0}
+ body.corporate-clean :is(input[type="checkbox"],input[type="radio"],input[type="range"]){box-shadow:none!important}
+ body.corporate-clean :is(.panel,.card,.home-module,.personal-shortcuts,.close-record,.conversation,.inventory-filter-panel,.metric-group,.receipt,.capability){
+  background:var(--cc-paper)!important;border:1px solid var(--cc-line)!important;border-radius:12px!important;
+  box-shadow:var(--cc-shadow)!important;transition-property:transform,box-shadow,border-color!important;transition-duration:200ms!important;
+ }
+ body.corporate-clean :is(.panel,.personal-shortcuts,.home-module,.inventory-filter-panel){padding:24px!important}
+ body.corporate-clean :is(.panel,.personal-shortcuts,.home-module){margin-block:16px!important}
+ body.corporate-clean :is(.panel .panel,.panel .card,.panel .receipt,.panel .metric-group,.panel .close-record,.home-module .card,.personal-shortcuts .ps-grid>a,.home-module .stat,.panel .stat){
+  background:transparent!important;border:0!important;border-bottom:1px solid var(--cc-line)!important;border-radius:8px!important;box-shadow:none!important;
+ }
+ body.corporate-clean :is(.panel .panel,.panel .metric-group){padding:16px 0!important;margin-block:16px!important}
+ body.corporate-clean :is(.panel .card,.panel .receipt,.panel .close-record){padding:16px!important}
+ body.corporate-clean :is(.grid,.cards,.home-modules,.ps-grid,.cash-grid,.settlement-grid,.record-actions,.actions,.form-actions){gap:16px!important}
+ body.corporate-clean :is(.row,.toolbar,.filters,.filter-bar){gap:16px!important}
+ body.corporate-clean :is(.table-wrap,.table-scroll,.scroll,.detail-list){max-width:100%;min-width:0;overscroll-behavior-inline:contain}
+ body.corporate-clean :is(.table-wrap,.table-scroll,.scroll){overflow:auto}
+ body.corporate-clean table{background:#fff!important;color:var(--cc-ink)!important;font-variant-numeric:tabular-nums;border-color:var(--cc-line)!important}
+ body.corporate-clean th{background:#f9fafb!important;color:#4b5563!important;font-weight:600!important;border-color:var(--cc-line)!important}
+ body.corporate-clean td{border-color:var(--cc-line)!important}
+ body.corporate-clean :is(th,td){padding:var(--read-row,12px) 16px!important}
+ body.corporate-clean :is(.amount,.money,.stat strong,.dashboard strong,.daily-stats strong){font-variant-numeric:tabular-nums}
+ body.corporate-clean :is(.stat,.daily-stats article,.dc-overview article,.closeout-check-card){background:#fff!important;border:1px solid var(--cc-line)!important;border-radius:12px!important;box-shadow:var(--cc-shadow)!important;color:var(--cc-ink)!important}
+ body.corporate-clean :is(.stat,.daily-stats article,.dc-overview article,.closeout-check-card) :is(strong,b,dd){color:var(--cc-ink)!important}
+ body.corporate-clean :is(.tag,.badge){background:#f3f4f6!important;color:#4b5563!important;border-radius:8px!important;font-weight:500}
+ body.corporate-clean :is(.ok,.success,.match,.status-ok){color:#166534!important}
+ body.corporate-clean :is(.warning,.warn,.warn-text,.dc-attention,.dc-missing-alert){color:#92400e!important;background:#fffbeb!important;border-color:#fde68a!important}
+ body.corporate-clean :is(.error,.error-text,.bad,.field-error,.status-error,[role="alert"]){color:#b91c1c!important}
+ body.corporate-clean :is(button.danger,a.danger,button[data-action="reject"],button[data-action="delete"]){color:#b91c1c!important;background:#fff!important;border-color:#fecaca!important}
+ body.corporate-clean :is(button[aria-pressed="true"],[role="tab"][aria-selected="true"],nav a[aria-current="page"],#nav button.active){background:#eff6ff!important;color:var(--cc-blue-hover)!important;border-color:#bfdbfe!important}
+ body.corporate-clean :is(dialog,[role="dialog"]){background:#fff!important;border:1px solid var(--cc-line)!important;border-radius:12px!important;box-shadow:0 6px 20px rgb(15 23 42 / .12)!important;color:var(--cc-ink)!important;max-width:calc(100vw - 24px)}
+ body.corporate-clean dialog::backdrop{background:rgb(15 23 42 / .32)!important;backdrop-filter:none!important}
+ body.corporate-clean :is(dialog>header,.ps-dialog-head,dialog>footer){background:#fff!important;border-color:var(--cc-line)!important}
+ body.corporate-clean :is(body>header,.topbar,.mobile-action-dock){background:#fff!important;color:var(--cc-ink)!important;border-color:var(--cc-line)!important;box-shadow:var(--cc-shadow)!important}
+ body.corporate-clean>header{background:#fff!important;color:var(--cc-ink)!important;border-bottom:1px solid var(--cc-line)!important;flex-wrap:wrap!important;gap:16px!important;padding:12px 24px!important}
+ body.corporate-clean :is(.topbar .identity,.topbar .brand){min-width:0}
+ body.corporate-clean .topbar .identity{flex-wrap:wrap!important;gap:12px!important}
+ body.corporate-clean :is(.branch-context,#branch-context){background:#fff!important;border-color:var(--cc-line)!important;color:#4b5563!important}
+ body.corporate-clean :is(.mark,.brand-mark){border:1px solid #bfdbfe!important;border-radius:8px!important;background:#eff6ff!important;color:var(--cc-blue-hover)!important;box-shadow:none!important}
+ body.corporate-clean :is(.nav-icon,.symbol,.hero-action-icon,.home-brand-icon){background:#eff6ff!important;color:var(--cc-blue)!important;border-radius:8px!important;transition-property:transform,background-color,color!important;transition-duration:200ms!important}
+ body.corporate-clean :is(.nav-icon,.symbol,.hero-action-icon,.home-brand-icon) svg{color:inherit!important}
+ body.corporate-clean :is(button.page-help-button,.home-help){border-radius:8px!important;min-width:44px!important;width:auto!important;height:auto!important;min-height:44px!important;padding:8px 12px!important}
+ body.corporate-clean :is(.assistant-float,#comms-symbol-open){background:var(--cc-blue)!important;border-color:var(--cc-blue)!important;color:#fff!important;border-radius:12px!important;box-shadow:var(--cc-shadow-hover)!important}
+ body.corporate-clean .mobile-action-dock :is(a,button){background:#fff!important;color:var(--cc-blue-hover)!important;border-color:var(--cc-line)!important;border-radius:8px!important}
+ /* Workbench: store identity, quiet notice board, obvious functional entrances. */
+ body.corporate-clean.store-workbench main.wrap{padding:24px!important;max-width:1440px}
+ body.corporate-clean.store-workbench :is(p,li,label,button,input,select,textarea,a,summary,.identity){font-size:var(--read-body,16px)!important;line-height:1.5!important}
+ body.corporate-clean.store-workbench small{font-size:var(--read-aux,14px)!important;line-height:1.5!important}
+ body.corporate-clean.store-workbench .home-header{background:transparent!important;border:0!important;box-shadow:none!important}
+ body.corporate-clean.store-workbench :is(.home-brand,.eyebrow,.identity){color:var(--cc-ink)!important}
+ body.corporate-clean.store-workbench .eyebrow{letter-spacing:0!important;text-transform:none!important;font-weight:600!important;font-size:var(--read-group,20px)!important}
+ body.corporate-clean.store-workbench .home-search{background:#fff!important;border:1px solid #d1d5db!important;border-radius:12px!important;box-shadow:var(--cc-shadow)!important}
+ body.corporate-clean.store-workbench .home-search input{background:#fff!important;border:0!important}
+ body.corporate-clean.store-workbench .home-search button{min-width:60px!important;width:auto!important;padding:10px!important;white-space:nowrap}
+ body.corporate-clean.store-workbench #comms-board-tools{max-height:none!important;min-height:44px!important;gap:8px!important}
+ body.corporate-clean.store-workbench #store-electronic-board{background:#eff6ff!important;border:1px solid #dbeafe!important;border-radius:12px!important;color:#1e3a8a!important;box-shadow:none!important}
+ body.corporate-clean.store-workbench #store-electronic-board .board-copy{text-shadow:none!important}
+ body.corporate-clean.store-workbench #store-electronic-board :is(.warm-screen-copy,.board-copy,#comms-board-track){color:#1e3a8a!important}
+ body.corporate-clean.store-workbench #store-electronic-board .warm-screen-copy :is(strong,p){color:#1e3a8a!important}
+ body.corporate-clean.store-workbench #store-electronic-board .warm-screen-slide{animation-duration:150ms!important}
+ /* Reading motion is a timed display, not a control micro-interaction. Keep
+    its full reading duration and uniform speed instead of the 200ms UI cap. */
+ body.corporate-clean #store-electronic-board .board-track{animation-duration:var(--board-duration,30s)!important;animation-timing-function:linear!important}
+ body.corporate-clean.store-workbench :is(.hero-actions>a,.home-frequent>a,.module-content .card){background:#fff!important;border:1px solid var(--cc-line)!important;border-radius:12px!important;box-shadow:var(--cc-shadow)!important;color:var(--cc-ink)!important;padding:20px!important}
+ body.corporate-clean.store-workbench .module-content .card{background:transparent!important;border:0!important;border-bottom:1px solid var(--cc-line)!important;box-shadow:none!important}
+ body.corporate-clean.store-workbench .ps-grid>a{font-size:var(--read-group,20px)!important;font-weight:600!important;color:var(--cc-blue-hover)!important;min-height:76px!important;padding:16px!important}
+ body.corporate-clean.store-workbench :is(.hero-action-label,.module-content .card strong){font-size:var(--read-group,20px)!important;font-weight:600!important}
+ body.corporate-clean.store-workbench :is(.home-module>summary,.ps-heading h2){font-size:var(--read-group,20px)!important;font-weight:600!important;color:var(--cc-ink)!important}
+ body.corporate-clean.store-workbench .assistant-entry{border-radius:12px!important;box-shadow:var(--cc-shadow)!important}
+ body.corporate-clean.store-workbench .assistant-entry :is(strong,span){color:#fff!important}
+ body.corporate-clean.store-workbench .personal-shortcuts .ps-time-suggestions a{background:#f9fafb!important;border-color:var(--cc-line)!important;color:#4b5563!important;border-radius:8px!important}
+ /* Financial forms retain their exact fields and evidence hierarchy. */
+ body.corporate-clean :is(.settlement-welcome,.metric-group,.settlement-footer,.cash-preview,.lock-evidence){background:#fff!important;border-color:var(--cc-line)!important;color:var(--cc-text)!important;border-radius:12px!important}
+ body.corporate-clean .metric-group{padding:24px!important}
+ body.corporate-clean .cash-preview{border:1px solid var(--cc-line)!important;padding:16px!important}
+ body.corporate-clean #wallet-daily-summary{padding-bottom:12px}
+ body.corporate-clean :is(.closeout-check-card,.closeout-original){border-color:var(--cc-line)!important}
+ /* Pi assistant remains a bounded scrolling conversation, with a fixed composer. */
+ body.corporate-clean.corporate-pi .topbar{background:#fff!important;color:var(--cc-ink)!important;border-bottom:1px solid var(--cc-line)!important;height:72px;padding-inline:24px}
+ body.corporate-clean.corporate-pi .topbar :is(.identity,.back,.brand small){color:var(--cc-text)!important}
+ body.corporate-clean.corporate-pi .brand-mark{font-family:inherit!important;font-size:23px}
+ body.corporate-clean.corporate-pi .layout{gap:24px;padding:24px;max-width:1440px}
+ body.corporate-clean.corporate-pi .conversation{height:calc(100dvh - 120px);border-radius:12px!important;min-height:0;overflow:hidden}
+ body.corporate-clean.corporate-pi .messages{padding:28px;gap:24px;scrollbar-color:#cbd5e1 transparent}
+ body.corporate-clean.corporate-pi .welcome h1{font-size:clamp(28px,3vw,38px)!important;letter-spacing:-.025em}
+ body.corporate-clean.corporate-pi .welcome-rule{display:none!important}
+ body.corporate-clean.corporate-pi .welcome p{color:var(--cc-text)!important}
+ body.corporate-clean.corporate-pi .turn-label{font-size:13px}
+ body.corporate-clean.corporate-pi .bubble{border-radius:12px!important;padding:16px 20px;max-inline-size:72ch}
+ body.corporate-clean.corporate-pi .user .bubble{background:var(--cc-blue)!important;color:#fff!important;border:1px solid var(--cc-blue)!important}
+ body.corporate-clean.corporate-pi .assistant .bubble{background:#f9fafb!important;border:1px solid var(--cc-line)!important;color:var(--cc-ink)!important}
+ body.corporate-clean.corporate-pi .composer{background:#fff!important;padding:20px 28px;border-color:var(--cc-line)!important}
+ body.corporate-clean.corporate-pi .composer label{font-size:15px;color:var(--cc-ink)}
+ body.corporate-clean.corporate-pi .compose-row textarea{min-height:76px!important}
+ body.corporate-clean.corporate-pi .rail{padding:0 0 16px;max-height:calc(100dvh - 120px);gap:20px;background:transparent!important}
+ body.corporate-clean.corporate-pi .quick-links{gap:12px}
+ body.corporate-clean.corporate-pi :is(.quick-links a,.suggestions button,.reply-tools a){border:1px solid var(--cc-line)!important;border-radius:8px!important;background:#fff!important;color:var(--cc-blue-hover)!important;box-shadow:var(--cc-shadow)!important;font-weight:600}
+ body.corporate-clean.corporate-pi .rail .capability{border:0!important;border-bottom:1px solid var(--cc-line)!important;background:transparent!important;box-shadow:none!important;padding:12px 0}
+ body.corporate-clean.corporate-pi .rail-footer{color:var(--cc-text)!important;border-color:var(--cc-line)!important}
+ body.corporate-clean.account-page :is(.card,.login-card){border:1px solid var(--cc-line)!important;border-radius:12px!important;background:#fff!important;box-shadow:var(--cc-shadow)!important;padding:24px!important}
+ /* Micro-interactions are pointer-only; touch never gets a sticky hover. */
+ @media (hover:hover) {
+  body.corporate-clean :is(button,[role="button"],a.primary,a.secondary,.btn,.button):hover:not(:disabled):not([aria-disabled="true"]){transform:translateY(-2px)!important;box-shadow:var(--cc-shadow-hover)!important;border-color:#bfdbfe!important;background:#f9fafb!important}
+  body.corporate-clean :is(button.primary,button[type="submit"],a.primary,#send,[data-ps-save]):hover:not(:disabled){background:var(--cc-blue-hover)!important;border-color:var(--cc-blue-hover)!important;color:#fff!important}
+  body.corporate-clean :is(.panel,.home-module,.personal-shortcuts,.card,.inventory-filter-panel):hover{box-shadow:var(--cc-shadow-hover)!important;transform:translateY(-2px)}
+  body.corporate-clean :is(.panel .panel,.panel .card,.panel .receipt,.home-module .card,.personal-shortcuts .ps-grid>a):hover{box-shadow:none!important;background:#f9fafb!important}
+  body.corporate-clean :is(a,button,.card):hover :is(.symbol,.nav-icon,.hero-action-icon,.home-brand-icon){background:var(--cc-focus)!important;transform:scale(1.1);color:#fff!important}
+  body.corporate-clean tbody tr:hover>td{background:#f9fafb!important}
+  body.corporate-clean :is(.quick-links a,.suggestions button,.reply-tools a):hover{transform:translateY(-2px);box-shadow:var(--cc-shadow-hover)!important;border-color:#bfdbfe!important}
+  body.corporate-clean :is(button,[role="button"],a.primary,a.secondary,.btn,.button):active:not(:disabled):not([aria-disabled="true"]){transform:translateY(0) scale(.98)!important;box-shadow:var(--cc-shadow)!important}
+ }
+ @media(max-width:850px){
+  body.corporate-clean.corporate-pi .topbar{height:64px;padding-inline:16px;gap:12px}
+  body.corporate-clean.corporate-pi .layout{padding:16px;gap:24px}
+  body.corporate-clean.corporate-pi .conversation{height:calc(100dvh - 96px);border:1px solid var(--cc-line)!important;border-radius:12px!important}
+  body.corporate-clean.corporate-pi .rail{padding:8px 0;max-height:none}
+ }
+ @media(max-width:600px){
+  body.corporate-clean>header{padding:12px 16px!important;gap:12px!important}
+  body.corporate-clean.store-workbench main.wrap{padding:16px!important}
+  body.corporate-clean :is(.panel,.personal-shortcuts,.home-module,.metric-group,.inventory-filter-panel){padding:20px!important}
+  body.corporate-clean :is(.grid,.cards,.ps-grid,.cash-grid,.settlement-grid){gap:16px!important}
+  body.corporate-clean .row{flex-wrap:wrap}
+  body.corporate-clean :is(input,select,textarea){max-width:100%}
+  body.corporate-clean.corporate-pi .layout{padding:12px}
+  body.corporate-clean.corporate-pi .conversation{height:calc(100dvh - 88px)}
+  body.corporate-clean.corporate-pi .messages{padding:20px 16px}
+  body.corporate-clean.corporate-pi .composer{padding:16px}
+  body.corporate-clean.corporate-pi .compose-row{gap:12px}
+  body.corporate-clean.corporate-pi .compose-row button{min-width:64px;padding-inline:12px!important}
+  body.corporate-clean.corporate-pi .bubble{padding:14px 16px;max-width:100%}
+ }
+ @media(prefers-reduced-motion:reduce){
+  body.corporate-clean *,body.corporate-clean *::before,body.corporate-clean *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  body.corporate-clean :is(button,[role="button"],a,.panel,.card,.home-module,.personal-shortcuts,.inventory-filter-panel):is(:hover,:active){transform:none!important}
+ }
+ @media print{
+  body.corporate-clean{background:#fff!important;color:#111827!important}
+  body.corporate-clean *{box-shadow:none!important;transform:none!important;animation:none!important;transition:none!important}
+ }
+}
+
+/* Sales is a task page. Module navigation opens only when explicitly requested.
+   Applied in the document head so the full menu never flashes before startup. */
+@layer corporate-clean {
+ html.sales-focus body.corporate-clean{--mobile-action-height:calc(56px + env(safe-area-inset-top,0px));padding-top:var(--mobile-action-height)!important}
+ html.sales-focus body.corporate-clean :is(.topbar,#master-review-queue,.branch-context,#branch-context){display:none!important}
+ html.sales-focus body.corporate-clean .shell{display:block!important;grid-template-columns:minmax(0,1fr)!important;margin-top:0!important;padding-top:0!important}
+ html.sales-focus body.corporate-clean #nav{display:none!important}
+ html.sales-focus.sales-navigation-open body.corporate-clean #nav{display:flex!important;flex-wrap:wrap!important;align-content:flex-start!important;gap:8px!important;position:fixed!important;top:var(--mobile-action-height)!important;left:8px!important;right:8px!important;bottom:auto!important;width:auto!important;max-width:720px!important;max-height:65dvh!important;overflow:auto!important;z-index:1001!important;padding:12px!important;background:#fff!important;border:1px solid #dbe3ef!important;box-shadow:0 8px 24px #142c5026!important}
+ html.sales-focus body.corporate-clean #nav>div{display:flex!important;flex-wrap:wrap!important;gap:6px!important;flex:1 1 220px!important;padding:4px!important}
+ html.sales-focus body.corporate-clean #nav :is(button,a){font-size:16px!important;line-height:1.4!important;min-height:44px!important;padding:8px 10px!important;white-space:normal!important}
+ html.sales-focus body.corporate-clean #main{margin-top:0!important;padding-top:12px!important;transform:none!important;transition:none!important}
+ html.sales-focus body.corporate-clean .mobile-action-dock{display:flex!important;position:fixed!important;top:0!important;left:0!important;right:0!important;z-index:1002!important;min-height:var(--mobile-action-height)!important;height:var(--mobile-action-height)!important;gap:8px!important;justify-content:flex-start!important;padding:calc(6px + env(safe-area-inset-top,0px)) 12px 6px!important}
+ html.sales-focus body.corporate-clean .mobile-action-dock :is(a,button){flex:0 0 auto!important;min-width:0!important;width:auto!important;min-height:44px!important;padding:8px 12px!important;font-size:16px!important;line-height:1.25!important;transform:none!important;white-space:nowrap!important}
+ html.sales-focus body.corporate-clean .mobile-action-dock :is(.nav-icon,.text-size-toggle,.mobile-logout){display:none!important}
+ html.sales-focus body.corporate-clean .mobile-action-dock .sale-navigation-toggle{margin-left:auto!important}
+ html.sales-focus body.corporate-clean #comms-launcher.is-frame-positioned{left:auto!important;top:auto!important;right:12px!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important}
+ html.sales-focus body.corporate-clean :is(#comms-launcher,#store-messages){transition:none!important;transform:none!important;overflow-anchor:none}
+ html.sales-focus body.corporate-clean :is(.card,.panel):hover{transform:none!important}
+}
+
+/* Standalone task views; served as same-origin CSS. */
+@layer corporate-clean{html.single-payment-task body.corporate-clean :is(#business,#money,#losses,main>p.hint,nav[aria-label="本页内容"],#work-notice-strip,#normal-workflow-entry,#payments>h3,#payments>details){display:none!important}html.single-payment-task body.corporate-clean #payment-form label:has(>select[name="mode"]){display:none!important}html.payment-request-list body.corporate-clean #payment-form{display:none!important}}
+@layer corporate-clean{html.attendance-task body.corporate-clean{height:auto!important;min-height:100vh!important;overflow:auto!important}html.attendance-task body.corporate-clean main{height:auto!important;max-height:none!important;overflow:visible!important;max-width:960px!important;margin:0 auto!important;padding:16px!important}html.attendance-task body.corporate-clean :is(.assistant-chat-shell,#work-dock,#work-more-panel){position:static!important;display:block!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;transform:none!important;width:100%!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important}html.attendance-task body.corporate-clean :is(#work-thread,#assistant-compose,main>:not(.assistant-chat-shell),#work-more-panel>:not(details:has(#attendance-panel)),details:has(>#attendance-panel)>summary){display:none!important}html.attendance-task body.corporate-clean #attendance-panel{margin:0!important;width:100%!important}}
+
+@layer corporate-clean{
+ html body.corporate-clean #continue-unfinished-work{min-height:0!important;height:auto!important;max-width:100%!important;padding:6px 10px!important;margin:6px 0!important;gap:8px!important;border:0!important;border-radius:6px!important;box-shadow:none!important;background:transparent!important;font-size:14px!important;line-height:1.4!important}
+ html body.corporate-clean #continue-unfinished-work :is(span,a){font-size:14px!important;line-height:1.4!important;min-height:32px!important;margin:0!important;padding:0!important}
+}
+
+@layer corporate-clean{
+ html body.corporate-clean #modal-sale-matches{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;max-height:min(45dvh,420px)!important;overflow:auto!important;padding:4px!important;scrollbar-gutter:stable}
+ html body.corporate-clean #modal-sale-matches>button{flex:0 0 auto!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:6px!important;width:100%!important;min-width:0!important;height:auto!important;max-height:none!important;min-height:76px!important;padding:12px 14px!important;white-space:normal!important;line-height:1.5!important;overflow:visible!important;text-align:left!important}
+ html body.corporate-clean #modal-sale-matches>button>strong{display:block!important;color:#172338!important;font-size:var(--read-body,16px)!important;line-height:1.5!important;overflow-wrap:anywhere}
+ html body.corporate-clean #modal-sale-matches .sale-product-meta{display:flex!important;flex-wrap:wrap!important;gap:4px 16px!important;font-size:var(--read-body,16px)!important;line-height:1.65!important;color:#334155!important;margin:0!important;overflow-wrap:anywhere}
+ html body.corporate-clean #modal-sale-matches .sale-product-meta span{white-space:normal!important}
+ html body.corporate-clean #modal-sale-matches :is(.sale-stock-number,.sale-product-price){font-size:1.15em!important;font-weight:750!important;color:#123d78!important;font-variant-numeric:tabular-nums}
+ html body.corporate-clean #modal-sale-matches .sale-original-barcode{margin:0!important;line-height:1.5!important;overflow-wrap:anywhere}
+}
+
+/* Assistant entry modules load no conversations until explicitly opened. */
+.home-assistant-modules{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px}
+.home-assistant-module{display:flex;align-items:center;justify-content:center;flex:1 1 100px;min-height:48px;padding:8px 10px;background:#fff;border:1px solid #d4dfed;border-radius:8px;font-size:var(--font-base,18px);font-weight:650;color:#174b8c;text-decoration:none;white-space:nowrap}
+#home-account-tools:not([hidden]){display:block!important;order:90!important;margin-top:20px!important;margin-bottom:24px!important;border:0!important;background:transparent!important;position:static!important;max-height:none!important}
+#home-account-tools .home-account-tools-body{display:flex!important;flex-wrap:wrap;align-items:center;gap:12px;padding:0!important;border:0!important}
+#home-assistant-modules{order:0!important;flex:none!important}
+body:not(.store-workbench) .assistant-entry-controls .assistant-entry-personal,body:not(.store-workbench) .assistant-entry-controls .assistant-entry-customer{display:none!important}
+.mobile-action-dock .assistant-entry-home-slot{display:inline-flex;flex:0 0 auto;align-items:center}
+.mobile-action-dock .assistant-entry-controls,.mobile-action-dock .assistant-role-choice{display:inline-flex;gap:4px;align-items:center}
+.mobile-action-dock .assistant-entry-state:empty{display:none}
+.assistant-separated-panel:not([hidden]){max-height:80dvh;width:min(560px,calc(100vw - 16px));overflow:hidden}
+.assistant-separated-panel iframe{width:100%;height:min(65dvh,640px);border:0}
+
+/* Only the legacy attendance page: retain all three actions inside the viewport. */
+@layer corporate-clean {
+ @media(max-width:760px){
+  html.attendance-task body.corporate-clean .mobile-action-dock{max-width:100%!important;box-sizing:border-box!important;gap:8px!important}
+  html.attendance-task body.corporate-clean .mobile-action-dock :is(a,button){flex:1 1 0!important;min-width:0!important;max-width:100%!important;padding:8px 6px!important;font-size:16px!important;white-space:nowrap!important}
+  html.attendance-task body.corporate-clean .mobile-action-dock .nav-icon{display:none!important}
+ }
+}

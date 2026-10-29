@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>历史空充补录 · 聚友通信</title>
+  <link rel="stylesheet" href="/air-history.css">
+  <script defer src="/boss-serial-capture.js"></script>
+  <script defer src="/air-history.js"></script>
+</head>
+<body>
+  <main>
+    <header><a href="/air-recharge">‹ 返回空中充值</a><h1>历史空充补录</h1><p>营业员提交历史补单，现任店长初审、老板终审后才入账；店长本人提交直接送老板终审。</p></header>
+    <div id="status" role="status" aria-live="polite">正在读取台账…</div>
+    <section class="card" id="approval-section"><h2>历史补单审批</h2><p id="manager-label">正在读取现任店长…</p><div id="approval-list">正在读取补单…</div></section>
+    <section id="opening-section" class="card">
+      <h2>① 原期初基准</h2><p>这是老板确认的历史余额，不是平台入金交易。</p>
+      <div class="fields"><label>基准日期<input id="opening-date" type="date"></label><label>期初余额（元）<input id="opening-amount" type="number" inputmode="decimal" min="0.01" step="0.01"></label></div>
+      <label>来源说明<input id="opening-source" placeholder="例如：老板核对旧账及BOSS余额后确认"></label>
+    </section>
+    <section class="card">
+      <h2>② 真实交易</h2><p>以下资料先提交审批；老板终审后才会登记BOSS扣减或入金。现金未核实的扣款保持待归属，不记现金到账。</p>
+      <div class="evidence"><strong>10月15日截图待核对：</strong>12:31:05 ¥50（尾号04289）、13:13:15 ¥30（尾号33742）、13:58:35 ¥130（尾号79121），合计¥210。实际经办人、顾客手机号及现金交接尚未确认，载入后不会自动入账。</div>
+      <div id="rows"></div><div class="actions"><button id="load-known" type="button">载入这三笔待核对记录</button><button id="add-sale" type="button">＋ 顾客现金充值</button><button id="add-funding" type="button">＋ BOSS平台入金</button></div>
+    </section>
+    <section class="card" id="pending-section">
+      <h2>待补人员与现金核对</h2><p>历史BOSS扣款可以先登记为待核单；在这里补真实经办人、现金收款人和实际收款后，才记现金到账。</p>
+      <div id="pending-settlements">正在读取待核单…</div>
+    </section>    <section class="card" id="balance-section">
+      <h2>③ BOSS 显示余额</h2><p>这里只记录观察值，不生成一笔虚构交易。</p>
+      <div class="fields"><label>余额日期<input id="balance-date" type="date"></label><label>显示余额（元）<input id="balance-amount" type="number" inputmode="decimal" min="0" step="0.01"></label></div>
+      <label>依据<input id="balance-source" placeholder="例如：老板提供BOSS截图及核对时间"></label>
+      <button id="save-observation" type="button">提交BOSS余额观察资料审批</button>
+    </section>
+    <p id="recorded-observation" hidden></p>
+    <section class="card"><h2>④ 预览与提交审批</h2><div class="actions"><button id="preview" class="primary" type="button">预览对账</button><button id="commit" class="confirm" type="button" disabled>提交店长/老板审批</button></div><div id="result" aria-live="polite"></div></section>
+  </main>
+  <dialog id="settle-dialog">
+    <form id="settle-form">
+      <h2>核实历史充值收款</h2><p id="settle-info"></p>
+      <div class="fields"><label>实际经办营业员<select name="handledByUserId" required><option value="">请选择</option></select></label><label>实际现金收款人<select name="cashReceivedByUserId" required><option value="">请选择</option></select></label></div>
+      <div class="fields"><label>顾客手机号<input name="customerPhone" type="tel" inputmode="numeric" maxlength="11" required></label><label>实际收到现金（元）<input name="cashReceived" type="number" inputmode="decimal" min="0.01" step="0.01" required></label></div>
+      <label class="check"><input name="cashConfirmed" type="checkbox" required> 我已核实这笔顾客现金实际收到</label>
+      <label>核对说明（选填）<input name="note"></label>
+      <p id="settle-error" role="alert"></p>
+      <div class="actions"><button id="settle-cancel" type="button">返回</button><button class="confirm" type="submit">确认收款并补全原单</button></div>
+    </form>
+  </dialog>  <template id="row-template"><article class="entry card"><div class="entry-title"><strong class="kind-title"></strong><button class="remove" type="button">移除</button></div><div class="fields"><label>业务日期<input class="business-date" type="date"></label><label>实际发生时间<input class="occurred-at" type="datetime-local" step="1"></label></div><div class="fields"><label>流水号类型<select class="serial-type"><option value="full">完整BOSS流水号</option><option value="tail5">仅尾5位</option></select></label><label>BOSS 流水号 / 尾号<input class="boss-serial" inputmode="numeric" autocomplete="off"></label></div><div class="capture"><button class="capture-button" type="button">拍照识别流水号</button><button class="album-button" type="button">从相册识别</button><input class="capture-file" type="file" accept="image/*" capture="environment" hidden><input class="album-file" type="file" accept="image/*" hidden><small class="capture-status">识别后仍须人工核对</small></div><div class="sale-fields"><div class="fields"><label>BOSS 扣减（元）<input class="amount" type="number" inputmode="decimal" min="0.01" step="0.01"></label><label>顾客实收现金（元）<input class="cash-received" type="number" inputmode="decimal" min="0.01" step="0.01"></label></div><div class="fields"><label>顾客手机号<input class="customer-phone" type="tel" inputmode="numeric" maxlength="11"></label><label>实际经办营业员<select class="handled-by"><option value="">请选择真实经办人</option></select></label></div><label>实际现金收款人<select class="received-by"><option value="">请选择真实收款人</option></select></label><label class="check"><input class="cash-confirmed" type="checkbox"> 已核实该笔顾客现金实际收到</label></div><div class="funding-fields" hidden><div class="fields"><label>实际转出（元）<input class="paid-amount" type="number" inputmode="decimal" min="0.01" step="0.01"></label><label>平台实际入账（元）<input class="credited-amount" type="number" inputmode="decimal" min="0.01" step="0.01"></label></div><div class="fields"><label>转出方式<select class="method"><option value="">请选择</option><option>微信</option><option>银行卡</option><option>支付宝</option></select></label><label>转出凭证流水号<input class="bank-ref" autocomplete="off"></label></div><label>实际付款人<select class="paid-by"><option value="">请选择真实付款人</option></select></label></div><label>说明（选填）<input class="note"></label></article></template>
+</body>
+</html>

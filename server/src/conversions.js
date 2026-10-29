@@ -63,3 +63,5 @@ function review(store,user,payload){
  return row;
 }
 module.exports={candidates,list,submit,review,assessment};
+
+module.exports.submit=require('./reception-availability').assertEnabled;module.exports.review=require('./reception-availability').assertEnabled;module.exports.list=()=>[];

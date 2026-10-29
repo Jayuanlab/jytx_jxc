@@ -1,6 +1,6 @@
 const c = require("./common");
 
-const labels = { supplier: "往来单位", product: "商品", paymentAccount: "支付账户", businessOption: "业务选项" };
+const labels = { supplier: "往来单位", product: "商品", paymentAccount: "支付账户", businessOption: "业务选项", fundParty:"往来单位/平台", category:"商品分类", warehouse:"仓库" };
 
 function requireOwner(store, user) {
   return require("./sale-return-requests").assertOwner(store, user);
@@ -11,11 +11,15 @@ function source(store, kind, sourceId) {
   if (kind === "product") return (store.products || []).find(row => row.skuId === sourceId);
   if (kind === "paymentAccount") return (store.paymentAccounts || []).find(row => row.id === sourceId);
   if (kind === "businessOption") return (store.businessOptions || []).find(row => row.id === sourceId);
+  if(kind==='fundParty')return (store.fundParties||[]).find(r=>r.id===sourceId);
+  if(kind==='category')return (store.productCategoryCatalog?.paths||[]).find(r=>r.id===sourceId);
+  if(kind==='warehouse')return (store.warehouseProfiles||[]).find(r=>r.id===sourceId);
   throw new c.HttpError(400, "不支持该类新增档案");
 }
 
 function snapshot(row, kind) {
   if (!row) return null;
+  if(['fundParty','category','warehouse'].includes(kind))return structuredClone(row);
   if (kind === "supplier") return { name: row.name, contact: row.contact || "", note: row.note || "" };
   if (kind === "businessOption") return { kind: row.kind, name: row.name, parentId: row.parentId, parentName: row.parentName, baseType: row.baseType, baseSubType: row.baseSubType };
   if (kind === "paymentAccount") return { name: row.name, channel: row.channel, ownerId: row.ownerId, ownerName: row.ownerName, active: row.active, note: row.note || "" };
@@ -23,8 +27,8 @@ function snapshot(row, kind) {
 }
 
 function recordAddition(store, user, data) {
-  if (!["supplier", "product", "paymentAccount", "businessOption"].includes(data.kind)) throw new c.HttpError(400, "不支持该类新增档案");
-  c.permit(user, data.kind === "supplier" ? "purchase" : data.kind === "paymentAccount" ? "createPaymentAccounts" : data.kind === "businessOption" ? "sell" : "manageProducts");
+  if (!["supplier", "product", "paymentAccount", "businessOption","fundParty","category","warehouse"].includes(data.kind)) throw new c.HttpError(400, "不支持该类新增档案");
+  c.permit(user,"catalogAdd");
   const sourceId = c.text(data.sourceId, "新增档案编号");
   const original = source(store, data.kind, sourceId);
   if (!original) throw new c.HttpError(404, "新增档案不存在");
@@ -67,9 +71,7 @@ function review(store, user, payload) {
     throw new c.HttpError(409, "该新增档案已确认");
   if (!["confirm", "needs_changes"].includes(payload.decision))
     throw new c.HttpError(400, "请选择确认或需完善");
-  const note = c.text(payload.note, "核对意见");
-  if (note.length < 4 || note.length > 500)
-    throw new c.HttpError(400, "核对意见须为 4 至 500 字");
+  const note = String(payload.note || "").trim().slice(0, 500);
   const current = snapshot(source(store, row.kind, row.sourceId), row.kind);
   if (!current) throw new c.HttpError(409, "原档案已不存在，请先核实，不能确认");
   if (row.status === "需完善" && payload.decision === "needs_changes" && row.reviewNote === note)

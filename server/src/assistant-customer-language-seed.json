@@ -1,0 +1,271 @@
+{
+  "version": "2026-10-24.1",
+  "source": "原生产SQLite只读知识快照；只提取现行语言表达，不迁移资费或将待核资料变现行",
+  "sourceSnapshotSha256": "ff3b1e43ad5f7dee18832d577c79b94c7048aa29e57f7b3eccddb6c04afebe79",
+  "articles": [
+    {
+      "id": "customer-talk-20261009-dialect-glossary",
+      "title": "云阳话速查：口语意思与用词边界",
+      "policyStatus": "current",
+      "enabled": true,
+      "version": 1,
+      "summary": "可以用来理解口语；多义词先结合场景，粗俗词仅理解，不用于对客回答。",
+      "summaryDialect": "可以用来理解口语；多义词先结合场景，粗俗词仅理解，不用于对客回答哈。",
+      "dialectMappings": [
+        {
+          "key": "dialect-0",
+          "from": "么子",
+          "to": "什么",
+          "requiresContext": false
+        },
+        {
+          "key": "dialect-1",
+          "from": "么里",
+          "to": "什么",
+          "requiresContext": false
+        },
+        {
+          "key": "dialect-2",
+          "from": "啥子",
+          "to": "什么",
+          "requiresContext": false
+        },
+        {
+          "key": "dialect-3",
+          "from": "啷个",
+          "to": "怎么",
+          "requiresContext": false
+        },
+        {
+          "key": "dialect-4",
+          "from": "啷凯",
+          "to": "怎么",
+          "requiresContext": false
+        },
+        {
+          "key": "dialect-5",
+          "from": "啷锅",
+          "to": "怎么",
+          "requiresContext": false
+        },
+        {
+          "key": "dialect-6",
+          "from": "好多钱",
+          "to": "多少钱",
+          "requiresContext": false
+        },
+        {
+          "key": "dialect-7",
+          "from": "相因点",
+          "to": "便宜点",
+          "requiresContext": false
+        },
+        {
+          "key": "dialect-8",
+          "from": "办不办得成",
+          "to": "能不能办成",
+          "requiresContext": false
+        },
+        {
+          "key": "dialect-9",
+          "from": "叠加得起不",
+          "to": "能否叠加",
+          "requiresContext": false
+        },
+        {
+          "key": "dialect-10",
+          "from": "好久装得好",
+          "to": "多久能装好",
+          "requiresContext": false
+        },
+        {
+          "key": "dialect-11",
+          "from": "出了问题找哪个",
+          "to": "出了问题找谁",
+          "requiresContext": false
+        },
+        {
+          "key": "dialect-12",
+          "from": "国人",
+          "to": [
+            "自己"
+          ],
+          "requiresContext": false
+        },
+        {
+          "key": "dialect-13",
+          "from": "二天",
+          "to": [
+            "以后",
+            "下次"
+          ],
+          "requiresContext": true
+        },
+        {
+          "key": "dialect-14",
+          "from": "嘎嘎",
+          "to": [
+            "外公",
+            "肉"
+          ],
+          "requiresContext": true
+        },
+        {
+          "key": "dialect-15",
+          "from": "紧",
+          "to": [
+            "让",
+            "任由"
+          ],
+          "requiresContext": true
+        },
+        {
+          "key": "dialect-16",
+          "from": "要得",
+          "to": [
+            "可以",
+            "行"
+          ],
+          "requiresContext": true
+        },
+        {
+          "key": "dialect-17",
+          "from": "莫",
+          "to": [
+            "别",
+            "不要"
+          ],
+          "requiresContext": true
+        },
+        {
+          "key": "dialect-18",
+          "from": "我儿豁",
+          "to": [
+            "强调真的",
+            "质疑真假"
+          ],
+          "requiresContext": true
+        }
+      ],
+      "sourceFiles": [
+        {
+          "name": "云阳话速查表_20261006.md",
+          "sha256": "32ef2e7e9cf1ce76d8d268c003e8cc39b439bc07f17df0d157c3be1b6fc254f0"
+        }
+      ],
+      "sourceDocumentDate": "2026-10-06",
+      "asOf": "2026-10-09",
+      "editedAfterImport": false
+    },
+    {
+      "id": "customer-talk-20261009-dialect-collection",
+      "title": "营业员方言收集：原话、场景和意思",
+      "policyStatus": "current",
+      "enabled": true,
+      "version": 1,
+      "summary": "记录顾客原话、场景和普通话意思，收集前征得同意；不要录入无关个人资料。",
+      "summaryDialect": "记录顾客原话、场景和普通话意思，收集前征得同意；不要录入无关个人资料哈。",
+      "sourceFiles": [
+        {
+          "name": "方言收集模板_营业员用.md",
+          "sha256": "1ee775f5d2199e162526350e8906e782c939fc77ee3023be5354681fddb74d48"
+        }
+      ],
+      "sourceDocumentDate": null,
+      "asOf": "2026-10-09",
+      "editedAfterImport": false
+    },
+    {
+      "id": "customer-talk-20261009-principles",
+      "title": "顾客口语接话：应答原则",
+      "policyStatus": "current",
+      "enabled": true,
+      "version": 1,
+      "summary": "先听顾客需求，一次问一个问题；资费数字查资料，拿不准交营业员核实。",
+      "summaryDialect": "先听顾客需求，一次问一个问题；资费数字查资料，拿不准交营业员核实哈。",
+      "sourceFiles": [
+        {
+          "name": "顾客口水话应答与推荐卡话术_20261009.docx",
+          "sha256": "b905bd77120dadcc437219671f65a386c5aaa09bb4c41afca621a1143572237d"
+        },
+        {
+          "name": "顾客口水话应答与推荐卡话术_20261009.md.docx",
+          "sha256": "986a8055d93ffe0e115200c8ac63cb2f6430de5df2328c3ba58295694b7e686d",
+          "duplicateOf": "顾客口水话应答与推荐卡话术_20261009.docx"
+        }
+      ],
+      "sourceDocumentDate": "2026-10-09",
+      "asOf": "2026-10-09",
+      "editedAfterImport": false
+    },
+    {
+      "id": "customer-talk-20261009-start-card",
+      "title": "顾客问办哪种卡：先了解用途",
+      "policyStatus": "current",
+      "enabled": true,
+      "version": 1,
+      "summary": "你平时打电话多，还是上网多？",
+      "summaryDialect": "你平时打电话多些，还是上网多些嘛？",
+      "sourceFiles": [
+        {
+          "name": "顾客口水话应答与推荐卡话术_20261009.docx",
+          "sha256": "b905bd77120dadcc437219671f65a386c5aaa09bb4c41afca621a1143572237d"
+        },
+        {
+          "name": "顾客口水话应答与推荐卡话术_20261009.md.docx",
+          "sha256": "986a8055d93ffe0e115200c8ac63cb2f6430de5df2328c3ba58295694b7e686d",
+          "duplicateOf": "顾客口水话应答与推荐卡话术_20261009.docx"
+        }
+      ],
+      "sourceDocumentDate": "2026-10-09",
+      "asOf": "2026-10-09",
+      "editedAfterImport": false
+    },
+    {
+      "id": "customer-talk-20261009-only-data",
+      "title": "顾客只上网：先确认月费预算",
+      "policyStatus": "current",
+      "enabled": true,
+      "version": 1,
+      "summary": "一个月大概预算多少钱？",
+      "summaryDialect": "你一个月大概想花好多钱嘛？",
+      "sourceFiles": [
+        {
+          "name": "顾客口水话应答与推荐卡话术_20261009.docx",
+          "sha256": "b905bd77120dadcc437219671f65a386c5aaa09bb4c41afca621a1143572237d"
+        },
+        {
+          "name": "顾客口水话应答与推荐卡话术_20261009.md.docx",
+          "sha256": "986a8055d93ffe0e115200c8ac63cb2f6430de5df2328c3ba58295694b7e686d",
+          "duplicateOf": "顾客口水话应答与推荐卡话术_20261009.docx"
+        }
+      ],
+      "sourceDocumentDate": "2026-10-09",
+      "asOf": "2026-10-09",
+      "editedAfterImport": false
+    },
+    {
+      "id": "customer-talk-20261009-broadband",
+      "title": "顾客问宽带价格：先了解使用人数",
+      "policyStatus": "current",
+      "enabled": true,
+      "version": 1,
+      "summary": "家里一共几个人使用？",
+      "summaryDialect": "屋头一共有几个人用嘛？",
+      "sourceFiles": [
+        {
+          "name": "顾客口水话应答与推荐卡话术_20261009.docx",
+          "sha256": "b905bd77120dadcc437219671f65a386c5aaa09bb4c41afca621a1143572237d"
+        },
+        {
+          "name": "顾客口水话应答与推荐卡话术_20261009.md.docx",
+          "sha256": "986a8055d93ffe0e115200c8ac63cb2f6430de5df2328c3ba58295694b7e686d",
+          "duplicateOf": "顾客口水话应答与推荐卡话术_20261009.docx"
+        }
+      ],
+      "sourceDocumentDate": "2026-10-09",
+      "asOf": "2026-10-09",
+      "editedAfterImport": false
+    }
+  ]
+}

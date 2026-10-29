@@ -1,5 +1,6 @@
 const { HttpError } = require("./http");
 const XLSX = require("xlsx");
+const businessPurpose=require("./business-purpose");
 const warehouses = require("./warehouses");
 const {
   INVENTORY_CATEGORIES,
@@ -247,6 +248,7 @@ function importOpeningBalance(store, payload) {
   store.products = nextProducts;
   warehouses.distinguishNames(store);
   store.inventory = nextInventory;
+  require("./fifo-costs").seedOpening(store);
   store.movements = nextMovements;
   store.categories = categories;
   store.subcategories = subcategories;
@@ -578,7 +580,7 @@ function getModules(store, userId) {
       items: [
         { name: "应收应付", permission: "finance:view", desc: "客户欠款和供应商欠款", path: "/pages/finance/finance", status: "已接入" },
         { name: "收款付款", permission: "finance:view", desc: "微信、现金、银行卡账户", path: "/pages/finance/finance", status: "已接入" },
-        { name: "费用支出", permission: "finance:view", desc: `${store.expenses.length} 条费用`, path: "/pages/finance/finance", status: "已接入" }
+        { name: "费用支出", permission: "finance:view", desc: `${store.expenses.filter(row=>!businessPurpose.isPassThrough(store,row)).length} 条费用`, path: "/pages/finance/finance", status: "已接入" }
       ]
     },
     {
@@ -607,7 +609,8 @@ function getFinance(store, userId) {
   const receivable = store.customers.reduce((sum, item) => sum + item.receivable, 0);
   const payable = store.suppliers.reduce((sum, item) => sum + item.payable, 0);
   const accountBalance = store.accounts.reduce((sum, item) => sum + item.balance, 0);
-  const expenseAmount = store.expenses.reduce((sum, item) => sum + item.amount, 0);
+  const operatingExpenses=store.expenses.filter(row=>!businessPurpose.isPassThrough(store,row));
+  const expenseAmount = operatingExpenses.reduce((sum, item) => sum + item.amount, 0);
   return {
     receivable,
     payable,
@@ -616,7 +619,7 @@ function getFinance(store, userId) {
     customers: store.customers,
     suppliers: store.suppliers,
     accounts: store.accounts,
-    expenses: store.expenses
+    expenses: operatingExpenses
   };
 }
 
@@ -692,7 +695,7 @@ function getDailyReport(store, userId, date) {
     ? allDaySales
     : allDaySales.filter((order) => order.operatorId === currentUser.id);
   const dayExpenses = hasPermission(currentUser, "finance:view")
-    ? store.expenses.filter((expense) => chinaDate(expense.createdAt) === reportDate)
+    ? store.expenses.filter((expense) => chinaDate(expense.createdAt) === reportDate && !businessPurpose.isPassThrough(store,expense))
     : [];
   const canViewProfit = hasPermission(currentUser, "finance:view_profit");
 

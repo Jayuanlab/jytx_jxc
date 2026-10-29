@@ -4,14 +4,6 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const c = require("./common");
 const erp = require("./erp");
-// General sale fixtures represent verified cash receipts; payment-state tests use erp.sale directly.
-const saleFixture = (store,user,payload) => {
-  const result=erp.sale(store,user,{account:"现金",cashDrawerConfirmed:true,...payload});
-  const order=store.sales.find(row=>row.id===result.id);
-  if(order.paymentReview.status==='待老板核对'&&order.paymentReview.cashDrawerConfirmed)
-    require('./sale-payments').confirm(store,store.users.find(row=>row.roleCode==='owner'&&row.status==='active'),{orderId:order.id,actualAmount:order.paymentReview.amount});
-  return result;
-};
 const s = require("./suppliers");
 const costs = require("./supplier-costs");
 const repo = require("./repository");
@@ -144,7 +136,7 @@ test("供应商默认赊购，部分付款、抵扣和退款各记一次且不�
 test("10台补差按6台库存4台已售分配，工资和原销售快照不覆盖", () => {
   const store = fixture(),
     p = buy(store);
-  saleFixture(store, staff, {
+  erp.sale(store, staff, {
     items: Array.from({ length: 4 }, (_, i) => ({
       skuId: "phone",
       quantity: 1,
@@ -170,7 +162,7 @@ test("10台补差按6台库存4台已售分配，工资和原销售快照不覆�
   });
   assert.equal(store.inventory[0].stockValue, 13300);
   assert.equal(erp.report(store, owner).summary.costAdjustmentProfit, 300);
-  saleFixture(store, staff, {
+  erp.sale(store, staff, {
     items: [
       { skuId: "phone", quantity: 1, serialNo: "IMEI-0", salePrice: 2200 },
     ],
@@ -185,7 +177,7 @@ test("库存价保仅补选定串码，预览过期、重复编号、跨供应�
     p = buy(store);
   const payload = pricePayload(p, { scope: "inventory" });
   const pre = costs.preview(store, owner, payload);
-  saleFixture(store, staff, {
+  erp.sale(store, staff, {
     items: [
       { skuId: "phone", quantity: 1, serialNo: "IMEI-0", salePrice: 2200 },
     ],
@@ -229,7 +221,7 @@ test("混合批次加权成本来源支持供应商整批补差和维修耗材�
   const store = fixture();
   const p = buy(store, "part", 10, 200);
   buy(store, "part", 10, 100, { supplier: "乙供应商" });
-  saleFixture(store, staff, {
+  erp.sale(store, staff, {
     items: [
       { skuId: "part", quantity: 3, salePrice: 300 },
       {

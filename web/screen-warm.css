@@ -1,0 +1,37 @@
+html body.store-workbench.calm-workbench #store-electronic-board[data-screen-theme]{background:#d7edf5!important;color:#204f66!important;border:0!important}
+html body.store-workbench.calm-workbench #store-electronic-board[data-screen-theme=mint]{background:#dcefe7!important;color:#275b4d!important}
+html body.store-workbench.calm-workbench #store-electronic-board[data-screen-theme=peach]{background:#fae8dc!important;color:#79513c!important}
+html body.store-workbench.calm-workbench #store-electronic-board[data-screen-theme] #comms-board-window{height:100%;padding:28px 0 10px!important;overflow:auto;box-sizing:border-box}
+html body.store-workbench.calm-workbench #store-electronic-board[data-screen-theme] #comms-board-track{width:100%;height:100%;animation:none!important;transform:none!important}
+html body.store-workbench.calm-workbench #store-electronic-board .warm-screen-slide{display:flex;align-items:center;gap:12px;width:100%;min-height:100%;padding:4px 6px;box-sizing:border-box;animation:warm-screen-arrive .45s ease-out}
+html body.store-workbench.calm-workbench #store-electronic-board .warm-screen-copy{flex:1;min-width:0}
+html body.store-workbench.calm-workbench #store-electronic-board .warm-screen-copy strong{display:block;font-size:clamp(22px,3vw,32px)!important;line-height:1.4!important;font-weight:750;color:inherit}
+html body.store-workbench.calm-workbench #store-electronic-board .warm-screen-copy p{font-size:clamp(22px,3vw,32px)!important;line-height:1.6!important;margin:0;color:inherit;white-space:pre-wrap;overflow-wrap:anywhere}
+html body.store-workbench.calm-workbench #store-electronic-board .warm-screen-art{flex:0 0 24%;max-width:110px;min-width:54px}
+html body.store-workbench.calm-workbench #store-electronic-board .warm-screen-art svg{display:block;width:100%}
+html body.store-workbench.calm-workbench #store-electronic-board[data-screen-layout=text] .warm-screen-copy{text-align:center}
+html body.store-workbench.calm-workbench #store-electronic-board[data-screen-layout=text] .warm-screen-copy p{font-size:clamp(22px,3vw,30px)!important}
+html body.store-workbench.calm-workbench #store-electronic-board[data-screen-theme] :is(#comms-board-open,#comms-board-pause){background:#ffffff80!important;color:inherit!important}
+@keyframes warm-screen-arrive{from{opacity:.35;transform:translateY(3px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){html body.store-workbench.calm-workbench #store-electronic-board .warm-screen-slide{animation:none}}
+
+html body.store-workbench.calm-workbench #store-electronic-board[data-screen-theme] #comms-board-track{color:inherit!important}
+html body.store-workbench.calm-workbench #store-electronic-board .warm-screen-art svg{width:100%!important;height:auto!important;max-width:none!important;max-height:none!important}
+
+/* A fixed slide uses the whole board and grows with its text; it never hides the end in an inner scroller. */
+html body.store-workbench.calm-workbench #home-board-slot:has(#store-electronic-board.board-mode-fixed){height:auto!important;min-height:28dvh!important;max-height:none!important;flex:0 0 auto!important}
+html body.store-workbench.calm-workbench #store-electronic-board.board-mode-fixed{height:auto!important;min-height:28dvh!important;overflow:visible!important}
+html body.store-workbench.calm-workbench #store-electronic-board.board-mode-fixed #comms-board-window{max-height:none!important;height:auto!important;overflow:visible!important;padding:8px 0!important}
+html body.store-workbench.calm-workbench #store-electronic-board.board-mode-fixed #comms-board-track{max-height:none!important;height:auto!important;min-height:0!important;overflow:visible!important}
+html body.store-workbench.calm-workbench #store-electronic-board.board-mode-fixed .board-copy{white-space:pre-wrap!important;overflow-wrap:anywhere!important;font-size:clamp(20px,2.4vw,30px)!important;line-height:1.48!important}
+html body.store-workbench.calm-workbench #store-electronic-board.board-mode-fixed .warm-screen-slide{min-height:0!important;padding:12px 6px!important}
+html body.store-workbench.calm-workbench #store-electronic-board .warm-screen-fireworks svg{animation:warm-screen-burst 2.8s ease-out 2;transform-origin:center}
+@keyframes warm-screen-burst{0%{opacity:0;transform:scale(.55) rotate(-14deg)}32%{opacity:1;transform:scale(1.12) rotate(3deg)}72%{opacity:1;transform:scale(1)}100%{opacity:.86;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){html body.store-workbench.calm-workbench #store-electronic-board .warm-screen-fireworks svg{animation:none!important}}
+
+/* Controls sit below the screen, aligned with its lower-right edge. */
+html body.store-workbench.calm-workbench #home-board-slot{display:flex!important;flex-direction:column!important;gap:4px!important}
+html body.store-workbench.calm-workbench #home-board-slot>#store-electronic-board{flex:1 1 0!important;height:auto!important;min-height:0!important;width:100%!important}
+html body.store-workbench.calm-workbench #comms-board-tools{display:flex!important;flex:none!important;justify-content:flex-end!important;align-items:center!important;gap:6px!important;margin:0!important;padding:0!important;min-height:30px!important;max-height:36px!important;align-self:flex-end!important;background:transparent!important}
+html body.store-workbench.calm-workbench #comms-board-tools :is(#comms-board-open,#comms-board-pause){position:static!important;inset:auto!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:30px!important;height:30px!important;min-width:32px!important;max-width:none!important;margin:0!important;padding:3px 9px!important;font-size:14px!important;line-height:1!important;border:0!important;border-radius:10px!important;background:#edf7fc!important;color:#285f7b!important;box-shadow:none!important;transform:none!important}
+html body.store-workbench.calm-workbench #store-electronic-board[data-screen-theme] #comms-board-window{padding:4px 0!important}

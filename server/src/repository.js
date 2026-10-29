@@ -42,6 +42,7 @@ function connection() {
   return database;
 }
 function persist(store) {
+  require("./fifo-costs").assertStore(store);
   const db = database;
   db.exec("DELETE FROM metadata; DELETE FROM records;");
   const meta = db.prepare("INSERT INTO metadata(key,value) VALUES (?,?)");
@@ -78,15 +79,19 @@ function readRawStore() {
 function readStore() { const store=readRawStore(); require("./document-numbers").remember(store); return store; }
 // Read and write under one database lock, after the HTTP body has arrived.
 function transaction(work) {
+  require('./rule-authority').assertRuntime();
   const db = connection();
   db.exec("BEGIN IMMEDIATE");
   inTransaction = true;
   try {
     const store = readRawStore(), numbers=require("./document-numbers"), before=numbers.capture(store);
+    const ruleBefore=structuredClone(store);
     const result = work(store);
     if (result && typeof result.then === "function")
       throw new Error("Transaction callback must be synchronous");
     numbers.commitNew(store,before);
+    require("./rule-configuration-guard").transition(ruleBefore,store);
+    require('./product-archive-integrity').assertProductArchivePreserved(ruleBefore,store);
     persist(store);
     db.exec("COMMIT");
     return numbers.project(result,store);
@@ -108,7 +113,9 @@ function writeStore(store) {
   const db = connection();
   db.exec("BEGIN IMMEDIATE");
   try {
-    persist(upgrade(initialize(store)));
+    const next=upgrade(initialize(store));
+    if(process.env.NODE_ENV!=='test')require('./product-archive-integrity').assertProductArchivePreserved(readRawStore(),next);
+    persist(next);
     db.exec("COMMIT");
   } catch (error) {
     db.exec("ROLLBACK");

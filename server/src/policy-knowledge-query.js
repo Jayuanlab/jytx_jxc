@@ -147,6 +147,7 @@ function candidatesResult(candidates,label) {
   return {answer:label+'有多种资料或版本，请先选定：'+rows.map(row=>row.item.title+(policyState(row.item)!=='current'?'【待核实或非现行】':'')).join('；')+'。',sources,action:{type:'navigate',label:'选择对应资料',href:'/knowledge'},metrics:{knowledge:true,needsClarification:true,articleIds:rows.map(row=>row.item.id),kind:'store-policy-candidates'}};
 }
 function query(store,user,question,items=[]) {
+  const currentRule=require('./rule-authority').query(question,user);if(currentRule)return currentRule;
   const q=normalizeQuestion(question).slice(0,500);if(!q)return null;
   const explicitKnowledge=/(?:政策|资费|规则|条件|流程|步骤|知识|资料|话术|教程|考核|考试|题库|参数|配置|怎么(?:办|说|推荐)|如何(?:办|说|推荐)|互斥)/.test(q);
   const ledger=/(?:库存|营业额|销量|毛利|出勤|签到|卖了|售出|成交了|资金流水|账套|到账|已收|实际收到|应收|应付|支付了|进了什么货)/.test(q)||/(?:今天|昨天|本月|这月|昨日|本周|多少笔|哪一笔|单号).{0,30}(?:酬金|收入|支出|奖励|办理|业务|办了|开了|多少张|几张)/.test(q)||/(?:办了|开了|办理了|开通了).{0,20}(?:多少|几|笔|单|张)/.test(q);

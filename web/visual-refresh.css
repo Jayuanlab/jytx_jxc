@@ -1,0 +1,174 @@
+/* Preview proposal: clearer task surfaces for the existing store workflow. */
+:root{--vr-canvas:#edf3f4;--vr-surface:#fff;--vr-ink:#173744;--vr-muted:#526b73;--vr-line:#ccdce0;--vr-blue:#245db7;--vr-blue-soft:#e8f0fc;--vr-jade:#176d70;--vr-jade-soft:#e1f2ef;--vr-gold:#b87419;--vr-gold-soft:#fff2d7;--vr-radius:12px}
+body.account-page,body.home-workspace,body.office-task-page,body:has(main #state){background:var(--vr-canvas);color:var(--vr-ink)}
+.visual-demo-note{position:relative;z-index:2;margin:0!important;padding:7px 14px;background:var(--vr-gold-soft);color:#6f4b16;font:600 13px/1.4 system-ui,"Microsoft YaHei",sans-serif;text-align:center}
+.workspace~.visual-demo-note,body:has(.workspace .layout) .visual-demo-note,body:has(#app #messages) .visual-demo-note,body.companion-page .visual-demo-note{display:none}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #1965cc;outline-offset:3px}
+
+/* Login is one short path: account, password, action, result. */
+html body.account-page{background:var(--vr-canvas)}
+html body.account-page main#account-main{max-width:500px;padding:32px 16px 60px}
+html body.account-page main#account-main header.workbench-header{margin:0 0 18px;padding:0;background:transparent}
+html body.account-page main#account-main .brand{gap:12px}
+html body.account-page main#account-main .brand strong{color:var(--vr-ink);font-weight:780}
+html body.account-page main#account-main header.workbench-header .mark{background:var(--vr-jade);box-shadow:none}
+html body.account-page main#account-main .entry-panel .card,html body.account-page main#account-main #admin-panel,html body.account-page main#account-main #account-panel{border:1px solid var(--vr-line);border-radius:var(--vr-radius);box-shadow:none;background:var(--vr-surface);padding:24px}
+html body.account-page main#account-main #login-panel{border-top:4px solid var(--vr-gold)}
+html body.account-page main#account-main #login-panel h2{margin:0 0 16px;color:var(--vr-ink);font-size:23px!important}
+html body.account-page main#account-main #login-panel label{margin:12px 0 0;color:var(--vr-ink);font-size:15px!important}
+html body.account-page main#account-main #login-panel :is(input,button){min-height:50px;font-size:16px!important}
+html body.account-page main#account-main #login-panel input{border-color:#9fb3c7}
+html body.account-page main#account-main #login-panel input:focus{border-color:var(--vr-jade)}
+html body.account-page main#account-main #login-panel form>button{margin:20px 0 0;background:var(--vr-blue);font-size:17px!important}
+html body.account-page main#account-main #login-panel .password-field button{background:var(--vr-jade-soft);color:#155d61}
+html body.account-page main#account-main .entry-panel #status-message:empty,html body.account-page main#account-main #login-message:empty{display:none}
+
+/* Attendance puts the current state and next action first. */
+body:has(main #state) main{max-width:760px;padding:22px 14px 56px}
+body:has(main #state) header{padding:0 2px 14px}
+body:has(main #state) header h1{margin:8px 0 0;font-size:25px}
+body:has(main #state) header #identity{margin:4px 0 0;color:var(--vr-muted)}
+body:has(main #state) .card{border:1px solid var(--vr-line);border-radius:var(--vr-radius);box-shadow:none;padding:19px 20px;margin-bottom:12px;background:var(--vr-surface)}
+body:has(main #state) .card h2{margin:0 0 10px;font-size:19px}
+body:has(main #state) .attendance-primary{border-left:4px solid var(--vr-jade);padding-left:17px}
+body:has(main #state) .attendance-primary .actions{margin-top:0}
+body:has(main #state) #checkin{border-color:#7fb5ae;color:#155f61;background:#f8fffd}
+body:has(main #state) #fieldwork.primary{background:var(--vr-blue);border-color:var(--vr-blue)}
+body:has(main #state) #state{font-weight:650;line-height:1.5;margin:0}
+body:has(main #state) #feedback:empty{display:none}
+body:has(main #state) #feedback{margin:10px 0 0;min-height:0}
+body:has(main #state) .actions{margin-top:15px}
+body:has(main #state) .actions button{min-height:48px}
+body:has(main #state) #enter-workbench{display:block;margin-top:15px;padding:12px 14px;border-radius:9px;background:var(--vr-gold-soft);color:#81500e;font-weight:750;text-align:center;text-decoration:none}
+body:has(main #state) #enter-workbench[aria-disabled="true"]{background:#e7edf3;color:#687d91}
+body:has(main #state) #schedule-list:empty{display:none}
+body:has(main #state) #schedule-list li{padding:7px 0}
+body:has(main #state) .card:has(#schedule){border-top:3px solid #d9a347}
+body:has(main #state) .attendance-news #team-news{margin-bottom:0}
+
+/* Workbench: cards represent destinations or decisions; sections remain quiet. */
+html body.home-workspace{background:var(--vr-canvas)}
+html body.home-workspace .phone{background:transparent;border:0;border-radius:0;overflow:visible;box-shadow:none}
+html body.home-workspace .top{background:var(--vr-surface);border:1px solid var(--vr-line);border-radius:var(--vr-radius);margin-bottom:12px}
+html body.home-workspace .top .brand{background:var(--vr-jade)}
+html body.home-workspace .electronic{background:#174e56;border-radius:var(--vr-radius);box-shadow:none}
+html body.home-workspace .search{background:var(--vr-surface);border:1px solid var(--vr-line);border-radius:10px}
+html body.home-workspace .priority{border:0;gap:8px;padding-bottom:0}
+html body.home-workspace .priority button{background:var(--vr-surface);border:1px solid var(--vr-line)!important;border-radius:10px;min-width:0;padding:7px 4px}
+html body.home-workspace .priority button:nth-child(3n+1){border-top:3px solid var(--vr-blue)!important;background:#f8fbff}
+html body.home-workspace .priority button:nth-child(3n+2){border-top:3px solid var(--vr-jade)!important;background:#f6fcfa}
+html body.home-workspace .priority button:nth-child(3n){border-top:3px solid var(--vr-gold)!important;background:#fffaf0}
+html body.home-workspace .priority .count{background:var(--vr-blue-soft);color:var(--vr-blue)}
+html body.home-workspace .summary{padding:10px 3px 0}
+html body.home-workspace .content>.panel{background:transparent;border:0;padding:0;margin-top:18px}
+html body.home-workspace .sectionhead{border-bottom:1px solid var(--vr-line);padding-bottom:5px;margin-bottom:10px}
+html body.home-workspace .shortcuts{gap:8px}
+html body.home-workspace .quick{background:var(--vr-surface);border:1px solid var(--vr-line);border-radius:10px;min-height:84px;padding:8px 5px}
+html body.home-workspace .quick .glyph{width:32px;height:32px;border-radius:9px;background:var(--vr-blue-soft);color:var(--vr-blue)}
+html body.home-workspace .quick:nth-child(3n+2) .glyph{background:var(--vr-jade-soft);color:var(--vr-jade)}
+html body.home-workspace .quick:nth-child(3n) .glyph{background:var(--vr-gold-soft);color:#966018}
+html body.home-workspace .modules{border:0;border-radius:0;overflow:visible;gap:8px}
+html body.home-workspace .module{background:var(--vr-surface);border:1px solid var(--vr-line)!important;border-radius:10px;min-height:74px;padding:12px;gap:8px}
+html body.home-workspace .module:nth-child(3n+1){border-left:4px solid var(--vr-blue)!important}
+html body.home-workspace .module:nth-child(3n+2){border-left:4px solid var(--vr-jade)!important}
+html body.home-workspace .module:nth-child(3n){border-left:4px solid var(--vr-gold)!important}
+html body.home-workspace .module strong,html body.home-workspace .module small{white-space:normal;overflow-wrap:anywhere}
+html body.home-workspace .assistants{gap:8px;padding:0}
+html body.home-workspace .assist{background:var(--vr-surface);border:1px solid var(--vr-line)!important;border-radius:10px;min-height:82px;padding:9px 4px}
+html body.home-workspace .assist:nth-child(2n+1){background:#f5fbf9;border-color:#b7d8d2!important}
+html body.home-workspace .assist:nth-child(2n){background:#fff9ee;border-color:#e8d5ad!important}
+
+/* Business pages: distinct sections, with tables kept as tables. */
+html body.office-task-page{background:var(--vr-canvas)}
+html body.office-task-page .shell #main :is(.card,.panel){border-radius:var(--vr-radius);border-color:var(--vr-line);box-shadow:none}
+html body.office-task-page .shell #main :is(.inventory-group,.inventory-subgroup){border-bottom:1px solid var(--vr-line)}
+html body.office-task-page .shell #main .inventory-mobile-results{background:var(--vr-surface);border:1px solid var(--vr-line);border-radius:var(--vr-radius);overflow:hidden}
+html body.office-task-page .shell #main .inventory-group>summary strong{color:#165d65}
+html body.office-task-page .shell #main .inventory-subgroup>summary strong{color:#9a5c14}
+
+@media(max-width:700px){
+ html body.account-page main#account-main{padding:22px 12px 48px}
+ html body.account-page main#account-main .entry-panel .card{padding:22px 18px}
+ html body.home-workspace .top{margin:8px 12px 12px;padding:14px}
+ html body.home-workspace .content{padding-left:12px;padding-right:12px}
+ html body.home-workspace .searchline{padding-left:12px;padding-right:12px}
+ html body.home-workspace .electronic{margin:0 12px 12px}
+ html body.home-workspace .priority{grid-template-columns:repeat(3,minmax(0,1fr))}
+ html body.home-workspace .modules{grid-template-columns:repeat(2,minmax(0,1fr))}
+ html body.office-task-page .shell #main .inventory-mobile-results{border-radius:10px}
+}
+@media(max-width:360px){html body.home-workspace .shortcuts,html body.home-workspace .modules{grid-template-columns:repeat(2,minmax(0,1fr))}html body.home-workspace .assistants{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important}}
+
+/* Shared screen palette. Keep document, receipt and print surfaces untouched. */
+@media screen {
+ body:not(.receipt-page):not(.family-page):not(.kitty-page):not(.companion-page):not(.account-page):not(.home-workspace):not(.office-task-page):not(:has(main #state)){--vr-page:#edf3f4;--vr-card:#fff;--vr-border:#ccdce0;background-color:var(--vr-canvas)}
+ body.master-page,body:has(.wrap .page-head),body:has(.assistant-chat-shell),body:has(.workspace .layout),body:has(.companion-admin-page){background:var(--vr-canvas);color:var(--vr-ink)}
+ body.master-page .md-card,body:has(.wrap .page-head) .panel-fold,body:has(.assistant-chat-shell) .card{border-color:var(--vr-line);box-shadow:0 4px 18px #1737440d}
+ body.master-page .md-card:nth-of-type(3n+1){border-top:3px solid var(--vr-blue)}
+ body.master-page .md-card:nth-of-type(3n+2){border-top:3px solid var(--vr-jade)}
+ body.master-page .md-card:nth-of-type(3n){border-top:3px solid var(--vr-gold)}
+ body:has(.wrap .page-head) .hero{background:linear-gradient(120deg,#173e55,#176d70)}
+ body:has(.wrap .page-head) .panel-fold#urgent{border-left-color:var(--vr-gold)}
+ body:has(.wrap .page-head) .boss-quick>a:nth-child(3n+1){border-top:3px solid var(--vr-blue)}
+ body:has(.wrap .page-head) .boss-quick>a:nth-child(3n+2){border-top:3px solid var(--vr-jade)}
+ body:has(.wrap .page-head) .boss-quick>a:nth-child(3n){border-top:3px solid var(--vr-gold)}
+}
+
+/* Work assistant: calm jade workspace, clear blue action, warm prompts. */
+html:has(.workspace .layout){--ink:#173744;--muted:#526b73;--blue:#245db7;--deep:#174e56;--line:#ccdce0;--bg:#edf3f4;--soft:#e1f2ef;--orange:#b87419}
+.workspace .topbar{background:#174e56}
+.workspace .brand-mark{border-color:#9ed7ca;color:#fff3d8;background:#ffffff16}
+.workspace .conversation{box-shadow:0 10px 30px #17374412}
+.workspace .messages{background:linear-gradient(180deg,#f7fbfa 0%,#fff 42%)}
+.workspace .welcome-rule{background:var(--vr-gold)}
+.workspace .suggestions button:nth-child(3n+1){background:var(--vr-blue-soft);border-color:#c1d4ef;color:#1b528e}
+.workspace .suggestions button:nth-child(3n+2){background:var(--vr-jade-soft);border-color:#b8d9d0;color:#185e60}
+.workspace .suggestions button:nth-child(3n){background:var(--vr-gold-soft);border-color:#edd7a9;color:#81500e}
+.workspace .composer{background:#f8fbfa}
+.workspace .quick-links a:nth-child(3n+1){border-left:4px solid var(--vr-blue)}
+.workspace .quick-links a:nth-child(3n+2){border-left:4px solid var(--vr-jade)}
+.workspace .quick-links a:nth-child(3n){border-left:4px solid var(--vr-gold)}
+.workspace .rail-footer a{color:#17666a}
+
+/* Customer-facing Kitty: a warmer character, without changing chat behavior. */
+body:has(#app #messages){background:#f7f3e9;color:#173744}
+body:has(#app #messages) #app{border-color:#e7dac5}
+body:has(#app #messages) header{background:#fffaf1;border-bottom-color:#ead9b9}
+body:has(#app #messages) .cat{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:#fff0d3}
+body:has(#app #messages) #messages{background:linear-gradient(180deg,#fff6e7 0%,#f5fbf9 54%,#fff 100%)}
+body:has(#app #messages) .bubble:not(.user){border-color:#e2d7c2;box-shadow:0 3px 12px #6a553315}
+body:has(#app #messages) .bubble.user{background:#176d70}
+body:has(#app #messages) .phone{background:#fffdf8;border-color:#e4d7be;border-left:4px solid var(--vr-gold)}
+body:has(#app #messages) .price{color:#965c15}
+body:has(#app #messages) #voice{background:#e1f2ef;color:#155e61;border-color:#a9d3ca}
+body:has(#app #messages) #send{background:#176d70;border-color:#176d70}
+
+/* Personal assistant: a gentle jade surface with blue conversation actions. */
+body.companion-page{--ink:#173744;--accent:#176d70;background:#edf5f0;color:var(--vr-ink)}
+body.companion-page .companion-header{background:#f7fbf7;border-bottom-color:#c8dcd3}
+body.companion-page .companion-tabs{background:#f7fbf7}
+body.companion-page .companion-tabs button[aria-selected="true"],body.companion-page .companion-tabs button.active{color:#155e61;border-bottom-color:#176d70}
+body.companion-page .companion-tab:not(#tab-chat) .record-card{border-color:#cbded6;border-left:4px solid #6ba993;box-shadow:0 3px 14px #1849380d}
+body.companion-page .companion-tab:not(#tab-chat) .record-card:nth-of-type(3n){border-left-color:var(--vr-gold)}
+body.companion-page .chat-thread{background:linear-gradient(180deg,#f4faf6,#fff 70%)}
+body.companion-page .chat-message:not(.self) .chat-bubble{background:#fff;border:1px solid #cbded6}
+body.companion-page .chat-message.self .chat-bubble{background:#dcefeb;color:#164a4d}
+body.companion-page .self .chat-bubble:before{border-left-color:#dcefeb}
+body.companion-page .companion-composer,body.companion-page .chat-dock{background:#f3faf6}
+body.companion-page .chat-send,body.companion-page #send{background:#176d70;color:#fff}
+body.companion-page #pending-memory{background:#fff7e8;border-color:#ead6ae}
+
+/* Supporting assistant and family screens. */
+body.assistant-chat-page{background:#edf3f4;color:#173744}
+body.assistant-chat-page header{border-bottom-color:#c9dcd9}
+body.assistant-chat-page .assistant-chat-shell{background:#fff;border-color:#cbded6}
+body.assistant-chat-page #result{background:#f0f8f5;border-left-color:#176d70}
+body.assistant-chat-page .card:nth-of-type(3n+2){border-top:3px solid var(--vr-jade)}
+body.assistant-chat-page .card:nth-of-type(3n){border-top:3px solid var(--vr-gold)}
+body:has(#accounts-panel):not(.companion-page) main>section{border-color:#ccdce0;box-shadow:0 4px 18px #1737440d}
+body:has(#accounts-panel):not(.companion-page) main>section:nth-of-type(3n+2){border-top:3px solid var(--vr-jade)}
+body:has(#accounts-panel):not(.companion-page) main>section:nth-of-type(3n){border-top:3px solid var(--vr-gold)}
+body:has(#login-panel #login-form):not(.account-page) main>section{border-color:#d1dfd7}
+body:has(#login-panel #login-form):not(.account-page) header{background:#f7fbf7}
+body:has(#login-panel #login-form):not(.account-page) #interaction{border-top:4px solid var(--vr-jade)}
